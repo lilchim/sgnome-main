@@ -11,6 +11,7 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS backend-build
 WORKDIR /app
 COPY *.sln ./
 COPY src/Sgnome.Web/*.csproj ./src/Sgnome.Web/
+COPY src/Sgnome.Models/*.csproj ./src/Sgnome.Models/
 COPY src/services/UserLibraryService/*.csproj ./src/services/UserLibraryService/
 RUN dotnet restore
 
