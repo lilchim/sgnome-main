@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  steam-api:
+    image: lilchim/steam-api-dotnet:latest
+    ports:
+      - "8080:80"
+    environment:
+      - STEAM_API_KEY=${STEAM_API_KEY:-dev-key}
+    networks:
+      - sgnome-network
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - sgnome-network
+
+  sgnome-web:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    ports:
+      - "5000:80"
+    environment:
+      - SteamApi__BaseUrl=http://steam-api
+      - SteamApi__ApiKey=${STEAM_API_KEY:-dev-key}
+    depends_on:
+      - steam-api
+      - redis
+    networks:
+      - sgnome-network
+
+volumes:
+  redis-data:
+
+networks:
+  sgnome-network:
+    driver: bridge 
