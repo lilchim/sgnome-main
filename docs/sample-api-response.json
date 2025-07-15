@@ -1,0 +1,267 @@
+{
+  "nodes": [
+    {
+      "id": "player-76561198000000000",
+      "type": "default",
+      "x": 100,
+      "y": 100,
+      "data": {
+        "label": "Alex",
+        "nodeType": "player",
+        "properties": {
+          "steamId": "76561198000000000",
+          "displayName": "Alex",
+          "avatarUrl": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/default.jpg",
+          "identifiers": {}
+        },
+        "pins": [
+          {
+            "id": "recently-played",
+            "label": "Recently Played",
+            "type": "recently-played",
+            "state": "unexpanded",
+            "behavior": "expandable",
+            "summary": {
+              "displayText": "Recently Played (3 games)",
+              "count": 3,
+              "icon": "clock",
+              "preview": {
+                "games": [
+                  { "name": "Cyberpunk 2077", "playtime": "2.5 hours" },
+                  { "name": "The Witcher 3", "playtime": "1.2 hours" },
+                  { "name": "Portal 2", "playtime": "0.8 hours" }
+                ]
+              }
+            },
+            "metadata": {
+              "targetNodeType": "game",
+              "apiEndpoint": "/api/player/76561198000000000/recently-played",
+              "parameters": {}
+            }
+          },
+          {
+            "id": "steam-library",
+            "label": "Steam Library",
+            "type": "steam-library",
+            "state": "unexpanded",
+            "behavior": "expandable",
+            "summary": {
+              "displayText": "Steam Library (150 games)",
+              "count": 150,
+              "icon": "steam",
+              "preview": {
+                "totalPlaytime": "2,847 hours",
+                "mostPlayed": "The Witcher 3 (847 hours)"
+              }
+            },
+            "metadata": {
+              "targetNodeType": "game",
+              "apiEndpoint": "/api/player/76561198000000000/library",
+              "parameters": {}
+            }
+          },
+          {
+            "id": "favorite-genres",
+            "label": "Favorite Genres",
+            "type": "favorite-genres",
+            "state": "unexpanded",
+            "behavior": "expandable",
+            "summary": {
+              "displayText": "RPG (45 games), Action (32 games)",
+              "count": 2,
+              "icon": "chart",
+              "preview": {
+                "topGenres": [
+                  { "name": "RPG", "count": 45, "percentage": 30 },
+                  { "name": "Action", "count": 32, "percentage": 21 }
+                ]
+              }
+            },
+            "metadata": {
+              "targetNodeType": "genre",
+              "apiEndpoint": "/api/player/76561198000000000/genres",
+              "parameters": {}
+            }
+          }
+        ],
+        "state": "loaded"
+      }
+    },
+    {
+      "id": "game-730",
+      "type": "default",
+      "x": 300,
+      "y": 100,
+      "data": {
+        "label": "Counter-Strike 2",
+        "nodeType": "game",
+        "properties": {
+          "steamAppId": 730,
+          "name": "Counter-Strike 2",
+          "iconUrl": "https://cdn.cloudflare.steamstatic.com/steam/apps/730/header.jpg",
+          "logoUrl": "https://cdn.cloudflare.steamstatic.com/steam/apps/730/logo.png",
+          "identifiers": {}
+        },
+        "pins": [
+          {
+            "id": "publisher",
+            "label": "Publisher",
+            "type": "publisher",
+            "state": "unexpanded",
+            "behavior": "expandable",
+            "summary": {
+              "displayText": "Valve Corporation",
+              "icon": "building"
+            },
+            "metadata": {
+              "targetNodeType": "publisher",
+              "targetNodeId": "publisher-valve",
+              "apiEndpoint": "/api/game/730/publisher",
+              "parameters": {}
+            }
+          },
+          {
+            "id": "release-date",
+            "label": "Release Date",
+            "type": "release-date",
+            "state": "unexpanded",
+            "behavior": "informational",
+            "summary": {
+              "displayText": "Released: November 1, 2000",
+              "icon": "calendar"
+            }
+          },
+          {
+            "id": "player-count",
+            "label": "Current Players",
+            "type": "player-count",
+            "state": "unexpanded",
+            "behavior": "informational",
+            "summary": {
+              "displayText": "1,247,893 players online",
+              "icon": "users"
+            }
+          },
+          {
+            "id": "similar-games",
+            "label": "Similar Games",
+            "type": "similar-games",
+            "state": "unexpanded",
+            "behavior": "expandable",
+            "summary": {
+              "displayText": "Similar Games (12)",
+              "count": 12,
+              "icon": "link",
+              "preview": {
+                "games": [
+                  "Team Fortress 2",
+                  "Left 4 Dead 2",
+                  "Dota 2"
+                ]
+              }
+            },
+            "metadata": {
+              "targetNodeType": "game",
+              "apiEndpoint": "/api/game/730/similar",
+              "parameters": {}
+            }
+          }
+        ],
+        "state": "loaded"
+      }
+    },
+    {
+      "id": "publisher-valve",
+      "type": "default",
+      "x": 500,
+      "y": 100,
+      "data": {
+        "label": "Valve Corporation",
+        "nodeType": "publisher",
+        "properties": {
+          "name": "Valve Corporation",
+          "logoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Steam_icon_logo.svg/512px-Steam_icon_logo.svg.png",
+          "website": "https://www.valvesoftware.com",
+          "identifiers": {}
+        },
+        "pins": [
+          {
+            "id": "published-games",
+            "label": "Published Games",
+            "type": "published-games",
+            "state": "unexpanded",
+            "behavior": "expandable",
+            "summary": {
+              "displayText": "Published Games (25)",
+              "count": 25,
+              "icon": "gamepad",
+              "preview": {
+                "games": [
+                  "Half-Life 2",
+                  "Portal",
+                  "Team Fortress 2",
+                  "Dota 2"
+                ]
+              }
+            },
+            "metadata": {
+              "targetNodeType": "game",
+              "apiEndpoint": "/api/publisher/valve/games",
+              "parameters": {}
+            }
+          },
+          {
+            "id": "founded",
+            "label": "Founded",
+            "type": "founded",
+            "state": "unexpanded",
+            "behavior": "informational",
+            "summary": {
+              "displayText": "Founded: 1996",
+              "icon": "calendar"
+            }
+          }
+        ],
+        "state": "loaded"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge-1",
+      "source": "player-76561198000000000",
+      "target": "game-730",
+      "type": "default",
+      "data": {
+        "label": "Owns",
+        "edgeType": "owns",
+        "properties": {
+          "playtime": 847,
+          "lastPlayed": "2024-01-15T10:30:00Z"
+        }
+      }
+    },
+    {
+      "id": "edge-2",
+      "source": "game-730",
+      "target": "publisher-valve",
+      "type": "default",
+      "data": {
+        "label": "Published By",
+        "edgeType": "published-by",
+        "properties": {
+          "releaseDate": "2000-11-01T00:00:00Z"
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "queryType": "player-profile",
+    "queryId": "player-76561198000000000",
+    "timestamp": "2024-01-15T15:30:00Z",
+    "context": {
+      "source": "steam",
+      "expandedNodes": ["player-76561198000000000", "game-730", "publisher-valve"]
+    }
+  }
+} 
