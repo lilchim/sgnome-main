@@ -1,0 +1,181 @@
+# .NET build artifacts
+**/bin/
+**/obj/
+*.user
+*.suo
+*.cache
+*.dll
+*.exe
+*.pdb
+
+# User secrets (development)
+appsettings.Development.json
+appsettings.Production.json
+appsettings.Staging.json
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE files
+.vs/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Docker
+.dockerignore
+
+# NuGet packages
+*.nupkg
+packages/
+
+# Test results
+TestResults/
+coverage/
+
+# Frontend - Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Frontend - Build outputs
+dist/
+build/
+.next/
+out/
+
+# Frontend - Environment variables
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Frontend - Cache
+.cache/
+.parcel-cache/
+.nuxt/
+.vite/
+
+# Frontend - IDE
+.idea/
+*.swp
+*.swo
+
+# Frontend - OS
+.DS_Store
+Thumbs.db
+
+# Frontend - Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Frontend - Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Frontend - Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# Frontend - nyc test coverage
+.nyc_output
+
+# Frontend - Dependency directories
+jspm_packages/
+
+# Frontend - Optional npm cache directory
+.npm
+
+# Frontend - Optional eslint cache
+.eslintcache
+
+# Frontend - Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Frontend - Optional REPL history
+.node_repl_history
+
+# Frontend - Output of 'npm pack'
+*.tgz
+
+# Frontend - Yarn Integrity file
+.yarn-integrity
+
+# Frontend - parcel-bundler cache (https://parceljs.org/)
+.cache
+.parcel-cache
+
+# Frontend - Next.js build output
+.next
+
+# Frontend - Nuxt.js build / generate output
+.nuxt
+dist
+
+# Frontend - Gatsby files
+.cache/
+public
+
+# Frontend - Storybook build outputs
+.out
+.storybook-out
+
+# Frontend - Temporary folders
+tmp/
+temp/
+
+# Frontend - Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# API Keys and Secrets (additional security)
+**/secrets/
+**/keys/
+*.key
+*.pem
+*.p12
+*.pfx
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Temporary files
+*.tmp
+*.temp 
