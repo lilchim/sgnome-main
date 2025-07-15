@@ -1,5 +1,4 @@
-using UserLibraryService;
-using UserLibraryService.Providers;
+using Sgnome.Models.Graph;
 using SteamApi.Client.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,14 +27,13 @@ builder.Services.AddSteamApiClient(options =>
 });
 
 // Add business services
-builder.Services.AddScoped<ISteamUserLibraryProvider, SteamUserLibraryProvider>();
-builder.Services.AddScoped<UserLibraryService.UserLibraryAggregator>();
-builder.Services.AddScoped<IUserLibraryService, UserLibraryService.UserLibraryService>();
+// TODO: Add service registrations when services are implemented
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+// Enable Swagger for development and when explicitly requested
+if (app.Environment.IsDevelopment() || app.Configuration["EnableSwagger"] == "true")
 {
     app.UseSwagger();
     app.UseSwaggerUI();
