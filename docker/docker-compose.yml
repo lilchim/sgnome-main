@@ -4,9 +4,11 @@ services:
   steam-api:
     image: lilchim/steam-api-dotnet:latest
     ports:
-      - "8080:80"
+      - "8080:8080"
     environment:
-      - STEAM_API_KEY=${STEAM_API_KEY:-dev-key}
+      - ASPNETCORE_ENVIRONMENT=Development
+      - SteamApi__ApiKey=${STEAM_API_KEY}
+      - ApiKey__RequireApiKey=false
     networks:
       - sgnome-network
 
