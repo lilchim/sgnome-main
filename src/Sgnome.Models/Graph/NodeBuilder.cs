@@ -10,7 +10,7 @@ public static class NodeBuilder
     {
         return new Node
         {
-            Id = $"player-{player.SteamId ?? player.EpicId ?? Guid.NewGuid()}",
+            Id = $"player-{player.SteamId ?? player.EpicId ?? Guid.NewGuid().ToString()}",
             Type = "default", // xyflow node type
             X = x,
             Y = y,
@@ -29,7 +29,7 @@ public static class NodeBuilder
     {
         return new Node
         {
-            Id = $"game-{game.SteamAppId ?? game.EpicId ?? Guid.NewGuid()}",
+            Id = $"game-{(game.SteamAppId?.ToString() ?? game.EpicId ?? Guid.NewGuid().ToString())}",
             Type = "default",
             X = x,
             Y = y,
@@ -48,7 +48,7 @@ public static class NodeBuilder
     {
         return new Node
         {
-            Id = $"publisher-{publisher.Name?.ToLower().Replace(" ", "-") ?? Guid.NewGuid()}",
+            Id = $"publisher-{publisher.Name?.ToLower().Replace(" ", "-") ?? Guid.NewGuid().ToString()}",
             Type = "default",
             X = x,
             Y = y,
