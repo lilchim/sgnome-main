@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="../Sgnome.Models/Sgnome.Models.csproj" />
+    <ProjectReference Include="../services/UserLibraryService/UserLibraryService.csproj" />
   </ItemGroup>
 
 </Project> 

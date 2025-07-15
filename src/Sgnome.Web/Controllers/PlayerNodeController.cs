@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Sgnome.Models.Nodes;
 using Sgnome.Models.Graph;
+using UserLibraryService;
 
 namespace Sgnome.Web.Controllers;
 
@@ -8,6 +9,15 @@ namespace Sgnome.Web.Controllers;
 [Route("api/player")]
 public class PlayerNodeController : ControllerBase
 {
+    private readonly IUserLibraryService _userLibraryService;
+    private readonly ILogger<PlayerNodeController> _logger;
+
+    public PlayerNodeController(IUserLibraryService userLibraryService, ILogger<PlayerNodeController> logger)
+    {
+        _userLibraryService = userLibraryService;
+        _logger = logger;
+    }
+
     /// <summary>
     /// Handles selection of a PlayerNode and returns a graph response.
     /// </summary>
@@ -16,9 +26,17 @@ public class PlayerNodeController : ControllerBase
     [HttpPost("select")]
     [ProducesResponseType(typeof(GraphResponse), 200)]
     [ProducesResponseType(400)]
-    public IActionResult SelectPlayer([FromBody] PlayerNode player)
+    public async Task<IActionResult> SelectPlayer([FromBody] PlayerNode player)
     {
-        // TODO: Implement service call to build graph response
-        return Ok();
+        try
+        {
+            var response = await _userLibraryService.GetUserLibraryAsync(player);
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error selecting player {PlayerId}", player.SteamId);
+            return BadRequest(new { error = "Failed to process player selection" });
+        }
     }
 } 

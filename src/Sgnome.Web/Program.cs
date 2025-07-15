@@ -1,5 +1,7 @@
 using Sgnome.Models.Graph;
 using SteamApi.Client.Extensions;
+using UserLibraryService;
+using UserLibraryService.Providers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,7 +29,9 @@ builder.Services.AddSteamApiClient(options =>
 });
 
 // Add business services
-// TODO: Add service registrations when services are implemented
+builder.Services.AddScoped<ISteamUserLibraryProvider, SteamUserLibraryProvider>();
+builder.Services.AddScoped<UserLibraryService.UserLibraryAggregator>();
+builder.Services.AddScoped<IUserLibraryService, UserLibraryService.UserLibraryService>();
 
 var app = builder.Build();
 
