@@ -12,6 +12,8 @@ Services are organized by business questions, not technical concerns:
 - **GameInfoService** - Answers: "What are the details for game X?"
 - **UserProfileService** - Answers: "What's user X's gaming profile?"
 
+**Key Principle**: **Services produce data ABOUT a given node, in the form of Expandable or Inline pins**
+
 ### 2. Provider-Aggregator Pattern
 Each service follows a consistent pattern:
 ```
@@ -20,7 +22,7 @@ Service/
 │   ├── SteamProvider    # Steam API integration
 │   ├── EpicProvider     # Epic Games Store integration
 │   └── RawgProvider     # RAWG database integration
-├── Aggregator           # Combines data from multiple providers
+├── Aggregator           # Combines pins from multiple providers
 └── Service              # Thin wrapper exposing business methods
 ```
 
@@ -30,20 +32,37 @@ The system is designed around the concept of nodes and edges that can be visuali
 - **Edges** represent relationships (owns, published-by, similar-to)
 - **Pins** represent expandable or informational data on nodes
 
+### 4. Uniform Pin-Based Communication
+All service layers communicate using a uniform `Pin` format:
+- **Providers** return `Pin` objects representing their data
+- **Aggregators** combine and return `Pin` objects
+- **Services** return `Pin` objects for their domain
+- **Sgnome.Web** aggregates pins and builds `GraphResponse`
+
 ## Data Flow Architecture
 
 ### Frontend → Backend
 1. User selects a node or searches for an entity
-2. Frontend sends node data to backend
-3. Backend services analyze the node and generate related data
-4. Backend returns a `GraphResponse` with nodes, edges, and pins
+2. Frontend sends node data to backend with optional context
+3. Backend resolves the node (GetOrCreate pattern)
+4. Backend services analyze the node and generate pins
+5. Backend returns a `GraphResponse` with nodes, edges, and pins
 
 ### Backend → Frontend
-1. Services receive node data and identify relevant providers
-2. Providers fetch data from external APIs (Steam, Epic, RAWG)
-3. Aggregators combine and transform the data
-4. Services generate pins and edges based on relationships
-5. `GraphResponse` is returned with complete graph structure
+1. Sgnome.Web receives request and resolves target node
+2. Services receive resolved node and identify relevant providers
+3. Providers fetch data from external APIs and return pins
+4. Aggregators combine pins from multiple providers
+5. Services return organized pins for their domain
+6. Sgnome.Web builds `GraphResponse` with nodes, edges, and aggregated pins
+
+### Return Type Flow
+```
+Sgnome.Web API → GraphResponse
+Service → Pins
+Aggregator → Pins
+Provider → Pins
+```
 
 ## Graph Data Model
 
@@ -52,7 +71,7 @@ The system is designed around the concept of nodes and edges that can be visuali
 {
   "id": "player-76561198000000000",
   "type": "default",           // xyflow node type
-  "x": 100, "y": 100,         // xyflow coordinates
+  "x": 100, "y": 100,         // xyflow coordinates (frontend-managed)
   "data": {                   // Our custom data
     "label": "Alex",
     "nodeType": "player",     // Our node classification
@@ -65,6 +84,32 @@ The system is designed around the concept of nodes and edges that can be visuali
 
 ### Pin System
 Pins represent expandable relationships or informational data:
+
+#### Pin Structure
+```json
+{
+  "id": "steam-library",
+  "label": "Steam Library",
+  "type": "library",
+  "state": "unexpanded",
+  "behavior": "expandable",
+  "summary": {
+    "displayText": "Owns 150 games on Steam",
+    "count": 150,
+    "icon": "library",
+    "preview": {}
+  },
+  "metadata": {
+    "targetNodeType": "library",
+    "targetNodeId": null,
+    "originNodeId": "player-76561198000000000",
+    "apiEndpoint": "/api/player/library",
+    "parameters": {
+      "steamId": "76561198000000000"
+    }
+  }
+}
+```
 
 #### Expandable Pins
 - Can be clicked to create new nodes/edges
@@ -94,18 +139,18 @@ Pins represent expandable relationships or informational data:
 ## Service Architecture
 
 ### Provider Pattern
-Providers handle integration with external data sources:
+Providers handle integration with external data sources and return uniform pin format:
 
 ```csharp
 public interface ISteamUserLibraryProvider
 {
-    Task<SteamUserLibraryData?> GetUserLibraryAsync(string steamId);
-    Task<SteamUserLibraryData?> GetRecentlyPlayedGamesAsync(string steamId);
+    Task<IEnumerable<Pin>> GetUserLibraryPinsAsync(string steamId);
+    Task<IEnumerable<Pin>> GetRecentlyPlayedPinsAsync(string steamId);
 }
 ```
 
 ### Aggregator Pattern
-Aggregators combine data from multiple providers and generate pins:
+Aggregators combine pins from multiple providers:
 
 ```csharp
 public class UserLibraryAggregator
@@ -113,24 +158,78 @@ public class UserLibraryAggregator
     private readonly ISteamUserLibraryProvider _steamProvider;
     private readonly IEpicUserLibraryProvider _epicProvider;
     
-    public async Task<GraphResponse> GetUserLibraryAsync(PlayerNode player)
+    public async Task<IEnumerable<Pin>> GetUserLibraryPinsAsync(PlayerNode player)
     {
-        // Combine data from multiple providers
-        // Generate pins for expandable relationships
-        // Create edges between related nodes
+        var pins = new List<Pin>();
+        
+        // Collect pins from multiple providers
+        if (!string.IsNullOrEmpty(player.SteamId))
+        {
+            var steamPins = await _steamProvider.GetUserLibraryPinsAsync(player.SteamId);
+            pins.AddRange(steamPins);
+        }
+        
+        // Combine and deduplicate pins
+        return pins;
     }
 }
 ```
 
 ### Service Layer
-Services provide business-focused APIs:
+Services provide business-focused APIs that return pins:
 
 ```csharp
 public interface IUserLibraryService
 {
-    Task<GraphResponse> GetUserLibraryAsync(PlayerNode player);
-    Task<GraphResponse> GetRecentlyPlayedGamesAsync(PlayerNode player);
+    Task<IEnumerable<Pin>> GetUserLibraryPinsAsync(PlayerNode player);
+    Task<IEnumerable<Pin>> GetRecentlyPlayedPinsAsync(PlayerNode player);
 }
+```
+
+## Node Resolution and Context Management
+
+### NodeResolver Pattern
+Sgnome.Web includes a NodeResolver that handles node persistence and resolution:
+
+```csharp
+public interface INodeResolver
+{
+    Task<Node> ResolvePlayerNodeAsync(PlayerNode player);
+    Task<Node> ResolveGameNodeAsync(GameNode game);
+    Task<Node> GetOrCreateNodeAsync<T>(T nodeData) where T : class;
+}
+```
+
+### Context-Driven Edge Generation
+Edges are generated based on frontend-provided context:
+
+#### Single Node Operations (No Edges)
+```
+POST /api/player/select
+Body: { steamId: "123", displayName: "Alex" }
+Response: { nodes: [playerNode], edges: [], pins: [...] }
+```
+
+#### Pin Expansion with Context (Creates Edges)
+```
+POST /api/library/select  
+Body: { 
+  libraryId: "steam-123", 
+  originNodeId: "player-123",  // Context for edge creation
+  targetNodeType: "library"
+}
+Response: { nodes: [libraryNode], edges: [player->library], pins: [...] }
+```
+
+#### Bulk Operations (Multiple Edges)
+```
+POST /api/games/bulk-select
+Body: { 
+  gameIds: ["730", "440", "570"], 
+  createEdges: true,
+  edgeType: "similar-to"
+}
+Response: { nodes: [gameNodes], edges: [similarEdges], pins: [...] }
 ```
 
 ## Pin Generation Strategy
@@ -144,6 +243,8 @@ public interface IUserLibraryService
 ### Pin Metadata
 Each expandable pin contains:
 - **Target Node Type** - What type of node will be created
+- **Target Node ID** - If we know the specific node
+- **Origin Node ID** - The source node that owns this pin
 - **API Endpoint** - Where to fetch the expansion data
 - **Parameters** - Additional context for the API call
 
@@ -184,8 +285,8 @@ The system is designed to work seamlessly with xyflow:
 
 ### Pin Interaction
 1. User clicks an expandable pin
-2. Frontend extracts API endpoint from pin metadata
-3. Frontend makes API call to expand the relationship
+2. Frontend extracts API endpoint and context from pin metadata
+3. Frontend makes API call with origin node context
 4. Backend returns new nodes/edges with metadata
 5. Frontend merges response into existing graph state
 6. Frontend updates xyflow with merged state
@@ -253,7 +354,7 @@ function mergeGraphResponse(
 4. Update pin generation logic
 
 ### Adding New Data Sources
-1. Create provider interface and implementation
+1. Create provider interface and implementation that returns `Pin` objects
 2. Add provider to aggregator
 3. Update pin generation to use new data
 4. No changes needed to existing services
