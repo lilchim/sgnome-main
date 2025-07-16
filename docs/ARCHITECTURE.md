@@ -6,13 +6,14 @@ Sgnome is a gaming research tool that allows users to explore relationships betw
 
 ## Core Design Principles
 
-### 1. Business-Focused Services
-Services are organized by business questions, not technical concerns:
-- **UserLibraryService** - Answers: "What games does user X own/play?"
-- **GameInfoService** - Answers: "What are the details for game X?"
-- **UserProfileService** - Answers: "What's user X's gaming profile?"
+### 1. Domain-Focused Services
+Services are organized by domain, providing domain-specific information about nodes:
+- **PlayerService** - Provides player-centric information (profile, friends, activity)
+- **LibraryService** - Provides library-centric information (collections, organization)
+- **GamesService** - Provides game-centric information (details, recommendations, similar games)
 
-**Key Principle**: **Services produce data ABOUT a given node, in the form of Expandable or Inline pins**
+**Key Principle**: **Services produce domain-specific data ABOUT a given node, in the form of Expandable or Inline pins**
+As an example: The PlayerService provides Player related information for any type of node that Player's are relevant to.
 
 ### 2. Provider-Aggregator Pattern
 Each service follows a consistent pattern:
@@ -176,13 +177,20 @@ public class UserLibraryAggregator
 ```
 
 ### Service Layer
-Services provide business-focused APIs that return pins:
+Services provide domain-focused APIs that return pins:
 
 ```csharp
-public interface IUserLibraryService
+public interface IPlayerService
 {
-    Task<IEnumerable<Pin>> GetUserLibraryPinsAsync(PlayerNode player);
-    Task<IEnumerable<Pin>> GetRecentlyPlayedPinsAsync(PlayerNode player);
+    Task<IEnumerable<Pin>> GetPlayerInfoPinsAsync(PlayerNode player);
+    Task<IEnumerable<Pin>> GetFriendsPinsAsync(PlayerNode player);
+    Task<IEnumerable<Pin>> GetActivityPinsAsync(PlayerNode player);
+}
+
+public interface ILibraryService
+{
+    Task<IEnumerable<Pin>> GetLibraryPinsAsync(PlayerNode player);
+    Task<IEnumerable<Pin>> GetOrganizedLibraryPinsAsync(string librarySource, string playerId);
 }
 ```
 
