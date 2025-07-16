@@ -5,9 +5,15 @@ public class Node
 {
     public string Id { get; set; } = string.Empty;
     public string Type { get; set; } = string.Empty;
+    public Position Position { get; set; } = new();
+    public NodeData Data { get; set; } = new();
+}
+
+// Position object for xyflow compatibility
+public class Position
+{
     public double X { get; set; }
     public double Y { get; set; }
-    public NodeData Data { get; set; } = new();
 }
 
 // Our custom data that goes in the xyflow Node.data field

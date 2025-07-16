@@ -6,14 +6,13 @@ namespace Sgnome.Models.Graph;
 // Helper to convert domain types to xyflow Nodes
 public static class NodeBuilder
 {
-    public static Node CreatePlayerNode(PlayerNode player, double x = 0, double y = 0)
+    public static Node CreatePlayerNode(PlayerNode player, double x = 300, double y = 200)
     {
         return new Node
         {
             Id = $"player-{player.SteamId ?? player.EpicId ?? Guid.NewGuid().ToString()}",
             Type = "default", // xyflow node type
-            X = x,
-            Y = y,
+            Position = new Position { X = x, Y = y },
             Data = new NodeData
             {
                 Label = player.DisplayName ?? "Unknown Player",
@@ -25,14 +24,13 @@ public static class NodeBuilder
         };
     }
 
-    public static Node CreateGameNode(GameNode game, double x = 0, double y = 0)
+    public static Node CreateGameNode(GameNode game, double x = 400, double y = 300)
     {
         return new Node
         {
             Id = $"game-{(game.SteamAppId?.ToString() ?? game.EpicId ?? Guid.NewGuid().ToString())}",
             Type = "default",
-            X = x,
-            Y = y,
+            Position = new Position { X = x, Y = y },
             Data = new NodeData
             {
                 Label = game.Name ?? "Unknown Game",
@@ -44,14 +42,13 @@ public static class NodeBuilder
         };
     }
 
-    public static Node CreatePublisherNode(PublisherNode publisher, double x = 0, double y = 0)
+    public static Node CreatePublisherNode(PublisherNode publisher, double x = 500, double y = 400)
     {
         return new Node
         {
             Id = $"publisher-{publisher.Name?.ToLower().Replace(" ", "-") ?? Guid.NewGuid().ToString()}",
             Type = "default",
-            X = x,
-            Y = y,
+            Position = new Position { X = x, Y = y },
             Data = new NodeData
             {
                 Label = publisher.Name ?? "Unknown Publisher",
