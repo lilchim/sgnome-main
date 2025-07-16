@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Sgnome.Models.Nodes;
 using Sgnome.Models.Graph;
-using UserLibraryService;
+using PlayerService;
+using LibraryService;
 
 namespace Sgnome.Web.Controllers;
 
@@ -9,12 +10,17 @@ namespace Sgnome.Web.Controllers;
 [Route("api/player")]
 public class PlayerNodeController : ControllerBase
 {
-    private readonly IUserLibraryService _userLibraryService;
+    private readonly IPlayerService _playerService;
+    private readonly ILibraryService _libraryService;
     private readonly ILogger<PlayerNodeController> _logger;
 
-    public PlayerNodeController(IUserLibraryService userLibraryService, ILogger<PlayerNodeController> logger)
+    public PlayerNodeController(
+        IPlayerService playerService, 
+        ILibraryService libraryService,
+        ILogger<PlayerNodeController> logger)
     {
-        _userLibraryService = userLibraryService;
+        _playerService = playerService;
+        _libraryService = libraryService;
         _logger = logger;
     }
 
@@ -34,11 +40,17 @@ public class PlayerNodeController : ControllerBase
             // For now, create the player node directly
             var playerNode = NodeBuilder.CreatePlayerNode(player);
             
-            // Get pins from the service
-            var pins = await _userLibraryService.GetUserLibraryPinsAsync(player);
+            // Get pins from both services
+            var playerPins = await _playerService.GetPlayerInfoPinsAsync(player);
+            var libraryPins = await _libraryService.GetLibraryPinsAsync(player);
+            
+            // Combine all pins
+            var allPins = new List<Pin>();
+            allPins.AddRange(playerPins);
+            allPins.AddRange(libraryPins);
             
             // Attach pins to the player node
-            playerNode.Data.Pins.AddRange(pins);
+            playerNode.Data.Pins.AddRange(allPins);
             
             // Build the graph response
             var response = new GraphResponse

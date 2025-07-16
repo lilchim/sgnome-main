@@ -1,7 +1,9 @@
 using Sgnome.Models.Graph;
 using SteamApi.Client.Extensions;
-using UserLibraryService;
-using UserLibraryService.Providers;
+using PlayerService;
+using PlayerService.Providers;
+using LibraryService;
+using LibraryService.Providers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,10 +30,15 @@ builder.Services.AddSteamApiClient(options =>
     options.ApiKey = builder.Configuration["SteamApi:ApiKey"] ?? "dev-key";
 });
 
-// Add business services
-builder.Services.AddScoped<ISteamUserLibraryProvider, SteamUserLibraryProvider>();
-builder.Services.AddScoped<UserLibraryService.UserLibraryAggregator>();
-builder.Services.AddScoped<IUserLibraryService, UserLibraryService.UserLibraryService>();
+// Add Player services
+builder.Services.AddScoped<ISteamPlayerProvider, SteamPlayerProvider>();
+builder.Services.AddScoped<PlayerService.PlayerAggregator>();
+builder.Services.AddScoped<IPlayerService, PlayerService.PlayerService>();
+
+// Add Library services
+builder.Services.AddScoped<ISteamLibraryProvider, SteamLibraryProvider>();
+builder.Services.AddScoped<LibraryService.LibraryAggregator>();
+builder.Services.AddScoped<ILibraryService, LibraryService.LibraryService>();
 
 var app = builder.Build();
 
