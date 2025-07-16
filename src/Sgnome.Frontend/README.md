@@ -1,47 +1,88 @@
-# Svelte + TS + Vite
+# Sgnome Frontend
 
-This template should help get you started developing with Svelte and TypeScript in Vite.
+A Svelte 5 application using runes for state management and xyflow for graph visualization.
 
-## Recommended IDE Setup
+## Architecture
 
-[VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode).
+This frontend follows a modern Svelte 5 pattern using runes for state management, avoiding the older Svelte 3/4 store patterns.
 
-## Need an official Svelte framework?
+### State Management Pattern
 
-Check out [SvelteKit](https://github.com/sveltejs/kit#readme), which is also powered by Vite. Deploy anywhere with its serverless-first approach and adapt to various platforms, with out of the box support for TypeScript, SCSS, and Less, and easily-added support for mdsvex, GraphQL, PostCSS, Tailwind CSS, and more.
+We use a module-based state management approach with Svelte 5 runes:
 
-## Technical considerations
+- **`$state`** - For reactive state variables
+- **`$derived`** - For computed values (like NgRx selectors)
+- **`.svelte.ts` modules** - For centralized state logic
+- **Immutable updates** - Always update state with new objects to trigger reactivity
 
-**Why use this over SvelteKit?**
+### File Structure
 
-- It brings its own routing solution which might not be preferable for some users.
-- It is first and foremost a framework that just happens to use Vite under the hood, not a Vite app.
-
-This template contains as little as possible to get started with Vite + TypeScript + Svelte, while taking into account the developer experience with regards to HMR and intellisense. It demonstrates capabilities on par with the other `create-vite` templates and is a good starting point for beginners dipping their toes into a Vite + Svelte project.
-
-Should you later need the extended capabilities and extensibility provided by SvelteKit, the template has been structured similarly to SvelteKit so that it is easy to migrate.
-
-**Why `global.d.ts` instead of `compilerOptions.types` inside `jsconfig.json` or `tsconfig.json`?**
-
-Setting `compilerOptions.types` shuts out all other types not explicitly listed in the configuration. Using triple-slash references keeps the default TypeScript setting of accepting type information from the entire workspace, while also adding `svelte` and `vite/client` type information.
-
-**Why include `.vscode/extensions.json`?**
-
-Other templates indirectly recommend extensions via the README, but this file allows VS Code to prompt the user to install the recommended extension upon opening the project.
-
-**Why enable `allowJs` in the TS template?**
-
-While `allowJs: false` would indeed prevent the use of `.js` files in the project, it does not prevent the use of JavaScript syntax in `.svelte` files. In addition, it would force `checkJs: false`, bringing the worst of both worlds: not being able to guarantee the entire codebase is TypeScript, and also having worse typechecking for the existing JavaScript. In addition, there are valid use cases in which a mixed codebase may be relevant.
-
-**Why is HMR not preserving my local component state?**
-
-HMR state preservation comes with a number of gotchas! It has been disabled by default in both `svelte-hmr` and `@sveltejs/vite-plugin-svelte` due to its often surprising behavior. You can read the details [here](https://github.com/rixo/svelte-hmr#svelte-hmr).
-
-If you have state that's important to retain within a component, consider creating an external store which would not be replaced by HMR.
-
-```ts
-// store.ts
-// An extremely simple external store
-import { writable } from 'svelte/store'
-export default writable(0)
 ```
+src/
+├── lib/
+│   ├── types/
+│   │   └── graph.ts              # TypeScript interfaces matching C# models
+│   ├── stores/
+│   │   └── graphState.svelte.ts  # Main state management module
+│   └── components/
+│       └── GraphView.svelte      # Main graph visualization component
+├── App.svelte                    # Root component
+└── main.ts                       # Application entry point
+```
+
+### Key Features
+
+1. **Graph State Management** - Centralized state for nodes, edges, and metadata
+2. **API Integration** - Functions for fetching and merging graph data
+3. **Pin Expansion** - Support for expandable relationships
+4. **Reactive Updates** - Automatic UI updates when state changes
+5. **Type Safety** - Full TypeScript support with interfaces matching backend models
+
+### Usage
+
+The main component `GraphView.svelte` demonstrates:
+
+- Adding test nodes to the graph
+- Fetching user library data from the API
+- Clearing the graph state
+- Displaying reactive statistics
+
+### Development
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Type check
+npm run check
+
+# Build for production
+npm run build
+```
+
+### State Module Pattern
+
+The `graphState.svelte.ts` module provides:
+
+- **Reactive State**: `state` with nodes, edges, and metadata
+- **Derived Values**: `nodeCount`, `edgeCount`, `metadataCount`
+- **Actions**: `addNode`, `removeNode`, `addEdge`, `removeEdge`
+- **API Functions**: `fetchUserLibrary`, `expandPin`
+- **Utility Functions**: `getNode`, `getNodeEdges`, `getMetadata`
+
+### Integration with Backend
+
+The frontend expects API responses in the format defined by the C# `GraphResponse` model:
+
+```typescript
+interface GraphResponse {
+  nodes: Node[];
+  edges: Edge[];
+  metadata: ResponseMetadata;
+}
+```
+
+This matches the backend's graph data structure and enables seamless integration.
