@@ -1,47 +1,98 @@
 <script lang="ts">
-  import svelteLogo from './assets/svelte.svg'
-  import viteLogo from '/vite.svg'
-  import Counter from './lib/Counter.svelte'
+  import GraphView from './lib/components/GraphView.svelte';
+  import StateTest from './lib/components/StateTest.svelte';
+  
+  let showDebug = $state(false);
 </script>
 
-<main>
-  <div>
-    <a href="https://vite.dev" target="_blank" rel="noreferrer">
-      <img src={viteLogo} class="logo" alt="Vite Logo" />
-    </a>
-    <a href="https://svelte.dev" target="_blank" rel="noreferrer">
-      <img src={svelteLogo} class="logo svelte" alt="Svelte Logo" />
-    </a>
-  </div>
-  <h1>Vite + Svelte</h1>
-
-  <div class="card">
-    <Counter />
-  </div>
-
-  <p>
-    Check out <a href="https://github.com/sveltejs/kit#readme" target="_blank" rel="noreferrer">SvelteKit</a>, the official Svelte app framework powered by Vite!
-  </p>
-
-  <p class="read-the-docs">
-    Click on the Vite and Svelte logos to learn more
-  </p>
-</main>
+<div class="app">
+  <!-- Top Bar -->
+  <header class="top-bar">
+    <h1>Sgnome</h1>
+    <button class="debug-btn" on:click={() => showDebug = !showDebug}>
+      {showDebug ? 'Hide' : 'Show'} Debug
+    </button>
+  </header>
+  
+  <!-- Main Content -->
+  <main class="main-content">
+    <GraphView />
+  </main>
+  
+  <!-- Debug Overlay -->
+  {#if showDebug}
+    <div class="debug-overlay">
+      <StateTest />
+    </div>
+  {/if}
+</div>
 
 <style>
-  .logo {
-    height: 6em;
-    padding: 1.5em;
-    will-change: filter;
-    transition: filter 300ms;
+  /* Global styles */
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
   }
-  .logo:hover {
-    filter: drop-shadow(0 0 2em #646cffaa);
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    height: 100vh;
+    overflow: hidden;
   }
-  .logo.svelte:hover {
-    filter: drop-shadow(0 0 2em #ff3e00aa);
+
+  .app {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
   }
-  .read-the-docs {
-    color: #888;
+
+  .top-bar {
+    height: 50px;
+    background: #f5f5f5;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    flex-shrink: 0;
+  }
+
+  .top-bar h1 {
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .debug-btn {
+    padding: 6px 12px;
+    background: #007acc;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+
+  .debug-btn:hover {
+    background: #005a9e;
+  }
+
+  .main-content {
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .debug-overlay {
+    position: fixed;
+    top: 60px;
+    right: 16px;
+    width: 300px;
+    max-height: 400px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    z-index: 1000;
+    overflow: auto;
   }
 </style>
