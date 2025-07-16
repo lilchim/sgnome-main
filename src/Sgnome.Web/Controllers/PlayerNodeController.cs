@@ -30,7 +30,34 @@ public class PlayerNodeController : ControllerBase
     {
         try
         {
-            var response = await _userLibraryService.GetUserLibraryAsync(player);
+            // TODO: Implement NodeResolver for proper node resolution
+            // For now, create the player node directly
+            var playerNode = NodeBuilder.CreatePlayerNode(player);
+            
+            // Get pins from the service
+            var pins = await _userLibraryService.GetUserLibraryPinsAsync(player);
+            
+            // Attach pins to the player node
+            playerNode.Data.Pins.AddRange(pins);
+            
+            // Build the graph response
+            var response = new GraphResponse
+            {
+                Nodes = new List<Node> { playerNode },
+                Edges = new List<Edge>(), // No edges for single node operations
+                Metadata = new GraphMetadata
+                {
+                    QueryType = "SelectPlayer",
+                    QueryId = $"player-select-{player.SteamId}",
+                    Timestamp = DateTime.UtcNow,
+                    Context = new Dictionary<string, object>
+                    {
+                        ["playerId"] = player.SteamId ?? "unknown",
+                        ["operation"] = "node-selection"
+                    }
+                }
+            };
+            
             return Ok(response);
         }
         catch (Exception ex)

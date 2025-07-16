@@ -41,6 +41,7 @@ export interface PinSummary {
 export interface PinMetadata {
   targetNodeType: string;
   targetNodeId?: string;
+  originNodeId?: string;
   apiEndpoint: string;
   parameters: Record<string, unknown>;
 }

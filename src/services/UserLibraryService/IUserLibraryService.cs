@@ -6,16 +6,9 @@ namespace UserLibraryService;
 public interface IUserLibraryService
 {
     /// <summary>
-    /// Gets the user's complete library with games and pins
+    /// Gets pins representing the user's library data
     /// </summary>
-    /// <param name="player">The player node to get library for</param>
-    /// <returns>Graph response with player node, game nodes, and pins</returns>
-    Task<GraphResponse> GetUserLibraryAsync(PlayerNode player);
-    
-    /// <summary>
-    /// Gets the user's recently played games
-    /// </summary>
-    /// <param name="player">The player node to get recent games for</param>
-    /// <returns>Graph response with player node, recent game nodes, and pins</returns>
-    Task<GraphResponse> GetRecentlyPlayedGamesAsync(PlayerNode player);
+    /// <param name="player">The player node to get library pins for</param>
+    /// <returns>Collection of pins representing library data</returns>
+    Task<IEnumerable<Pin>> GetUserLibraryPinsAsync(PlayerNode player);
 } 
