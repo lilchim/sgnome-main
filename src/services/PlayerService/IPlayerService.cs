@@ -6,6 +6,13 @@ namespace PlayerService;
 public interface IPlayerService
 {
     /// <summary>
+    /// Resolves a PlayerNode from partial data
+    /// </summary>
+    /// <param name="partialPlayer">Partial player data to resolve</param>
+    /// <returns>Resolved PlayerNode instance</returns>
+    Task<PlayerNode> ResolveNodeAsync(PlayerNode partialPlayer);
+
+    /// <summary>
     /// Gets player information pins for a player node
     /// </summary>
     /// <param name="player">The player node to get info for</param>

@@ -18,6 +18,40 @@ public class PlayerService : IPlayerService
         _logger = logger;
     }
 
+    public async Task<PlayerNode> ResolveNodeAsync(PlayerNode partialPlayer)
+    {
+        _logger.LogInformation("Resolving PlayerNode for {SteamId}, partialPlayer.SteamId", partialPlayer.SteamId);
+        
+        try
+        {
+            // For now: create on the spot (baby steps)
+            // Later: check cache, database, external APIs, etc.
+            var resolvedPlayer = new PlayerNode
+            {
+                SteamId = partialPlayer.SteamId,
+                EpicId = partialPlayer.EpicId,
+                DisplayName = partialPlayer.DisplayName,
+                AvatarUrl = partialPlayer.AvatarUrl,
+                Identifiers = new Dictionary<string, object>()
+            };
+
+            // If we have a SteamId, try to get additional data from providers
+            if (!string.IsNullOrEmpty(partialPlayer.SteamId))
+            {
+                // TODO: Call providers to enrich the player data
+                // For now, just use what we have
+                _logger.LogInformation("PlayerNode resolved for SteamId {SteamId}, partialPlayer.SteamId", partialPlayer.SteamId);
+            }
+
+            return resolvedPlayer;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error resolving PlayerNode for {SteamId}, partialPlayer.SteamId", partialPlayer.SteamId);
+            throw;
+        }
+    }
+
     public async Task<IEnumerable<Pin>> GetPlayerInfoPinsAsync(PlayerNode player)
     {
         _logger.LogInformation("Getting player info pins for player {PlayerId}", player.SteamId);
