@@ -144,13 +144,18 @@ async function fetchFromPin(nodeId: string, pinId: string) {
     };
     addNode(nodeWithUpdatedPins);
 
-    // Make API call using pin metadata
+    // Make API call using pin metadata, including origin node ID for edge generation
+    const requestBody = {
+      ...pin.metadata.parameters,
+      originNodeId: nodeId // Add the origin node ID for edge generation
+    };
+    
     const response = await fetch(pin.metadata.apiEndpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(pin.metadata.parameters)
+      body: JSON.stringify(requestBody)
     });
 
     if (!response.ok) {
