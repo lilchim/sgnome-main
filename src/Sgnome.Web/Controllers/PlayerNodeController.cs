@@ -36,13 +36,15 @@ public class PlayerNodeController : ControllerBase
     {
         try
         {
-            // TODO: Implement NodeResolver for proper node resolution
-            // For now, create the player node directly
-            var playerNode = NodeBuilder.CreatePlayerNode(player);
+            // Resolve the player node using the service
+            var resolvedPlayer = await _playerService.ResolveNodeAsync(player);
             
-            // Get pins from both services
-            var playerPins = await _playerService.GetPlayerInfoPinsAsync(player);
-            var libraryPins = await _libraryService.GetLibraryPinsAsync(player);
+            // Create the graph node from the resolved player
+            var playerNode = NodeBuilder.CreatePlayerNode(resolvedPlayer);
+            
+            // Get pins from both services using the resolved player
+            var playerPins = await _playerService.GetPlayerInfoPinsAsync(resolvedPlayer);
+            var libraryPins = await _libraryService.GetLibraryPinsAsync(resolvedPlayer);
             
             // Combine all pins
             var allPins = new List<Pin>();
@@ -60,11 +62,11 @@ public class PlayerNodeController : ControllerBase
                 Metadata = new GraphMetadata
                 {
                     QueryType = "SelectPlayer",
-                    QueryId = $"player-select-{player.SteamId}",
+                    QueryId = $"player-select-{resolvedPlayer.SteamId}",
                     Timestamp = DateTime.UtcNow,
                     Context = new Dictionary<string, object>
                     {
-                        ["playerId"] = player.SteamId ?? "unknown",
+                        ["playerId"] = resolvedPlayer.SteamId ?? "unknown",
                         ["operation"] = "node-selection"
                     }
                 }
