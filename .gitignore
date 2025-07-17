@@ -59,6 +59,9 @@ build/
 .next/
 out/
 
+# Backend - Build outputs (frontend copied by Docker)
+src/Sgnome.Web/wwwroot/
+
 # Frontend - Environment variables
 .env.local
 .env.development.local
