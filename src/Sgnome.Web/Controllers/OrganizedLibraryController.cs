@@ -53,7 +53,9 @@ public class OrganizedLibraryController : ControllerBase
             var response = new GraphResponse
             {
                 Nodes = new List<Node> { organizedLibraryGraphNode },
-                Edges = new List<Edge>(), // No edges created yet - they'll be created when pins are expanded
+                Edges = request.OriginNodeId != null 
+                    ? new List<Edge> { EdgeBuilder.CreatePlayerToOrganizedLibraryEdge(request.OriginNodeId, organizedLibraryGraphNode.Id) }
+                    : new List<Edge>(),
                 Metadata = new GraphMetadata
                 {
                     QueryType = "SelectOrganizedLibrary",
@@ -83,4 +85,5 @@ public class OrganizedLibrarySelectRequest
 {
     public string PlayerId { get; set; } = string.Empty;
     public string LibrarySource { get; set; } = string.Empty; // steam, epic, etc.
+    public string? OriginNodeId { get; set; } // Optional origin node for edge generation
 } 

@@ -63,7 +63,9 @@ public class LibraryController : ControllerBase
             var response = new GraphResponse
             {
                 Nodes = new List<Node> { libraryGraphNode },
-                Edges = new List<Edge>(), // No edges created yet - they'll be created when pins are expanded
+                Edges = request.OriginNodeId != null 
+                    ? new List<Edge> { EdgeBuilder.CreatePlayerToLibraryEdge(request.OriginNodeId, libraryGraphNode.Id) }
+                    : new List<Edge>(),
                 Metadata = new GraphMetadata
                 {
                     QueryType = "SelectLibrary",
@@ -92,4 +94,5 @@ public class LibrarySelectRequest
 {
     public string PlayerId { get; set; } = string.Empty;
     public string PlayerType { get; set; } = "steam"; // steam, epic, etc.
+    public string? OriginNodeId { get; set; } // Optional origin node for edge generation
 } 

@@ -36,12 +36,12 @@ public class PlayerNodeController : ControllerBase
     [HttpPost("select")]
     [ProducesResponseType(typeof(GraphResponse), 200)]
     [ProducesResponseType(400)]
-    public async Task<IActionResult> SelectPlayer([FromBody] PlayerNode player)
+    public async Task<IActionResult> SelectPlayer([FromBody] PlayerSelectRequest request)
     {
         try
         {
             // Resolve the player node using the service
-            var resolvedPlayer = await _playerService.ResolveNodeAsync(player);
+            var resolvedPlayer = await _playerService.ResolveNodeAsync(request.Player);
             
             // Create the graph node from the resolved player
             var playerNode = NodeBuilder.CreatePlayerNode(resolvedPlayer);
@@ -64,7 +64,9 @@ public class PlayerNodeController : ControllerBase
             var response = new GraphResponse
             {
                 Nodes = new List<Node> { playerNode },
-                Edges = new List<Edge>(), // No edges for single node operations
+                Edges = request.OriginNodeId != null
+                    ? new List<Edge> { EdgeBuilder.CreateEdge(request.OriginNodeId, playerNode.Id, "expands_to", "Expands To") }
+                    : new List<Edge>(),
                 Metadata = new GraphMetadata
                 {
                     QueryType = "SelectPlayer",
@@ -82,8 +84,14 @@ public class PlayerNodeController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error selecting player {PlayerId}", player.SteamId);
+            _logger.LogError(ex, "Error selecting player {PlayerId}", request.Player?.SteamId);
             return BadRequest(new { error = "Failed to process player selection" });
         }
     }
+}
+
+public class PlayerSelectRequest
+{
+    public PlayerNode Player { get; set; } = new PlayerNode();
+    public string? OriginNodeId { get; set; } // Optional origin node for edge generation
 } 
