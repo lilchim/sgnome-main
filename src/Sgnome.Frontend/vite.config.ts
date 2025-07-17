@@ -14,7 +14,7 @@ export default defineConfig({
     }
   },
   build: {
-    outDir: '../Sgnome.Web/wwwroot',
+    outDir: 'dist',
     emptyOutDir: true
   }
 })
