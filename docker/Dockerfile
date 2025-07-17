@@ -27,4 +27,10 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 COPY --from=backend-build /app/publish .
 EXPOSE 80
+
+# Add version info
+ARG VERSION=0.1.0
+LABEL version="${VERSION}"
+LABEL maintainer="lilchim@protonmail.com"
+
 ENTRYPOINT ["dotnet", "Sgnome.Web.dll"] 
