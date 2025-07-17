@@ -29,7 +29,7 @@ public class PinMetadata
     public string TargetNodeType { get; set; } = string.Empty; // "game", "publisher", etc.
     public string? TargetNodeId { get; set; } // If we know the specific node
     public string? OriginNodeId { get; set; } // The source node that owns this pin
-    public string ApiEndpoint { get; set; } = string.Empty; // "/api/player/{id}/recently-played"
+    public string? ApiEndpoint { get; set; } // "/api/player/{id}/recently-played" (null for informational pins)
     public Dictionary<string, object> Parameters { get; set; } = new();
 }
 
