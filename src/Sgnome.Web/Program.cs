@@ -4,6 +4,8 @@ using PlayerService;
 using PlayerService.Providers;
 using LibraryService;
 using LibraryService.Providers;
+using OrganizedLibraryService;
+using OrganizedLibraryService.Providers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,6 +41,11 @@ builder.Services.AddScoped<IPlayerService, PlayerService.PlayerService>();
 builder.Services.AddScoped<ISteamLibraryProvider, SteamLibraryProvider>();
 builder.Services.AddScoped<LibraryService.LibraryAggregator>();
 builder.Services.AddScoped<ILibraryService, LibraryService.LibraryService>();
+
+// Add Organized Library services
+builder.Services.AddScoped<ISteamOrganizedLibraryProvider, SteamOrganizedLibraryProvider>();
+builder.Services.AddScoped<OrganizedLibraryService.OrganizedLibraryAggregator>();
+builder.Services.AddScoped<IOrganizedLibraryService, OrganizedLibraryService.OrganizedLibraryService>();
 
 var app = builder.Build();
 
