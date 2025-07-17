@@ -17,6 +17,35 @@ public class LibraryService : ILibraryService
         _logger = logger;
     }
 
+    public async Task<LibraryNode> ResolveNodeAsync(LibraryNode partialLibrary)
+    {
+        _logger.LogInformation("Resolving LibraryNode for player {PlayerId}", partialLibrary.PlayerId);
+        
+        try
+        {
+            // For now: create on the spot (baby steps)
+            // Later: check cache, database, aggregate from providers, etc.
+            var resolvedLibrary = new LibraryNode
+            {
+                PlayerId = partialLibrary.PlayerId,
+                DisplayName = partialLibrary.DisplayName ?? "Game Libraries",         AvailableSources = partialLibrary.AvailableSources ?? new List<string> { "steam" },
+                TotalGameCount = partialLibrary.TotalGameCount,
+                LastUpdated = DateTime.UtcNow
+            };
+
+            // TODO: Aggregate game counts from all available sources
+            // For now, just use what we have
+            _logger.LogInformation("LibraryNode resolved for player {PlayerId}", partialLibrary.PlayerId);
+
+            return resolvedLibrary;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error resolving LibraryNode for player {PlayerId}", partialLibrary.PlayerId);
+            throw;
+        }
+    }
+
     public async Task<IEnumerable<Pin>> GetLibraryPinsAsync(PlayerNode player)
     {
         _logger.LogInformation("Getting library pins for player {PlayerId}", player.SteamId);
@@ -30,23 +59,6 @@ public class LibraryService : ILibraryService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting library pins for player {PlayerId}", player.SteamId);
-            throw;
-        }
-    }
-
-    public async Task<IEnumerable<Pin>> GetOrganizedLibraryPinsAsync(string librarySource, string playerId)
-    {
-        _logger.LogInformation("Getting organized library pins for {LibrarySource} player {PlayerId}", librarySource, playerId);
-        
-        try
-        {
-            var pins = await _aggregator.GetOrganizedLibraryPinsAsync(librarySource, playerId);
-            _logger.LogInformation("Successfully retrieved {PinCount} organized library pins", pins.Count());
-            return pins;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting organized library pins for {LibrarySource} player {PlayerId}", librarySource, playerId);
             throw;
         }
     }

@@ -36,7 +36,7 @@ public class SteamLibraryProvider : ISteamLibraryProvider
             {
                 Id = $"steam-library-{steamId}",
                 Label = $"Steam Library ({ownedGames.GameCount} games)",
-                Type = "library",
+                Type = "steam-library",
                 Behavior = PinBehavior.Expandable,
                 Summary = new PinSummary
                 {
@@ -48,10 +48,10 @@ public class SteamLibraryProvider : ISteamLibraryProvider
                 {
                     TargetNodeType = "organized-library",
                     OriginNodeId = $"player-{steamId}",
-                    ApiEndpoint = "/api/library/steam",
+                    ApiEndpoint = "/api/organized-library/select",
                     Parameters = new Dictionary<string, object>
                     {
-                        ["steamId"] = steamId,
+                        ["playerId"] = steamId,
                         ["librarySource"] = "steam"
                     }
                 }
