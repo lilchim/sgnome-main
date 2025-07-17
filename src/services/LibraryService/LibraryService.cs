@@ -20,7 +20,7 @@ public class LibraryService : ILibraryService
     public async Task<LibraryNode> ResolveNodeAsync(LibraryNode partialLibrary)
     {
         _logger.LogInformation("Resolving LibraryNode for player {PlayerId}", partialLibrary.PlayerId);
-        
+
         try
         {
             // For now: create on the spot (baby steps)
@@ -28,7 +28,8 @@ public class LibraryService : ILibraryService
             var resolvedLibrary = new LibraryNode
             {
                 PlayerId = partialLibrary.PlayerId,
-                DisplayName = partialLibrary.DisplayName ?? "Game Libraries",         AvailableSources = partialLibrary.AvailableSources ?? new List<string> { "steam" },
+                DisplayName = partialLibrary.DisplayName ?? "Game Libraries",
+                AvailableSources = partialLibrary.AvailableSources ?? new List<string> { "steam" },
                 TotalGameCount = partialLibrary.TotalGameCount,
                 LastUpdated = DateTime.UtcNow
             };
@@ -49,7 +50,7 @@ public class LibraryService : ILibraryService
     public async Task<IEnumerable<Pin>> GetLibraryPinsAsync(PlayerNode player)
     {
         _logger.LogInformation("Getting library pins for player {PlayerId}", player.SteamId);
-        
+
         try
         {
             var pins = await _aggregator.GetLibraryPinsAsync(player);
@@ -62,4 +63,21 @@ public class LibraryService : ILibraryService
             throw;
         }
     }
-} 
+
+    public async Task<IEnumerable<Pin>> GetLibraryPinsAsync(LibraryNode library)
+    {
+        _logger.LogInformation("Getting library pins for library {PlayerId}", library.PlayerId);
+
+        try
+        {
+            var pins = await _aggregator.GetLibraryPinsAsync(library);
+            _logger.LogInformation("Successfully retrieved {PinCount} library informational pins", pins.Count());
+            return pins;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting library pins for library {PlayerId}", library.PlayerId);
+            throw;
+        }
+    }
+}

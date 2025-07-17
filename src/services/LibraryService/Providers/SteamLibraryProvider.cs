@@ -18,7 +18,7 @@ public class SteamLibraryProvider : ISteamLibraryProvider
         _logger = logger;
     }
 
-    public async Task<IEnumerable<Pin>> GetLibraryPinsAsync(string steamId)
+    public async Task<IEnumerable<Pin>> GetLibraryPinsAsync(string steamId, PinContext context)
     {
         try
         {
@@ -37,7 +37,7 @@ public class SteamLibraryProvider : ISteamLibraryProvider
                 Id = $"steam-library-{steamId}",
                 Label = $"Steam Library ({ownedGames.GameCount} games)",
                 Type = "steam-library",
-                Behavior = PinBehavior.Expandable,
+                Behavior = context.InputNodeType == "library" ? PinBehavior.Informational : PinBehavior.Expandable,
                 Summary = new PinSummary
                 {
                     DisplayText = $"{ownedGames.GameCount} games on Steam",
@@ -46,14 +46,10 @@ public class SteamLibraryProvider : ISteamLibraryProvider
                 },
                 Metadata = new PinMetadata
                 {
-                    TargetNodeType = "organized-library",
-                    OriginNodeId = $"player-{steamId}",
-                    ApiEndpoint = "/api/organized-library/select",
-                    Parameters = new Dictionary<string, object>
-                    {
-                        ["playerId"] = steamId,
-                        ["librarySource"] = "steam"
-                    }
+                    TargetNodeType = context.TargetNodeType,
+                    OriginNodeId = context.InputNodeId,
+                    ApiEndpoint = context.ApiEndpoint,
+                    Parameters = context.ApiParameters
                 }
             };
 

@@ -13,9 +13,16 @@ public interface ILibraryService
     Task<LibraryNode> ResolveNodeAsync(LibraryNode partialLibrary);
 
     /// <summary>
-    /// Gets library pins for a player
+    /// Gets library pins for a player (cross-domain)
     /// </summary>
     /// <param name="player">The player node</param>
     /// <returns>Collection of pins representing library data</returns>
     Task<IEnumerable<Pin>> GetLibraryPinsAsync(PlayerNode player);
+
+    /// <summary>
+    /// Gets library pins for a library node itself (self-reference)
+    /// </summary>
+    /// <param name="library">The library node</param>
+    /// <returns>Collection of informational pins about the library</returns>
+    Task<IEnumerable<Pin>> GetLibraryPinsAsync(LibraryNode library);
 } 
