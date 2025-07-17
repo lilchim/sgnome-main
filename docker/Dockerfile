@@ -12,7 +12,9 @@ WORKDIR /app
 COPY *.sln ./
 COPY src/Sgnome.Web/*.csproj ./src/Sgnome.Web/
 COPY src/Sgnome.Models/*.csproj ./src/Sgnome.Models/
-COPY src/services/UserLibraryService/*.csproj ./src/services/UserLibraryService/
+COPY src/services/PlayerService/*.csproj ./src/services/PlayerService/
+COPY src/services/LibraryService/*.csproj ./src/services/LibraryService/
+COPY src/services/OrganizedLibraryService/*.csproj ./src/services/OrganizedLibraryService/
 RUN dotnet restore
 
 COPY . .
