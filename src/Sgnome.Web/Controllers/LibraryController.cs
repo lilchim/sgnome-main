@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Sgnome.Models.Nodes;
 using Sgnome.Models.Graph;
 using LibraryService;
+using OrganizedLibraryService;
 
 namespace Sgnome.Web.Controllers;
 
@@ -10,11 +11,16 @@ namespace Sgnome.Web.Controllers;
 public class LibraryController : ControllerBase
 {
     private readonly ILibraryService _libraryService;
+    private readonly IOrganizedLibraryService _organizedLibraryService;
     private readonly ILogger<LibraryController> _logger;
 
-    public LibraryController(ILibraryService libraryService, ILogger<LibraryController> logger)
+    public LibraryController(
+        ILibraryService libraryService, 
+        IOrganizedLibraryService organizedLibraryService,
+        ILogger<LibraryController> logger)
     {
         _libraryService = libraryService;
+        _organizedLibraryService = organizedLibraryService;
         _logger = logger;
     }
 
@@ -41,15 +47,17 @@ public class LibraryController : ControllerBase
             // Create the graph node from the resolved library
             var libraryGraphNode = NodeBuilder.CreateLibraryNode(resolvedLibrary);
 
-            // Get pins from the service (these will include pins to organized libraries)
-            var pins = await _libraryService.GetLibraryPinsAsync(new PlayerNode 
-            {
-                SteamId = request.PlayerId,
-                DisplayName = request.PlayerId
-            });
+            // Get pins from services using the resolved library
+            var libraryPins = await _libraryService.GetLibraryPinsAsync(resolvedLibrary);
+            var organizedLibraryPins = await _organizedLibraryService.GetOrganizedLibraryPinsAsync(resolvedLibrary);
+            
+            // Combine all pins
+            var allPins = new List<Pin>();
+            allPins.AddRange(libraryPins);
+            allPins.AddRange(organizedLibraryPins);
             
             // Attach pins to the library node
-            libraryGraphNode.Data.Pins.AddRange(pins);
+            libraryGraphNode.Data.Pins.AddRange(allPins);
 
             // Build the graph response
             var response = new GraphResponse
