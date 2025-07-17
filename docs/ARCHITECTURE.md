@@ -449,9 +449,12 @@ graph TD
 - **Pin Generation**:  
   Each service generates pins relevant to its node type, aggregating from providers as needed. This includes generating pins about itself (building out content, informational pins) AND providing links from a foreign domain to it's domain (expandable pins). It's valid to call PlayerService.GeneratePins(LibraryNode library), with the expectation that the service provides pins linking the given LibraryNode to PlayerNodes. 
 
+- **Domain Services always generate pins targeting a Node of its own Domain**
+
 - **No Cross-Domain Node Creation**:  
   Services never create or resolve nodes outside their domain.  
   (e.g., PlayerService never creates a LibraryNode.)
+
 
 ---
 
