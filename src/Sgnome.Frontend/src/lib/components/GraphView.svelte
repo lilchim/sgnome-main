@@ -3,6 +3,7 @@
   import { getState, selectNodeCount, selectEdgeCount, fetchFromPin, fetchWithEndpoint, clearGraph } from '../stores/graphState.svelte';
   import type { Node, Edge } from '../types/graph';
   import { NodeState, PinBehavior, PinState } from '../types/graph';
+  import CustomNode from './CustomNode.svelte';
 
   // Test data for development
   const testSteamId = '76561197995791208';
@@ -22,77 +23,48 @@
     clearGraph();
   }
 
-  // Create a test player node with functional pins
+  // Create a test player node by calling the API
   async function handleAddTestPlayer() {
-    const testPlayerNode: Node = {
-      id: `player-${testSteamId}`,
-      type: 'default',
-      position: { x: 300, y: 200 },
-      data: {
-        label: 'Test Player',
-        nodeType: 'player',
-        properties: { steamId: testSteamId },
-        pins: [
-          {
-            id: 'steam-library',
-            label: 'Steam Library',
-            type: 'steam-library',
-            state: PinState.Unexpanded,
-            behavior: PinBehavior.Expandable,
-            summary: {
-              displayText: 'Click to load library',
-              count: 0,
-              icon: 'library',
-              preview: {}
-            },
-            metadata: {
-              targetNodeType: 'game',
-              apiEndpoint: '/api/player/select',
-              parameters: { 
-                steamId: testSteamId,
-                displayName: 'Test Player',
-                epicId: null,
-                identifiers: {}
-              }
-            }
-          },
-          {
-            id: 'recently-played',
-            label: 'Recently Played',
-            type: 'recently-played',
-            state: PinState.Unexpanded,
-            behavior: PinBehavior.Expandable,
-            summary: {
-              displayText: 'Click to load recent games',
-              count: 0,
-              icon: 'clock',
-              preview: {}
-            },
-            metadata: {
-              targetNodeType: 'game',
-              apiEndpoint: '/api/player/select',
-              parameters: { 
-                steamId: testSteamId,
-                displayName: 'Test Player',
-                epicId: null,
-                identifiers: {}
-              }
-            }
-          }
-        ],
-        state: NodeState.Loaded
-      }
-    };
-
-    // Use the state module to add the node
-    const { addNode } = await import('../stores/graphState.svelte');
-    addNode(testPlayerNode);
+    // Use the development helper to test with a canned endpoint
+    fetchWithEndpoint('/api/player/select', {
+      steamId: testSteamId,
+      displayName: 'Test Player',
+      epicId: null,
+      identifiers: {}
+    });
   }
 
   // Handle pin expansion
   function handleExpandPin(nodeId: string, pinId: string) {
     fetchFromPin(nodeId, pinId);
   }
+
+  // Register custom node types
+  const nodeTypes = {
+    default: CustomNode
+  };
+
+  // Handle custom node pin expansion
+  function handleCustomNodeExpand(event: CustomEvent<{ nodeId: string; pinId: string }>) {
+    fetchFromPin(event.detail.nodeId, event.detail.pinId);
+  }
+
+  // Set up global event listener for custom node pin expansion
+  import { onMount } from 'svelte';
+  
+  onMount(() => {
+    const handlePinExpand = (event: CustomEvent<{ nodeId: string; pinId: string }>) => {
+      if (event.type === 'expandPin') {
+        fetchFromPin(event.detail.nodeId, event.detail.pinId);
+      }
+    };
+
+    document.addEventListener('expandPin', handlePinExpand as EventListener);
+    
+    return () => {
+      document.removeEventListener('expandPin', handlePinExpand as EventListener);
+    };
+  });
 </script>
 
 <div class="graph-container">
@@ -111,7 +83,11 @@
 
   <!-- Graph view -->
   <div class="graph-view">
-    <SvelteFlow nodes={getState().nodes} edges={getState().edges}>
+    <SvelteFlow 
+      nodes={getState().nodes} 
+      edges={getState().edges}
+      nodeTypes={nodeTypes}
+    >
       <Background />
     </SvelteFlow>
   </div>

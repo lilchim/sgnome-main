@@ -150,11 +150,7 @@ async function fetchFromPin(nodeId: string, pinId: string) {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        nodeId,
-        pinId,
-        ...pin.metadata.parameters
-      })
+      body: JSON.stringify(pin.metadata.parameters)
     });
 
     if (!response.ok) {
