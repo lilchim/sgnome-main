@@ -405,3 +405,90 @@ function mergeGraphResponse(
 - Minimal data collection
 - Secure data transmission
 - GDPR compliance considerations 
+
+## Domain Service Pattern: One Node, One Domain, One Service
+
+### Principle
+
+**Each node type in the graph is owned by a single domain service.**  
+- Each service is responsible for:
+  - Node resolution (creating, fetching, or reconstructing nodes of its type)
+  - Generating pins relevant to its node type
+  - Aggregating data from providers for its node type
+
+**No service creates or resolves nodes outside its domain.**  
+- Services may provide data (via pins) to other nodes, but never create or resolve those nodes directly.
+
+---
+
+*is this over engineering? Perhaps. But we choose this pattern because it is enforceable*
+
+### Pattern Structure
+
+```mermaid
+graph TD
+  PlayerService --> PlayerNode
+  LibraryService --> LibraryNode
+  OrganizedLibraryService --> OrganizedLibraryNode
+  GamesListService --> GamesListNode
+```
+
+- **PlayerService**: Owns `PlayerNode`
+- **LibraryService**: Owns `LibraryNode`
+- **OrganizedLibraryService**: Owns `OrganizedLibraryNode`
+- **GamesListService**: Owns `GamesListNode`
+- (etc.)
+
+---
+
+### Responsibilities
+
+- **Node Resolution**:  
+  Each service exposes a `ResolveNodeAsync(Partial<NodeType>)` method to resolve or create its node type from partial data.
+
+- **Pin Generation**:  
+  Each service generates pins relevant to its node type, aggregating from providers as needed. This includes generating pins about itself (building out content, informational pins) AND providing links from a foreign domain to it's domain (expandable pins). It's valid to call PlayerService.GeneratePins(LibraryNode library), with the expectation that the service provides pins linking the given LibraryNode to PlayerNodes. 
+
+- **No Cross-Domain Node Creation**:  
+  Services never create or resolve nodes outside their domain.  
+  (e.g., PlayerService never creates a LibraryNode.)
+
+---
+
+### Benefits
+
+- **Separation of Concerns**: Each service is focused and testable.
+- **Extensibility**: New node types = new services, no impact on existing code.
+- **Clear Ownership**: Easy to reason about where logic for a node type lives.
+- **Scalable Caching**: Each service can implement its own caching strategy.
+- **No Circular Dependencies**: Services communicate via pins, not direct node creation.
+
+---
+
+### Example
+
+```csharp
+// PlayerService.cs
+public Task<PlayerNode> ResolveNodeAsync(PlayerNode partial);
+
+// LibraryService.cs
+public Task<LibraryNode> ResolveNodeAsync(LibraryNode partial);
+
+// OrganizedLibraryService.cs
+public Task<OrganizedLibraryNode> ResolveNodeAsync(OrganizedLibraryNode partial);
+```
+
+---
+
+### Controller Orchestration
+
+Controllers are responsible for:
+- Calling the appropriate service to resolve a node
+- Calling services to generate pins for that node
+- Building the graph response
+
+---
+
+**Summary:**  
+> “One Node, One Domain, One Service” is the enforceable pattern for Sgnome’s backend.  
+> Each node type is owned, resolved, and managed by a single domain service. 
