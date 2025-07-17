@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Sgnome.Models.Graph;
 
 // Represents an expandable relationship or inline data
@@ -33,6 +35,7 @@ public class PinMetadata
     public Dictionary<string, object> Parameters { get; set; } = new();
 }
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum PinState
 {
     Unexpanded,
@@ -40,6 +43,7 @@ public enum PinState
     Expanded
 }
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum PinBehavior
 {
     Expandable,    // Can be clicked to create new nodes/edges

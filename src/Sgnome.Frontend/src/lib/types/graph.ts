@@ -16,9 +16,9 @@ export interface NodeData {
 }
 
 export enum NodeState {
-  Loading = 'loading',
-  Loaded = 'loaded',
-  Error = 'error'
+  Loading = 'Loading',
+  Loaded = 'Loaded',
+  Error = 'Error'
 }
 
 export interface Pin {
@@ -47,14 +47,14 @@ export interface PinMetadata {
 }
 
 export enum PinState {
-  Unexpanded = 'unexpanded',
-  Loading = 'loading',
-  Expanded = 'expanded'
+  Unexpanded = 'Unexpanded',
+  Loading = 'Loading',
+  Expanded = 'Expanded'
 }
 
 export enum PinBehavior {
-  Expandable = 'expandable',
-  Informational = 'informational'
+  Expandable = 'Expandable',
+  Informational = 'Informational'
 }
 
 export interface Edge {

@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Sgnome.Models.Graph;
 
 // Represents the xyflow Node structure
@@ -26,6 +28,7 @@ public class NodeData
     public NodeState State { get; set; } = NodeState.Loading;
 }
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum NodeState
 {
     Loading,
