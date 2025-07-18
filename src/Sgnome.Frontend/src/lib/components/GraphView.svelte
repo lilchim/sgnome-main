@@ -117,7 +117,6 @@
     padding: 4px 8px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    background: white;
     cursor: pointer;
     font-size: 12px;
   }
