@@ -13,6 +13,7 @@
   <ItemGroup>
     <PackageReference Include="SteamApi.Client" Version="1.0.3" />
     <PackageReference Include="SteamApi.Models" Version="1.0.3" />
+    <PackageReference Include="StackExchange.Redis" Version="2.7.17" />
   </ItemGroup>
 
 </Project> 

@@ -1,6 +1,7 @@
 using Sgnome.Models.Graph;
 using Sgnome.Models.Nodes;
 using PlayerService.Providers;
+using PlayerService.Database;
 using Microsoft.Extensions.Logging;
 
 namespace PlayerService;
@@ -8,13 +9,16 @@ namespace PlayerService;
 public class PlayerService : IPlayerService
 {
     private readonly PlayerAggregator _aggregator;
+    private readonly IPlayerDatabase _database;
     private readonly ILogger<PlayerService> _logger;
 
     public PlayerService(
         PlayerAggregator aggregator,
+        IPlayerDatabase database,
         ILogger<PlayerService> logger)
     {
         _aggregator = aggregator;
+        _database = database;
         _logger = logger;
     }
 
@@ -24,9 +28,24 @@ public class PlayerService : IPlayerService
         
         try
         {
-            // For now: create on the spot (baby steps)
-            // Later: check cache, database, external APIs, etc.
-            var resolvedPlayer = new PlayerNode
+            // Build identifiers dictionary for lookup
+            var identifiers = new Dictionary<string, object>();
+            if (!string.IsNullOrEmpty(partialPlayer.SteamId))
+                identifiers["steam"] = partialPlayer.SteamId;
+            if (!string.IsNullOrEmpty(partialPlayer.EpicId))
+                identifiers["epic"] = partialPlayer.EpicId;
+            
+            // Try to resolve existing player from database
+            var existingPlayer = await _database.ResolvePlayerAsync(identifiers);
+            if (existingPlayer != null)
+            {
+                _logger.LogInformation("Found existing player with internal ID {InternalId}", 
+                    existingPlayer.Identifiers.GetValueOrDefault("internalId"));
+                return existingPlayer;
+            }
+            
+            // Create new player if not found
+            var newPlayer = new PlayerNode
             {
                 SteamId = partialPlayer.SteamId,
                 EpicId = partialPlayer.EpicId,
@@ -34,16 +53,12 @@ public class PlayerService : IPlayerService
                 AvatarUrl = partialPlayer.AvatarUrl,
                 Identifiers = new Dictionary<string, object>()
             };
-
-            // If we have a SteamId, try to get additional data from providers
-            if (!string.IsNullOrEmpty(partialPlayer.SteamId))
-            {
-                // TODO: Call providers to enrich the player data
-                // For now, just use what we have
-                _logger.LogInformation("PlayerNode resolved for SteamId {SteamId}", partialPlayer.SteamId);
-            }
-
-            return resolvedPlayer;
+            
+            var createdPlayer = await _database.CreatePlayerAsync(newPlayer, identifiers);
+            _logger.LogInformation("Created new player with internal ID {InternalId}", 
+                createdPlayer.Identifiers.GetValueOrDefault("internalId"));
+            
+            return createdPlayer;
         }
         catch (Exception ex)
         {

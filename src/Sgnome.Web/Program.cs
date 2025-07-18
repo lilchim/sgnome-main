@@ -6,6 +6,7 @@ using LibraryService;
 using LibraryService.Providers;
 using OrganizedLibraryService;
 using OrganizedLibraryService.Providers;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +26,14 @@ builder.Services.AddCors(options =>
     });
 });
 
+// Add Redis
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+{
+    var configuration = sp.GetRequiredService<IConfiguration>();
+    var redisConnectionString = configuration.GetConnectionString("Redis") ?? "localhost:6379";
+    return ConnectionMultiplexer.Connect(redisConnectionString);
+});
+
 // Add Steam API client
 builder.Services.AddSteamApiClient(options =>
 {
@@ -35,6 +44,7 @@ builder.Services.AddSteamApiClient(options =>
 // Add Player services
 builder.Services.AddScoped<ISteamPlayerProvider, SteamPlayerProvider>();
 builder.Services.AddScoped<PlayerService.PlayerAggregator>();
+builder.Services.AddScoped<PlayerService.Database.IPlayerDatabase, PlayerService.Database.RedisPlayerDatabase>();
 builder.Services.AddScoped<IPlayerService, PlayerService.PlayerService>();
 
 // Add Library services
