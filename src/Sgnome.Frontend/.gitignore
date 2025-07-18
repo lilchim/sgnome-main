@@ -74,7 +74,6 @@ pids
 *.suo
 *.ntvs*
 *.njsproj
-*.sln
 *.sw?
 
 # OS files

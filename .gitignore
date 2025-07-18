@@ -158,7 +158,6 @@ temp/
 *.suo
 *.ntvs*
 *.njsproj
-*.sln
 *.sw?
 
 # API Keys and Secrets (additional security)
