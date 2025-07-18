@@ -9,7 +9,7 @@ on:
 
 env:
   DOTNET_VERSION: '8.0.x'
-  NODE_VERSION: '18'
+  NODE_VERSION: '20'
 
 jobs:
   version-and-build:
@@ -72,12 +72,12 @@ jobs:
     
     - name: Build .NET projects
       run: |
-        dotnet restore
-        dotnet build --no-restore --configuration Release
+        dotnet restore Sgnome.sln
+        dotnet build Sgnome.sln --no-restore --configuration Release
     
     - name: Run tests
       run: |
-        dotnet test --no-build --verbosity normal --configuration Release
+        dotnet test Sgnome.sln --no-build --verbosity normal --configuration Release
     
     - name: Build Docker image
       run: |
