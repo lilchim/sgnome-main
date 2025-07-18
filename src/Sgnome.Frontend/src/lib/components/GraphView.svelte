@@ -8,17 +8,6 @@
   // Test data for development
   const testSteamId = '76561197995791208';
 
-  // Handle user interaction
-  function handleFetchUserLibrary() {
-    // Use the development helper to test with a canned endpoint
-    fetchWithEndpoint('/api/player/select', {
-      steamId: testSteamId,
-      displayName: 'Test Player',
-      epicId: null,
-      identifiers: {}
-    });
-  }
-
   function handleClearGraph() {
     clearGraph();
   }
@@ -27,10 +16,12 @@
   async function handleAddTestPlayer() {
     // Use the development helper to test with a canned endpoint
     fetchWithEndpoint('/api/player/select', {
-      steamId: testSteamId,
-      displayName: 'Test Player',
-      epicId: null,
-      identifiers: {}
+      player: {
+        steamId: testSteamId,
+        displayName: 'Test Player',
+        epicId: null,
+        identifiers: {}
+      }
     });
   }
 

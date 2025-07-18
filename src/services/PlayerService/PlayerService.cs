@@ -20,7 +20,7 @@ public class PlayerService : IPlayerService
 
     public async Task<PlayerNode> ResolveNodeAsync(PlayerNode partialPlayer)
     {
-        _logger.LogInformation("Resolving PlayerNode for {SteamId}, partialPlayer.SteamId", partialPlayer.SteamId);
+        _logger.LogInformation("Resolving PlayerNode for SteamId {SteamId}", partialPlayer.SteamId);
         
         try
         {
@@ -40,14 +40,14 @@ public class PlayerService : IPlayerService
             {
                 // TODO: Call providers to enrich the player data
                 // For now, just use what we have
-                _logger.LogInformation("PlayerNode resolved for SteamId {SteamId}, partialPlayer.SteamId", partialPlayer.SteamId);
+                _logger.LogInformation("PlayerNode resolved for SteamId {SteamId}", partialPlayer.SteamId);
             }
 
             return resolvedPlayer;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error resolving PlayerNode for {SteamId}, partialPlayer.SteamId", partialPlayer.SteamId);
+            _logger.LogError(ex, "Error resolving PlayerNode for SteamId {SteamId}", partialPlayer.SteamId);
             throw;
         }
     }
