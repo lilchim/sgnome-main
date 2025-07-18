@@ -67,7 +67,6 @@
     </div>
     <div class="actions">
       <button on:click={handleAddTestPlayer}>Add Test Player</button>
-      <button on:click={handleFetchUserLibrary}>Fetch User Library</button>
       <button on:click={handleClearGraph}>Clear</button>
     </div>
   </div>
