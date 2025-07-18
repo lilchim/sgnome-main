@@ -50,9 +50,21 @@ jobs:
       run: |
         # Update Directory.Build.props
         sed -i "s/<Version>.*<\/Version>/<Version>${{ steps.version.outputs.version }}<\/Version>/g" Directory.Build.props
-        sed -i "s/<AssemblyVersion>.*<\/AssemblyVersion>/<AssemblyVersion>${{ steps.version.outputs.version }}.0<\/AssemblyVersion>/g" Directory.Build.props
-        sed -i "s/<FileVersion>.*<\/FileVersion>/<FileVersion>${{ steps.version.outputs.version }}.0<\/FileVersion>/g" Directory.Build.props
+        
+        # For AssemblyVersion and FileVersion, use a proper 4-part version format
+        # Extract major.minor from the version and use run_number as build, 0 as revision
+        if [[ $GITHUB_REF == refs/tags/v* ]]; then
+          # For tags, use the version as-is with .0 revision
+          ASSEMBLY_VERSION="${{ steps.version.outputs.version }}.0"
+        else
+          # For development builds, use 0.1.0.{run_number}.0
+          ASSEMBLY_VERSION="0.1.0.${{ github.run_number }}.0"
+        fi
+        
+        sed -i "s/<AssemblyVersion>.*<\/AssemblyVersion>/<AssemblyVersion>${ASSEMBLY_VERSION}<\/AssemblyVersion>/g" Directory.Build.props
+        sed -i "s/<FileVersion>.*<\/FileVersion>/<FileVersion>${ASSEMBLY_VERSION}<\/FileVersion>/g" Directory.Build.props
         echo "Updated .NET version to ${{ steps.version.outputs.version }}"
+        echo "Updated AssemblyVersion/FileVersion to ${ASSEMBLY_VERSION}"
     
     - name: Update frontend version
       run: |
