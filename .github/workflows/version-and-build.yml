@@ -72,6 +72,7 @@ jobs:
     
     - name: Build .NET projects
       run: |
+        cd ../..  
         dotnet restore Sgnome.sln
         dotnet build Sgnome.sln --no-restore --configuration Release
     
