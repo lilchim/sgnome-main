@@ -31,16 +31,16 @@ public class PlayerService : IPlayerService
             // Build identifiers dictionary for lookup
             var identifiers = new Dictionary<string, object>();
             if (!string.IsNullOrEmpty(partialPlayer.SteamId))
-                identifiers["steam"] = partialPlayer.SteamId;
+                identifiers[PlayerIdentifiers.Steam] = partialPlayer.SteamId;
             if (!string.IsNullOrEmpty(partialPlayer.EpicId))
-                identifiers["epic"] = partialPlayer.EpicId;
+                identifiers[PlayerIdentifiers.Epic] = partialPlayer.EpicId;
             
             // Try to resolve existing player from database
             var existingPlayer = await _database.ResolvePlayerAsync(identifiers);
             if (existingPlayer != null)
             {
                 _logger.LogInformation("Found existing player with internal ID {InternalId}", 
-                    existingPlayer.Identifiers.GetValueOrDefault("internalId"));
+                    existingPlayer.Identifiers.GetValueOrDefault(PlayerIdentifiers.Internal));
                 return existingPlayer;
             }
             
@@ -56,7 +56,7 @@ public class PlayerService : IPlayerService
             
             var createdPlayer = await _database.CreatePlayerAsync(newPlayer, identifiers);
             _logger.LogInformation("Created new player with internal ID {InternalId}", 
-                createdPlayer.Identifiers.GetValueOrDefault("internalId"));
+                createdPlayer.Identifiers.GetValueOrDefault(PlayerIdentifiers.Internal));
             
             return createdPlayer;
         }

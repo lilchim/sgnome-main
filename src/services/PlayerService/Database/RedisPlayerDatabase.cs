@@ -48,7 +48,7 @@ public class RedisPlayerDatabase : IPlayerDatabase
     {
         // Generate internal ID
         var internalId = Guid.NewGuid().ToString();
-        player.Identifiers["internalId"] = internalId;
+        player.Identifiers[PlayerIdentifiers.Internal] = internalId;
         
         var playerKey = $"{PlayerKeyPrefix}:{InternalKeyPrefix}:{internalId}";
         var playerJson = JsonSerializer.Serialize(player);
@@ -65,7 +65,7 @@ public class RedisPlayerDatabase : IPlayerDatabase
     
     public async Task<PlayerNode> UpdatePlayerAsync(PlayerNode player)
     {
-        if (!player.Identifiers.TryGetValue("internalId", out var internalIdObj) || 
+        if (!player.Identifiers.TryGetValue(PlayerIdentifiers.Internal, out var internalIdObj) || 
             internalIdObj is not string internalId)
         {
             throw new ArgumentException("Player must have an internal ID to update");
