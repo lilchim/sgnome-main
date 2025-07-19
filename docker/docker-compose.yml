@@ -30,6 +30,7 @@ services:
     volumes:
       - redis-insight:/data   
 
+  # Local image
   sgnome-web:
     build:
       context: ..
@@ -45,8 +46,23 @@ services:
     networks:
       - sgnome-network
 
+  # Hosted image
+  # sgnome-web:
+  #   image: lilchim/sgnome-web:latest
+  #   ports:
+  #     - "5000:8080"
+  #   environment:
+  #     - SteamApi__BaseUrl=http://steam-api:8080
+  #     - SteamApi__ApiKey=${STEAM_API_KEY:-dev-key}
+  #   depends_on:
+  #     - steam-api
+  #     - redis
+  #   networks:
+  #     - sgnome-network
+
 volumes:
   redis-data:
+  redis-insight:
 
 networks:
   sgnome-network:
