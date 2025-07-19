@@ -30,17 +30,18 @@ public class SteamLibraryProvider : ISteamLibraryProvider
             }
 
             var ownedGames = steamResponse.Response;
-            
-            // Create the main Steam library pin
-            var steamLibraryPin = new Pin
+            var pins = new List<Pin>();
+
+            // Steam organized library pin
+            var steamOrganizedLibraryPin = new Pin
             {
-                Id = $"steam-library-{steamId}",
-                Label = $"Steam Library ({ownedGames.GameCount} games)",
-                Type = "steam-library",
-                Behavior = context.InputNodeType == "library" ? PinBehavior.Informational : PinBehavior.Expandable,
+                Id = $"steam-organized-library-{steamId}",
+                Label = $"Steam Organized Library ({ownedGames.GameCount} games)",
+                Type = "steam-organized-library",
+                Behavior = context.InputNodeType == "organized-library" ? PinBehavior.Informational : PinBehavior.Expandable,
                 Summary = new PinSummary
                 {
-                    DisplayText = $"{ownedGames.GameCount} games on Steam",
+                    DisplayText = $"{ownedGames.GameCount} games available for organization",
                     Count = ownedGames.GameCount,
                     Icon = "steam"
                 },
@@ -52,16 +53,21 @@ public class SteamLibraryProvider : ISteamLibraryProvider
                     Parameters = context.ApiParameters
                 }
             };
+            pins.Add(steamOrganizedLibraryPin);
 
-            _logger.LogInformation("Retrieved Steam library data for {SteamId} with {GameCount} games", 
-                steamId, ownedGames.GameCount);
+            // TODO: When GamesListService is created, it will be responsible for creating
+            // pins that point to games-list nodes. This service only provides information
+            // about the organized library itself.
 
-            return new[] { steamLibraryPin };
+            _logger.LogInformation("Retrieved {PinCount} organized library pins for Steam {SteamId}", 
+                pins.Count, steamId);
+
+            return pins;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error getting Steam library data for {SteamId}", steamId);
+            _logger.LogError(ex, "Error getting organized library pins for Steam {SteamId}", steamId);
             return Enumerable.Empty<Pin>();
         }
     }
-} 
+}  

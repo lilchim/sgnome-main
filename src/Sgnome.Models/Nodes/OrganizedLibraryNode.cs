@@ -1,23 +1,24 @@
 namespace Sgnome.Models.Nodes;
 
 /// <summary>
-/// Represents an organized view of a specific game library (e.g., Steam, Epic, GOG).
+/// Represents a single library source (e.g., Steam, Epic, GOG) for a player.
 /// 
-/// Role: Provides categorized access to games within a specific library source.
-/// This node contains pins for different ways to view and organize the games
-/// (recently played, favorites, all games, etc.).
+/// Role: Manages a single library source and provides access to different views
+/// of the games within that library (recently played, favorites, all games, etc.).
 /// 
 /// Characteristics:
 /// - Belongs to a specific library source (Steam, Epic, etc.)
 /// - Contains pins for different game categories/views
-/// - Acts as an intermediary between Library and GamesList nodes
+/// - Acts as an intermediary between Libraries and GamesList nodes
+/// 
+/// Workflow: Libraries -> Library (shows organized views of that library)
 /// 
 /// Use Cases:
-/// - Player expands a library source pin from LibraryNode
+/// - Player expands a library source pin from LibrariesNode
 /// - Provides organized access to games within that library
 /// - Enables different views of the same game collection
 /// </summary>
-public class OrganizedLibraryNode
+public class LibraryNode
 {
     /// <summary>
     /// The library source this organized view belongs to (Steam, Epic, GOG, etc.)

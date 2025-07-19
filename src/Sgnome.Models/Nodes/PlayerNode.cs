@@ -3,6 +3,7 @@ namespace Sgnome.Models.Nodes;
 // Minimal player identity - relational data goes in pins
 public class PlayerNode
 {
+    public string? InternalId { get; set; }
     public string? SteamId { get; set; }
     public string? EpicId { get; set; }
     public string? DisplayName { get; set; }

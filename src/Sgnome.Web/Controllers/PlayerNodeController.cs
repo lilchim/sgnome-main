@@ -3,7 +3,7 @@ using Sgnome.Models.Nodes;
 using Sgnome.Models.Graph;
 using PlayerService;
 using LibraryService;
-using OrganizedLibraryService;
+using LibrariesService;
 
 namespace Sgnome.Web.Controllers;
 
@@ -12,19 +12,19 @@ namespace Sgnome.Web.Controllers;
 public class PlayerNodeController : ControllerBase
 {
     private readonly IPlayerService _playerService;
+    private readonly ILibrariesService _librariesService;
     private readonly ILibraryService _libraryService;
-    private readonly IOrganizedLibraryService _organizedLibraryService;
     private readonly ILogger<PlayerNodeController> _logger;
 
     public PlayerNodeController(
         IPlayerService playerService, 
+        ILibrariesService librariesService,
         ILibraryService libraryService,
-        IOrganizedLibraryService organizedLibraryService,
         ILogger<PlayerNodeController> logger)
     {
         _playerService = playerService;
+        _librariesService = librariesService;
         _libraryService = libraryService;
-        _organizedLibraryService = organizedLibraryService;
         _logger = logger;
     }
 
@@ -48,14 +48,14 @@ public class PlayerNodeController : ControllerBase
             
             // Get pins from all services using the resolved player
             var playerPins = await _playerService.GetPlayerInfoPinsAsync(resolvedPlayer);
+            var librariesPins = await _librariesService.GetLibrariesPinsAsync(resolvedPlayer);
             var libraryPins = await _libraryService.GetLibraryPinsAsync(resolvedPlayer);
-            var organizedLibraryPins = await _organizedLibraryService.GetOrganizedLibraryPinsAsync(resolvedPlayer);
             
             // Combine all pins
             var allPins = new List<Pin>();
             allPins.AddRange(playerPins);
+            allPins.AddRange(librariesPins);
             allPins.AddRange(libraryPins);
-            allPins.AddRange(organizedLibraryPins);
             
             // Attach pins to the player node
             playerNode.Data.Pins.AddRange(allPins);

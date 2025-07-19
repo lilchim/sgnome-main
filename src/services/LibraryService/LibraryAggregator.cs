@@ -18,109 +18,100 @@ public class LibraryAggregator
         _logger = logger;
     }
 
-    public async Task<IEnumerable<Pin>> GetLibraryPinsAsync(PlayerNode player)
-    {
-        var pins = new List<Pin>();
-        var totalGameCount = 0;
-        var platformCounts = new Dictionary<string, int>();
-
-        // Get Steam library pins if available
-        if (!string.IsNullOrEmpty(player.SteamId))
-        {
-            var context = new PinContext
-            {
-                InputNodeId = $"player-{player.SteamId}",
-                InputNodeType = "player",
-                TargetNodeType = "library",
-                ApiEndpoint = "/api/library/select",
-                ApiParameters = new Dictionary<string, object>
-                {
-                    ["playerId"] = player.SteamId,
-                    ["playerType"] = "steam"
-                }
-            };
-
-            var steamPins = await _steamProvider.GetLibraryPinsAsync(player.SteamId, context);
-            pins.AddRange(steamPins);
-            
-            // Extract game count for aggregation
-            foreach (var steamPin in steamPins)
-            {
-                if (steamPin.Type == "steam-library" && steamPin.Summary?.Count.HasValue == true)
-                {
-                    totalGameCount += steamPin.Summary.Count.Value;
-                    platformCounts["Steam"] = steamPin.Summary.Count.Value;
-                }
-            }
-        }
-
-        // TODO: Add Epic, GOG, etc. providers as they become available
-
-        // Create main Library pin that aggregates all platforms
-        if (totalGameCount > 0)
-        {
-            var mainLibraryPin = new Pin
-            {
-                Id = $"library-{player.SteamId ?? player.DisplayName}",
-                Label = $"Library ({totalGameCount} games)",
-                Type = "library",
-                Behavior = PinBehavior.Expandable,
-                Summary = new PinSummary
-                {
-                    DisplayText = $"{totalGameCount} games across {platformCounts.Count} platform{(platformCounts.Count >1 ? "s" : "")}",
-                    Count = totalGameCount,
-                    Icon = "library",
-                    Preview = new Dictionary<string, object>
-                    {
-                        ["platforms"] = platformCounts,
-                        ["platformCount"] = platformCounts.Count
-                    }
-                },
-                Metadata = new PinMetadata
-                {
-                    TargetNodeType = "library",
-                    OriginNodeId = $"player-{player.SteamId ?? player.DisplayName}",
-                    ApiEndpoint = "/api/library/select"!,
-                    Parameters = new Dictionary<string, object>
-                    {
-                        ["playerId"] = player.SteamId ?? player.DisplayName,
-                        ["playerType"] = "steam"
-                    }
-                }
-            };
-            
-            // Add the main library pin at the beginning
-            pins.Insert(0, mainLibraryPin);
-        }
-
-        return pins;
-    }
-
     public async Task<IEnumerable<Pin>> GetLibraryPinsAsync(LibraryNode library)
     {
         var pins = new List<Pin>();
 
-        // Get informational pins about the library itself
-        // For now, we'll get Steam library info if the player has a Steam ID
-        if (!string.IsNullOrEmpty(library.PlayerId))
+        // Create context for self-reference (informational pins)
+        var context = new PinContext
         {
-            var context = new PinContext
-            {
-                InputNodeId = $"library-{library.PlayerId}",
-                InputNodeType = "library",
-                TargetNodeType = "library",
-                ApiEndpoint = null, // Informational pin about self
-                ApiParameters = new Dictionary<string, object>()
-            };
+            InputNodeId = $"library-{library.LibrarySource}-{library.PlayerId}",
+            InputNodeType = "library",
+            TargetNodeType = "library",
+            ApiEndpoint = null, // Informational pins don't have API endpoints
+            ApiParameters = new Dictionary<string, object>()
+        };
 
+        // Get library pins based on the library source
+        if (library.LibrarySource.Equals("steam", StringComparison.OrdinalIgnoreCase))
+        {
             var steamPins = await _steamProvider.GetLibraryPinsAsync(library.PlayerId, context);
             pins.AddRange(steamPins);
         }
 
         // TODO: Add Epic, GOG, etc. providers as they become available
 
-        _logger.LogInformation("Retrieved {PinCount} informational pins for library {PlayerId}", 
-            pins.Count, library.PlayerId);
+        _logger.LogInformation("Aggregated {PinCount} library pins for {LibrarySource} player {PlayerId}", 
+            pins.Count, library.LibrarySource, library.PlayerId);
+
+        return pins;
+    }
+
+    public async Task<IEnumerable<Pin>> GetLibraryPinsAsync(PlayerNode player)
+    {
+        var pins = new List<Pin>();
+        var playerId = player.InternalId ?? player.SteamId ?? player.EpicId ?? player.DisplayName ?? "unknown";
+
+        // Create context for cross-domain (relational pins from player)
+        var context = new PinContext
+        {
+            InputNodeId = $"player-{playerId}",
+            InputNodeType = "player",
+            TargetNodeType = "library",
+            ApiEndpoint = "/api/library/select",
+            ApiParameters = new Dictionary<string, object>
+            {
+                ["playerId"] = playerId,
+                ["librarySource"] = "steam"
+            }
+        };
+
+        // Get library pins for a player
+        // For now, we'll create Steam library pins if the player has a Steam ID
+        if (!string.IsNullOrEmpty(player.SteamId))
+        {
+            var steamPins = await _steamProvider.GetLibraryPinsAsync(player.SteamId, context);
+            pins.AddRange(steamPins);
+        }
+
+        // TODO: Add Epic, GOG, etc. providers as they become available
+
+        _logger.LogInformation("Retrieved {PinCount} library pins for player {PlayerId}", 
+            pins.Count, playerId);
+
+        return pins;
+    }
+
+    public async Task<IEnumerable<Pin>> GetLibraryPinsAsync(LibrariesNode libraries)
+    {
+        var pins = new List<Pin>();
+
+        // Create context for cross-domain (relational pins from libraries collection)
+        var context = new PinContext
+        {
+            InputNodeId = $"libraries-{libraries.PlayerId}",
+            InputNodeType = "libraries",
+            TargetNodeType = "library",
+            ApiEndpoint = "/api/library/select",
+            ApiParameters = new Dictionary<string, object>
+            {
+                ["playerId"] = libraries.PlayerId,
+                ["librarySource"] = "steam"
+            }
+        };
+
+        // Get library pins for a libraries collection
+        // For now, we'll create Steam library pins if the libraries has a player ID
+        if (!string.IsNullOrEmpty(libraries.PlayerId))
+        {
+            var steamPins = await _steamProvider.GetLibraryPinsAsync(libraries.PlayerId, context);
+            pins.AddRange(steamPins);
+        }
+
+        // TODO: Add Epic, GOG, etc. providers as they become available
+
+        _logger.LogInformation("Retrieved {PinCount} library pins for libraries {PlayerId}", 
+            pins.Count, libraries.PlayerId);
 
         return pins;
     }

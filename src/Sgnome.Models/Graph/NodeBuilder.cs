@@ -8,9 +8,10 @@ public static class NodeBuilder
 {
     public static Node CreatePlayerNode(PlayerNode player, double x = 300, double y = 200)
     {
+        var playerId = player.InternalId ?? player.SteamId ?? player.EpicId ?? Guid.NewGuid().ToString();
         return new Node
         {
-            Id = $"player-{player.SteamId ?? player.EpicId ?? Guid.NewGuid().ToString()}",
+            Id = $"player-{playerId}",
             Type = "default", // xyflow node type
             Position = new Position { X = x, Y = y },
             Data = new NodeData
@@ -60,16 +61,34 @@ public static class NodeBuilder
         };
     }
 
-    public static Node CreateLibraryNode(LibraryNode library, double x = 400, double y = 200)
+    public static Node CreateLibrariesNode(LibrariesNode libraries, double x = 400, double y = 200)
     {
         return new Node
         {
-            Id = $"library-{library.PlayerId}",
+            Id = $"libraries-{libraries.PlayerId}",
             Type = "default",
             Position = new Position { X = x, Y = y },
             Data = new NodeData
             {
-                Label = library.DisplayName ?? "Game Libraries",
+                Label = libraries.DisplayName ?? "Game Libraries",
+                NodeType = "libraries",
+                Properties = SerializeToDictionary(libraries),
+                Pins = new List<Pin>(),
+                State = NodeState.Loading
+            }
+        };
+    }
+
+    public static Node CreateLibraryNode(LibraryNode library, double x = 500, double y = 200)
+    {
+        return new Node
+        {
+            Id = $"library-{library.LibrarySource}-{library.PlayerId}",
+            Type = "default",
+            Position = new Position { X = x, Y = y },
+            Data = new NodeData
+            {
+                Label = library.DisplayName ?? $"{library.LibrarySource} Library",
                 NodeType = "library",
                 Properties = SerializeToDictionary(library),
                 Pins = new List<Pin>(),
@@ -78,18 +97,18 @@ public static class NodeBuilder
         };
     }
 
-    public static Node CreateOrganizedLibraryNode(OrganizedLibraryNode organizedLibrary, double x = 500, double y = 200)
+    public static Node CreateOrganizedLibraryNode(LibraryNode library, double x = 500, double y = 200)
     {
         return new Node
         {
-            Id = $"organized-library-{organizedLibrary.LibrarySource}-{organizedLibrary.PlayerId}",
+            Id = $"organized-library-{library.LibrarySource}-{library.PlayerId}",
             Type = "default",
             Position = new Position { X = x, Y = y },
             Data = new NodeData
             {
-                Label = organizedLibrary.DisplayName ?? $"{organizedLibrary.LibrarySource} Library",
+                Label = library.DisplayName ?? $"{library.LibrarySource} Library",
                 NodeType = "organized-library",
-                Properties = SerializeToDictionary(organizedLibrary),
+                Properties = SerializeToDictionary(library),
                 Pins = new List<Pin>(),
                 State = NodeState.Loading
             }

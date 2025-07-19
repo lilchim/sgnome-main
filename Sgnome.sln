@@ -8,9 +8,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sgnome.Models", "src\Sgnome
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlayerService", "src\services\PlayerService\PlayerService.csproj", "{D4E5F6G7-H8I9-0123-DEFG-456789012345}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibraryService", "src\services\LibraryService\LibraryService.csproj", "{E5F6G7H8-I9J0-1234-EFGH-567890123456}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibrariesService", "src\services\LibrariesService\LibrariesService.csproj", "{E5F6G7H8-I9J0-1234-EFGH-567890123456}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrganizedLibraryService", "src\services\OrganizedLibraryService\OrganizedLibraryService.csproj", "{F6G7H8I9-J0K1-2345-FGHI-678901234567}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibraryService", "src\services\LibraryService\LibraryService.csproj", "{F6G7H8I9-J0K1-2345-FGHI-678901234567}"
 EndProject
 
 Global

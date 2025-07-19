@@ -58,4 +58,12 @@ public static class EdgeBuilder
     {
         return CreateEdge(playerNodeId, organizedLibraryNodeId, "expands_to", "Expands To");
     }
+
+    /// <summary>
+    /// Creates an edge from a player to their libraries
+    /// </summary>
+    public static Edge CreatePlayerToLibrariesEdge(string playerNodeId, string librariesNodeId)
+    {
+        return CreateEdge(playerNodeId, librariesNodeId, "owns", "Owns Libraries");
+    }
 } 

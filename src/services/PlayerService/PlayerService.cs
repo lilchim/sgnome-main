@@ -39,8 +39,9 @@ public class PlayerService : IPlayerService
             var existingPlayer = await _database.ResolvePlayerAsync(identifiers);
             if (existingPlayer != null)
             {
-                _logger.LogInformation("Found existing player with internal ID {InternalId}", 
-                    existingPlayer.Identifiers.GetValueOrDefault(PlayerIdentifiers.Internal));
+                // Set InternalId for easier access
+                existingPlayer.InternalId = existingPlayer.Identifiers.GetValueOrDefault(PlayerIdentifiers.Internal)?.ToString();
+                _logger.LogInformation("Found existing player with internal ID {InternalId}", existingPlayer.InternalId);
                 return existingPlayer;
             }
             
@@ -55,8 +56,9 @@ public class PlayerService : IPlayerService
             };
             
             var createdPlayer = await _database.CreatePlayerAsync(newPlayer, identifiers);
-            _logger.LogInformation("Created new player with internal ID {InternalId}", 
-                createdPlayer.Identifiers.GetValueOrDefault(PlayerIdentifiers.Internal));
+            // Set InternalId for easier access
+            createdPlayer.InternalId = createdPlayer.Identifiers.GetValueOrDefault(PlayerIdentifiers.Internal)?.ToString();
+            _logger.LogInformation("Created new player with internal ID {InternalId}", createdPlayer.InternalId);
             
             return createdPlayer;
         }
@@ -69,7 +71,8 @@ public class PlayerService : IPlayerService
 
     public async Task<IEnumerable<Pin>> GetPlayerInfoPinsAsync(PlayerNode player)
     {
-        _logger.LogInformation("Getting player info pins for player {PlayerId}", player.SteamId);
+        var playerId = player.InternalId ?? player.SteamId ?? player.EpicId ?? player.DisplayName ?? "unknown";
+        _logger.LogInformation("Getting player info pins for player {PlayerId}", playerId);
         
         try
         {
@@ -79,14 +82,16 @@ public class PlayerService : IPlayerService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error getting player info pins for player {PlayerId}", player.SteamId);
+            var errorPlayerId = player.InternalId ?? player.SteamId ?? player.EpicId ?? player.DisplayName ?? "unknown";
+            _logger.LogError(ex, "Error getting player info pins for player {PlayerId}", errorPlayerId);
             throw;
         }
     }
 
     public async Task<IEnumerable<Pin>> GetFriendsPinsAsync(PlayerNode player)
     {
-        _logger.LogInformation("Getting friends pins for player {PlayerId}", player.SteamId);
+        var playerId = player.InternalId ?? player.SteamId ?? player.EpicId ?? player.DisplayName ?? "unknown";
+        _logger.LogInformation("Getting friends pins for player {PlayerId}", playerId);
         
         try
         {
@@ -96,14 +101,15 @@ public class PlayerService : IPlayerService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error getting friends pins for player {PlayerId}", player.SteamId);
+            _logger.LogError(ex, "Error getting friends pins for player {PlayerId}", playerId);
             throw;
         }
     }
 
     public async Task<IEnumerable<Pin>> GetActivityPinsAsync(PlayerNode player)
     {
-        _logger.LogInformation("Getting activity pins for player {PlayerId}", player.SteamId);
+        var playerId = player.InternalId ?? player.SteamId ?? player.EpicId ?? player.DisplayName ?? "unknown";
+        _logger.LogInformation("Getting activity pins for player {PlayerId}", playerId);
         
         try
         {
@@ -113,7 +119,7 @@ public class PlayerService : IPlayerService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error getting activity pins for player {PlayerId}", player.SteamId);
+            _logger.LogError(ex, "Error getting activity pins for player {PlayerId}", playerId);
             throw;
         }
     }

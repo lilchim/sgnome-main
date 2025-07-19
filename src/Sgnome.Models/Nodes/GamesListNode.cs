@@ -33,7 +33,7 @@ public class GamesListNode
     public string DisplayName { get; set; } = string.Empty;
     
     /// <summary>
-    /// Source of this games list (library, custom, recommendation, etc.)
+    /// Source of this games list (library, user-created, system-generated, etc.)
     /// </summary>
     public string Source { get; set; } = string.Empty;
     

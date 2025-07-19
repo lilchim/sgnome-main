@@ -17,8 +17,8 @@
   <ItemGroup>
     <ProjectReference Include="../Sgnome.Models/Sgnome.Models.csproj" />
     <ProjectReference Include="../services/PlayerService/PlayerService.csproj" />
+    <ProjectReference Include="../services/LibrariesService/LibrariesService.csproj" />
     <ProjectReference Include="../services/LibraryService/LibraryService.csproj" />
-    <ProjectReference Include="../services/OrganizedLibraryService/OrganizedLibraryService.csproj" />
   </ItemGroup>
 
 </Project> 
