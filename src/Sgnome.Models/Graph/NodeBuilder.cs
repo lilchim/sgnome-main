@@ -8,7 +8,7 @@ public static class NodeBuilder
 {
     public static Node CreatePlayerNode(PlayerNode player, double x = 300, double y = 200)
     {
-        var playerId = player.InternalId ?? player.SteamId ?? player.EpicId ?? Guid.NewGuid().ToString();
+        var playerId = player.InternalId ?? player.Identifiers.GetValueOrDefault("steam") ?? player.Identifiers.GetValueOrDefault("epic") ?? Guid.NewGuid().ToString();
         return new Node
         {
             Id = $"player-{playerId}",
@@ -61,7 +61,7 @@ public static class NodeBuilder
         };
     }
 
-    public static Node CreateLibrariesNode(LibrariesNode libraries, double x = 400, double y = 200)
+    public static Node CreateLibrariesNode(LibraryListNode libraries, double x = 400, double y = 200)
     {
         return new Node
         {
@@ -83,31 +83,13 @@ public static class NodeBuilder
     {
         return new Node
         {
-            Id = $"library-{library.LibrarySource}-{library.PlayerId}",
+            Id = $"library-{library.LibrarySource}-{library.InternalId}",
             Type = "default",
             Position = new Position { X = x, Y = y },
             Data = new NodeData
             {
                 Label = library.DisplayName ?? $"{library.LibrarySource} Library",
                 NodeType = "library",
-                Properties = SerializeToDictionary(library),
-                Pins = new List<Pin>(),
-                State = NodeState.Loading
-            }
-        };
-    }
-
-    public static Node CreateOrganizedLibraryNode(LibraryNode library, double x = 500, double y = 200)
-    {
-        return new Node
-        {
-            Id = $"organized-library-{library.LibrarySource}-{library.PlayerId}",
-            Type = "default",
-            Position = new Position { X = x, Y = y },
-            Data = new NodeData
-            {
-                Label = library.DisplayName ?? $"{library.LibrarySource} Library",
-                NodeType = "organized-library",
                 Properties = SerializeToDictionary(library),
                 Pins = new List<Pin>(),
                 State = NodeState.Loading

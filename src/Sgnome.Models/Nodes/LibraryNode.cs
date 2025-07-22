@@ -21,19 +21,25 @@ namespace Sgnome.Models.Nodes;
 public class LibraryNode
 {
     /// <summary>
+    /// Internal identifier for Redis storage and resolution
+    /// </summary>
+    public string InternalId { get; set; } = string.Empty;
+    
+    /// <summary>
     /// The library source this organized view belongs to (Steam, Epic, GOG, etc.)
     /// </summary>
     public string LibrarySource { get; set; } = string.Empty;
     
     /// <summary>
-    /// The player who owns this library
-    /// </summary>
-    public string PlayerId { get; set; } = string.Empty;
-    
-    /// <summary>
     /// Display name for this organized library view
     /// </summary>
     public string DisplayName { get; set; } = string.Empty;
+    
+    /// <summary>
+    /// External service identifiers and relationships
+    /// Example: { ["player"] = "player-internal-id", ["steam"] = "76561198012345678" }
+    /// </summary>
+    public Dictionary<string, string> Identifiers { get; set; } = new();
     
     /// <summary>
     /// Total number of games in this library

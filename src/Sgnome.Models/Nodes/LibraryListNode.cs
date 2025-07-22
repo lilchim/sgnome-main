@@ -18,8 +18,13 @@ namespace Sgnome.Models.Nodes;
 /// - Provides overview of all available game libraries
 /// - Enables access to individual library sources
 /// </summary>
-public class LibrariesNode
+public class LibraryListNode
 {
+    /// <summary>
+    /// Internal identifier for Redis storage and resolution
+    /// </summary>
+    public string InternalId { get; set; } = string.Empty;
+    
     /// <summary>
     /// The player who owns this library collection
     /// </summary>
@@ -31,19 +36,12 @@ public class LibrariesNode
     public string DisplayName { get; set; } = string.Empty;
     
     /// <summary>
-    /// Available library sources (Steam, Epic, GOG, etc.)
+    /// Maps library source to internal ID for efficient resolution
+    /// Example: { ["steam"] = "library-123", ["epic"] = "library-456" }
     /// </summary>
-    public List<string> AvailableSources { get; set; } = new();
+    public Dictionary<string, string> LibrarySourceMapping { get; set; } = new();
     
-    /// <summary>
-    /// Internal IDs of the LibraryNode instances that belong to this collection
-    /// </summary>
-    public List<string> LibraryIds { get; set; } = new();
-    
-    /// <summary>
-    /// Total number of games across all libraries
-    /// </summary>
-    public int TotalGameCount { get; set; }
+
     
     /// <summary>
     /// Last time the library data was updated
