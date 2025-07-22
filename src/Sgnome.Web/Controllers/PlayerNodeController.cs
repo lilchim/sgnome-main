@@ -36,14 +36,13 @@ public class PlayerNodeController : ControllerBase
     {
         try
         {
-            // Resolve the player node using the service
-            var resolvedPlayer = await _playerService.ResolveNodeAsync(request.Player);
+            // Consume the player node using the service (resolves and generates enrichment pins)
+            var (playerPins, resolvedPlayer) = await _playerService.Consume(request.Player);
             
             // Create the graph node from the resolved player
             var playerNode = NodeBuilder.CreatePlayerNode(resolvedPlayer);
             
-            // Get pins from all services using the resolved player
-            var playerPins = await _playerService.GetPlayerInfoPinsAsync(resolvedPlayer);
+            // Get cross-domain pins from library service
             var libraryPins = await _libraryService.Consume(resolvedPlayer);
             
             // Combine all pins
