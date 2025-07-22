@@ -1,6 +1,6 @@
 using Sgnome.Models.Nodes;
 
-namespace LibrariesService.Database;
+namespace LibraryService.Database;
 
 /// <summary>
 /// Handles persistent storage and retrieval of LibraryNode data in Redis
@@ -8,31 +8,25 @@ namespace LibrariesService.Database;
 public interface ILibraryDatabase
 {
     /// <summary>
-    /// Attempts to resolve a LibraryNode using player ID and library source
+    /// Resolves a LibraryNode using any of the provided identifiers, creating or updating as needed
     /// </summary>
-    /// <param name="playerId">The player ID</param>
+    /// <param name="identifiers">Dictionary of identifier type -> value pairs</param>
     /// <param name="librarySource">The library source (steam, epic, etc.)</param>
-    /// <returns>Resolved LibraryNode if found, null otherwise</returns>
-    Task<LibraryNode?> ResolveLibraryAsync(string playerId, string librarySource);
+    /// <param name="displayName">Optional display name for new libraries</param>
+    /// <returns>Resolved LibraryNode with all identifiers up to date</returns>
+    Task<LibraryNode> ResolveLibraryAsync(Dictionary<string, string> identifiers, string librarySource, string? displayName = null);
     
     /// <summary>
-    /// Creates a new LibraryNode
+    /// Adds additional identifiers to an existing library
     /// </summary>
-    /// <param name="library">The library node to store</param>
-    /// <returns>The created LibraryNode with internal ID assigned</returns>
-    Task<LibraryNode> CreateLibraryAsync(LibraryNode library);
+    /// <param name="internalId">The internal library ID</param>
+    /// <param name="identifiers">Additional identifier mappings to add</param>
+    Task AddIdentifiersAsync(string internalId, Dictionary<string, string> identifiers);
     
     /// <summary>
-    /// Updates an existing LibraryNode
+    /// Gets a library by its internal ID
     /// </summary>
-    /// <param name="library">The library node to update</param>
-    /// <returns>The updated LibraryNode</returns>
-    Task<LibraryNode> UpdateLibraryAsync(LibraryNode library);
-    
-    /// <summary>
-    /// Gets all LibraryNode instances for a player
-    /// </summary>
-    /// <param name="playerId">The player ID</param>
-    /// <returns>List of library nodes</returns>
-    Task<List<LibraryNode>> GetLibrariesForPlayerAsync(string playerId);
+    /// <param name="internalId">The internal library ID</param>
+    /// <returns>The library node if found, null otherwise</returns>
+    Task<LibraryNode?> GetByInternalIdAsync(string internalId);
 } 
