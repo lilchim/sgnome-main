@@ -6,30 +6,23 @@ namespace PlayerService;
 public interface IPlayerService
 {
     /// <summary>
-    /// Resolves a PlayerNode from partial data
+    /// Consumes a PlayerNode (self-domain) - resolves the node and returns enrichment pins
     /// </summary>
-    /// <param name="partialPlayer">Partial player data to resolve</param>
-    /// <returns>Resolved PlayerNode instance</returns>
-    Task<PlayerNode> ResolveNodeAsync(PlayerNode partialPlayer);
+    /// <param name="partial">Partial player data to resolve</param>
+    /// <returns>Tuple of enrichment pins and resolved PlayerNode</returns>
+    Task<(IEnumerable<Pin> Pins, PlayerNode ResolvedNode)> Consume(PlayerNode partial);
 
     /// <summary>
-    /// Gets player information pins for a player node
+    /// Consumes a LibraryNode (foreign-domain) - returns pins linking to player data
     /// </summary>
-    /// <param name="player">The player node to get info for</param>
-    /// <returns>Collection of pins representing player information</returns>
-    Task<IEnumerable<Pin>> GetPlayerInfoPinsAsync(PlayerNode player);
-    
+    /// <param name="library">Library node to analyze for player connections</param>
+    /// <returns>Collection of pins representing player-related information</returns>
+    Task<IEnumerable<Pin>> Consume(LibraryNode library);
+
     /// <summary>
-    /// Gets friends pins for a player node
+    /// Consumes a LibraryListNode (foreign-domain) - returns pins linking to player data
     /// </summary>
-    /// <param name="player">The player node to get friends for</param>
-    /// <returns>Collection of pins representing player's friends</returns>
-    Task<IEnumerable<Pin>> GetFriendsPinsAsync(PlayerNode player);
-    
-    /// <summary>
-    /// Gets activity pins for a player node
-    /// </summary>
-    /// <param name="player">The player node to get activity for</param>
-    /// <returns>Collection of pins representing player's activity</returns>
-    Task<IEnumerable<Pin>> GetActivityPinsAsync(PlayerNode player);
+    /// <param name="libraryList">Library list node to analyze for player connections</param>
+    /// <returns>Collection of pins representing player-related information</returns>
+    Task<IEnumerable<Pin>> Consume(LibraryListNode libraryList);
 } 

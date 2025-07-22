@@ -2,117 +2,123 @@ using Sgnome.Models.Graph;
 using Sgnome.Models.Nodes;
 using PlayerService.Providers;
 using PlayerService.Database;
+using PlayerService.PinGenerators;
 using Microsoft.Extensions.Logging;
 
 namespace PlayerService;
 
 public class PlayerService : IPlayerService
 {
-    private readonly PlayerAggregator _aggregator;
     private readonly IPlayerDatabase _database;
+    private readonly PlayerInfoPinGenerator _infoPinGenerator;
+    private readonly PlayerFriendsPinGenerator _friendsPinGenerator;
+    private readonly PlayerActivityPinGenerator _activityPinGenerator;
     private readonly ILogger<PlayerService> _logger;
 
     public PlayerService(
-        PlayerAggregator aggregator,
         IPlayerDatabase database,
+        PlayerInfoPinGenerator infoPinGenerator,
+        PlayerFriendsPinGenerator friendsPinGenerator,
+        PlayerActivityPinGenerator activityPinGenerator,
         ILogger<PlayerService> logger)
     {
-        _aggregator = aggregator;
         _database = database;
+        _infoPinGenerator = infoPinGenerator;
+        _friendsPinGenerator = friendsPinGenerator;
+        _activityPinGenerator = activityPinGenerator;
         _logger = logger;
     }
 
-    public async Task<PlayerNode> ResolveNodeAsync(PlayerNode partialPlayer)
+    public async Task<(IEnumerable<Pin> Pins, PlayerNode ResolvedNode)> Consume(PlayerNode partial)
     {
-        // Extract Steam ID from identifiers
-        // var steamId = partialPlayer.Identifiers.GetValueOrDefault(PlayerIdentifiers.Steam);
-        
-        _logger.LogInformation("Resolving PlayerNode");
+        _logger.LogInformation("Consuming PlayerNode");
         
         try
         {
             // Resolve player from database (creates or updates as needed)
-            var resolvedPlayer = await _database.ResolvePlayerAsync(partialPlayer.Identifiers);
+            var resolvedPlayer = await _database.ResolvePlayerAsync(partial.Identifiers);
             _logger.LogInformation("Resolved player with internal ID {InternalId}", resolvedPlayer.InternalId);
             
-            return resolvedPlayer;
+            // Generate enrichment pins for the resolved player
+            var pins = await CreatePlayerPinsAsync(resolvedPlayer, resolvedPlayer.InternalId!, "player");
+            
+            return (pins, resolvedPlayer);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error resolving PlayerNode");
+            _logger.LogError(ex, "Error consuming PlayerNode");
             throw;
         }
     }
 
-    public async Task<IEnumerable<Pin>> GetPlayerInfoPinsAsync(PlayerNode player)
+    public async Task<IEnumerable<Pin>> Consume(LibraryNode library)
     {
-        if (string.IsNullOrEmpty(player.InternalId))
-        {
-            _logger.LogWarning("Player missing InternalId, cannot process player info pins");
-            return Enumerable.Empty<Pin>();
-        }
-
-        var playerId = player.InternalId;
-        _logger.LogInformation("Getting player info pins for player {PlayerId}", playerId);
+        _logger.LogInformation("Consuming LibraryNode for player data");
         
         try
         {
-            var pins = await _aggregator.GetPlayerInfoPinsAsync(player);
-            _logger.LogInformation("Successfully retrieved {PinCount} player info pins", pins.Count());
+            var pins = new List<Pin>();
+            
+            // For now, we don't have specific player-related pins for libraries
+            // This could be expanded to show library owners, recent players, etc.
+            
             return pins;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error getting player info pins for player {PlayerId}", playerId);
+            _logger.LogError(ex, "Error consuming LibraryNode for player data");
             throw;
         }
     }
 
-    public async Task<IEnumerable<Pin>> GetFriendsPinsAsync(PlayerNode player)
+    public async Task<IEnumerable<Pin>> Consume(LibraryListNode libraryList)
     {
-        if (string.IsNullOrEmpty(player.InternalId))
-        {
-            _logger.LogWarning("Player missing InternalId, cannot process friends pins");
-            return Enumerable.Empty<Pin>();
-        }
-
-        var playerId = player.InternalId;
-        _logger.LogInformation("Getting friends pins for player {PlayerId}", playerId);
+        _logger.LogInformation("Consuming LibraryListNode for player data");
         
         try
         {
-            var pins = await _aggregator.GetFriendsPinsAsync(player);
-            _logger.LogInformation("Successfully retrieved {PinCount} friends pins", pins.Count());
+            var pins = new List<Pin>();
+            
+            // For now, we don't have specific player-related pins for library lists
+            // This could be expanded to show collection owners, shared players, etc.
+            
             return pins;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error getting friends pins for player {PlayerId}", playerId);
+            _logger.LogError(ex, "Error consuming LibraryListNode for player data");
             throw;
         }
     }
 
-    public async Task<IEnumerable<Pin>> GetActivityPinsAsync(PlayerNode player)
+    private async Task<IEnumerable<Pin>> CreatePlayerPinsAsync(PlayerNode player, string originNodeId, string originNodeType)
     {
-        if (string.IsNullOrEmpty(player.InternalId))
+        var context = new PinContext
         {
-            _logger.LogWarning("Player missing InternalId, cannot process activity pins");
-            return Enumerable.Empty<Pin>();
-        }
+            InputNodeId = originNodeId,
+            InputNodeType = originNodeType,
+            TargetNodeType = "player",
+            ApiEndpoint = "/api/player/select",
+            ApiParameters = new Dictionary<string, object>
+            {
+                ["internalId"] = player.InternalId!
+            }
+        };
 
-        var playerId = player.InternalId;
-        _logger.LogInformation("Getting activity pins for player {PlayerId}", playerId);
+        var allPins = new List<Pin>();
         
-        try
-        {
-            var pins = await _aggregator.GetActivityPinsAsync(player);
-            _logger.LogInformation("Successfully retrieved {PinCount} activity pins", pins.Count());
-            return pins;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting activity pins for player {PlayerId}", playerId);
-            throw;
-        }
+        // Generate info pins
+        var infoPins = await _infoPinGenerator.GeneratePinsAsync(player, context);
+        allPins.AddRange(infoPins);
+        
+        // Generate friends pins
+        var friendsPins = await _friendsPinGenerator.GeneratePinsAsync(player, context);
+        allPins.AddRange(friendsPins);
+        
+        // Generate activity pins
+        var activityPins = await _activityPinGenerator.GeneratePinsAsync(player, context);
+        allPins.AddRange(activityPins);
+        
+        return allPins;
     }
 } 
