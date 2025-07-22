@@ -24,54 +24,35 @@ public class PlayerService : IPlayerService
 
     public async Task<PlayerNode> ResolveNodeAsync(PlayerNode partialPlayer)
     {
-        _logger.LogInformation("Resolving PlayerNode for SteamId {SteamId}", partialPlayer.SteamId);
+        // Extract Steam ID from identifiers
+        // var steamId = partialPlayer.Identifiers.GetValueOrDefault(PlayerIdentifiers.Steam);
+        
+        _logger.LogInformation("Resolving PlayerNode");
         
         try
         {
-            // Build identifiers dictionary for lookup
-            var identifiers = new Dictionary<string, object>();
-            if (!string.IsNullOrEmpty(partialPlayer.SteamId))
-                identifiers[PlayerIdentifiers.Steam] = partialPlayer.SteamId;
-            if (!string.IsNullOrEmpty(partialPlayer.EpicId))
-                identifiers[PlayerIdentifiers.Epic] = partialPlayer.EpicId;
+            // Resolve player from database (creates or updates as needed)
+            var resolvedPlayer = await _database.ResolvePlayerAsync(partialPlayer.Identifiers);
+            _logger.LogInformation("Resolved player with internal ID {InternalId}", resolvedPlayer.InternalId);
             
-            // Try to resolve existing player from database
-            var existingPlayer = await _database.ResolvePlayerAsync(identifiers);
-            if (existingPlayer != null)
-            {
-                // Set InternalId for easier access
-                existingPlayer.InternalId = existingPlayer.Identifiers.GetValueOrDefault(PlayerIdentifiers.Internal)?.ToString();
-                _logger.LogInformation("Found existing player with internal ID {InternalId}", existingPlayer.InternalId);
-                return existingPlayer;
-            }
-            
-            // Create new player if not found
-            var newPlayer = new PlayerNode
-            {
-                SteamId = partialPlayer.SteamId,
-                EpicId = partialPlayer.EpicId,
-                DisplayName = partialPlayer.DisplayName,
-                AvatarUrl = partialPlayer.AvatarUrl,
-                Identifiers = new Dictionary<string, object>()
-            };
-            
-            var createdPlayer = await _database.CreatePlayerAsync(newPlayer, identifiers);
-            // Set InternalId for easier access
-            createdPlayer.InternalId = createdPlayer.Identifiers.GetValueOrDefault(PlayerIdentifiers.Internal)?.ToString();
-            _logger.LogInformation("Created new player with internal ID {InternalId}", createdPlayer.InternalId);
-            
-            return createdPlayer;
+            return resolvedPlayer;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error resolving PlayerNode for SteamId {SteamId}", partialPlayer.SteamId);
+            _logger.LogError(ex, "Error resolving PlayerNode");
             throw;
         }
     }
 
     public async Task<IEnumerable<Pin>> GetPlayerInfoPinsAsync(PlayerNode player)
     {
-        var playerId = player.InternalId ?? player.SteamId ?? player.EpicId ?? player.DisplayName ?? "unknown";
+        if (string.IsNullOrEmpty(player.InternalId))
+        {
+            _logger.LogWarning("Player missing InternalId, cannot process player info pins");
+            return Enumerable.Empty<Pin>();
+        }
+
+        var playerId = player.InternalId;
         _logger.LogInformation("Getting player info pins for player {PlayerId}", playerId);
         
         try
@@ -82,15 +63,20 @@ public class PlayerService : IPlayerService
         }
         catch (Exception ex)
         {
-            var errorPlayerId = player.InternalId ?? player.SteamId ?? player.EpicId ?? player.DisplayName ?? "unknown";
-            _logger.LogError(ex, "Error getting player info pins for player {PlayerId}", errorPlayerId);
+            _logger.LogError(ex, "Error getting player info pins for player {PlayerId}", playerId);
             throw;
         }
     }
 
     public async Task<IEnumerable<Pin>> GetFriendsPinsAsync(PlayerNode player)
     {
-        var playerId = player.InternalId ?? player.SteamId ?? player.EpicId ?? player.DisplayName ?? "unknown";
+        if (string.IsNullOrEmpty(player.InternalId))
+        {
+            _logger.LogWarning("Player missing InternalId, cannot process friends pins");
+            return Enumerable.Empty<Pin>();
+        }
+
+        var playerId = player.InternalId;
         _logger.LogInformation("Getting friends pins for player {PlayerId}", playerId);
         
         try
@@ -108,7 +94,13 @@ public class PlayerService : IPlayerService
 
     public async Task<IEnumerable<Pin>> GetActivityPinsAsync(PlayerNode player)
     {
-        var playerId = player.InternalId ?? player.SteamId ?? player.EpicId ?? player.DisplayName ?? "unknown";
+        if (string.IsNullOrEmpty(player.InternalId))
+        {
+            _logger.LogWarning("Player missing InternalId, cannot process activity pins");
+            return Enumerable.Empty<Pin>();
+        }
+
+        var playerId = player.InternalId;
         _logger.LogInformation("Getting activity pins for player {PlayerId}", playerId);
         
         try

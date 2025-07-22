@@ -37,9 +37,9 @@ public class PlayerAggregator
         pins.Add(infoPin);
 
         // Get Steam-specific player info if available
-        if (!string.IsNullOrEmpty(player.SteamId))
+        if (player.Identifiers.TryGetValue(PlayerIdentifiers.Steam, out var steamId) && !string.IsNullOrEmpty(steamId))
         {
-            var steamPlayerData = await _steamProvider.GetPlayerDataAsync(player.SteamId);
+            var steamPlayerData = await _steamProvider.GetPlayerDataAsync(steamId);
             if (steamPlayerData != null)
             {
                 var steamPins = CreateSteamPlayerInfoPins(player, steamPlayerData);
@@ -55,9 +55,9 @@ public class PlayerAggregator
         var pins = new List<Pin>();
 
         // Get Steam friends if available
-        if (!string.IsNullOrEmpty(player.SteamId))
+        if (player.Identifiers.TryGetValue(PlayerIdentifiers.Steam, out var steamId) && !string.IsNullOrEmpty(steamId))
         {
-            var steamFriendsData = await _steamProvider.GetFriendsDataAsync(player.SteamId);
+            var steamFriendsData = await _steamProvider.GetFriendsDataAsync(steamId);
             if (steamFriendsData != null)
             {
                 var friendsPin = new Pin
@@ -74,11 +74,11 @@ public class PlayerAggregator
                     Metadata = new PinMetadata
                     {
                         TargetNodeType = "player",
-                        OriginNodeId = $"player-{player.SteamId}",
+                        OriginNodeId = $"player-{player.InternalId}",
                         ApiEndpoint = "/api/player/friends",
                         Parameters = new Dictionary<string, object>
                         {
-                            ["steamId"] = player.SteamId!
+                            ["playerId"] = player.InternalId ?? "unknown"
                         }
                     }
                 };
@@ -94,9 +94,9 @@ public class PlayerAggregator
         var pins = new List<Pin>();
 
         // Get Steam activity if available
-        if (!string.IsNullOrEmpty(player.SteamId))
+        if (player.Identifiers.TryGetValue(PlayerIdentifiers.Steam, out var steamId) && !string.IsNullOrEmpty(steamId))
         {
-            var steamActivityData = await _steamProvider.GetActivityDataAsync(player.SteamId);
+            var steamActivityData = await _steamProvider.GetActivityDataAsync(steamId);
             if (steamActivityData != null)
             {
                 var activityPin = new Pin
@@ -113,11 +113,11 @@ public class PlayerAggregator
                     Metadata = new PinMetadata
                     {
                         TargetNodeType = "activity",
-                        OriginNodeId = $"player-{player.SteamId}",
+                        OriginNodeId = $"player-{player.InternalId}",
                         ApiEndpoint = "/api/player/activity",
                         Parameters = new Dictionary<string, object>
                         {
-                            ["steamId"] = player.SteamId!
+                            ["playerId"] = player.InternalId ?? "unknown"
                         }
                     }
                 };

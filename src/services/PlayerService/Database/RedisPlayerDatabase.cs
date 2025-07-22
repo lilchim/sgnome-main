@@ -21,9 +21,12 @@ public class RedisPlayerDatabase : IPlayerDatabase
         _logger = logger;
     }
     
-    public async Task<PlayerNode?> ResolvePlayerAsync(Dictionary<string, object> identifiers)
+    public async Task<PlayerNode> ResolvePlayerAsync(Dictionary<string, string> identifiers)
     {
         _logger.LogDebug("Attempting to resolve player with {IdentifierCount} identifiers", identifiers.Count);
+        
+        PlayerNode? existingPlayer = null;
+        string? foundInternalId = null;
         
         // Try each identifier to find existing player
         foreach (var (identifierType, identifierValue) in identifiers)
@@ -36,20 +39,42 @@ public class RedisPlayerDatabase : IPlayerDatabase
                 _logger.LogDebug("Found player via {IdentifierType}: {IdentifierValue} -> {InternalId}", 
                     identifierType, identifierValue, internalId);
                 
-                return await GetPlayerByInternalIdAsync(internalId!);
+                foundInternalId = internalId;
+                existingPlayer = await GetPlayerByInternalIdAsync(internalId!);
+                break; // Found existing player, stop searching
             }
         }
         
-        _logger.LogDebug("No existing player found for provided identifiers");
-        return null;
+        if (existingPlayer != null)
+        {
+            // Update existing player with any new identifiers provided in this request
+            var updated = await UpdatePlayerWithNewIdentifiersAsync(existingPlayer, identifiers);
+            if (updated)
+            {
+                _logger.LogDebug("Updated existing player {InternalId} with new identifiers", foundInternalId);
+            }
+            return existingPlayer;
+        }
+        
+        // Create new player if not found
+        _logger.LogDebug("No existing player found, creating new player");
+        return await CreatePlayerAsync(new PlayerNode
+        {
+            DisplayName = "Unknown Player", // Will be updated by external API calls
+            Identifiers = new Dictionary<string, string>()
+        }, identifiers);
     }
     
-    public async Task<PlayerNode> CreatePlayerAsync(PlayerNode player, Dictionary<string, object> identifiers)
+    private async Task<PlayerNode> CreatePlayerAsync(PlayerNode player, Dictionary<string, string> identifiers)
     {
         // Generate internal ID
         var internalId = Guid.NewGuid().ToString();
-        player.Identifiers[PlayerIdentifiers.Internal] = internalId;
         
+        // Use input identifiers and add internal ID
+        player.Identifiers = new Dictionary<string, string>(identifiers);
+        player.Identifiers[PlayerIdentifiers.Internal] = internalId;
+        player.InternalId = internalId;
+
         var playerKey = $"{PlayerKeyPrefix}:{InternalKeyPrefix}:{internalId}";
         var playerJson = JsonSerializer.Serialize(player);
         
@@ -59,11 +84,12 @@ public class RedisPlayerDatabase : IPlayerDatabase
         // Create identifier mappings
         await AddIdentifiersAsync(internalId, identifiers);
         
-        _logger.LogInformation("Created new player with internal ID {InternalId}", internalId);
+        _logger.LogInformation("Created new player with internal ID {InternalId} and {IdentifierCount} identifiers", 
+            internalId, player.Identifiers.Count);
         return player;
     }
     
-    public async Task<PlayerNode> UpdatePlayerAsync(PlayerNode player)
+    private async Task<PlayerNode> UpdatePlayerAsync(PlayerNode player)
     {
         if (!player.Identifiers.TryGetValue(PlayerIdentifiers.Internal, out var internalIdObj) || 
             internalIdObj is not string internalId)
@@ -80,7 +106,40 @@ public class RedisPlayerDatabase : IPlayerDatabase
         return player;
     }
     
-    public async Task AddIdentifiersAsync(string internalId, Dictionary<string, object> identifiers)
+    private async Task<bool> UpdatePlayerWithNewIdentifiersAsync(PlayerNode player, Dictionary<string, string> newIdentifiers)
+    {
+        var updated = false;
+        
+        foreach (var (identifierType, identifierValue) in newIdentifiers)
+        {
+            // Skip internal identifier as it's managed by us
+            if (identifierType == PlayerIdentifiers.Internal)
+                continue;
+                
+            // Add new identifier if it doesn't exist
+            if (!player.Identifiers.ContainsKey(identifierType))
+            {
+                player.Identifiers[identifierType] = identifierValue;
+                updated = true;
+                _logger.LogDebug("Added new identifier {Type}: {Value} to player {InternalId}", 
+                    identifierType, identifierValue, player.InternalId);
+            }
+        }
+        
+        if (updated)
+        {
+            // Update the player in database
+            await UpdatePlayerAsync(player);
+            
+            // Add new identifier mappings to Redis
+            var internalId = player.Identifiers[PlayerIdentifiers.Internal];
+            await AddIdentifiersAsync(internalId, newIdentifiers.Where(kvp => kvp.Key != PlayerIdentifiers.Internal).ToDictionary(kvp => kvp.Key, kvp => kvp.Value));
+        }
+        
+        return updated;
+    }
+    
+    public async Task AddIdentifiersAsync(string internalId, Dictionary<string, string> identifiers)
     {
         var batch = _redis.CreateBatch();
         var tasks = new List<Task>();
