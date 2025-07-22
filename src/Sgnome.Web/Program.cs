@@ -45,9 +45,7 @@ builder.Services.AddSteamClient();
 
 // Add Player services
 builder.Services.AddScoped<ISteamPlayerProvider, SteamPlayerProvider>();
-builder.Services.AddScoped<PlayerService.PlayerAggregator>();
-builder.Services.AddScoped<PlayerService.Database.IPlayerDatabase, PlayerService.Database.RedisPlayerDatabase>();
-builder.Services.AddScoped<IPlayerService, PlayerService.PlayerService>();
+builder.Services.AddPlayerService();
 
 // Add Library services
 builder.Services.AddLibraryService();
