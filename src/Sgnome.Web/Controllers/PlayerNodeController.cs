@@ -3,7 +3,6 @@ using Sgnome.Models.Nodes;
 using Sgnome.Models.Graph;
 using PlayerService;
 using LibraryService;
-using LibrariesService;
 
 namespace Sgnome.Web.Controllers;
 
@@ -12,18 +11,15 @@ namespace Sgnome.Web.Controllers;
 public class PlayerNodeController : ControllerBase
 {
     private readonly IPlayerService _playerService;
-    private readonly ILibrariesService _librariesService;
     private readonly ILibraryService _libraryService;
     private readonly ILogger<PlayerNodeController> _logger;
 
     public PlayerNodeController(
         IPlayerService playerService, 
-        ILibrariesService librariesService,
         ILibraryService libraryService,
         ILogger<PlayerNodeController> logger)
     {
         _playerService = playerService;
-        _librariesService = librariesService;
         _libraryService = libraryService;
         _logger = logger;
     }
@@ -48,13 +44,11 @@ public class PlayerNodeController : ControllerBase
             
             // Get pins from all services using the resolved player
             var playerPins = await _playerService.GetPlayerInfoPinsAsync(resolvedPlayer);
-            var librariesPins = await _librariesService.GetLibrariesPinsAsync(resolvedPlayer);
-            var libraryPins = await _libraryService.GetLibraryPinsAsync(resolvedPlayer);
+            var libraryPins = await _libraryService.Consume(resolvedPlayer);
             
             // Combine all pins
             var allPins = new List<Pin>();
             allPins.AddRange(playerPins);
-            allPins.AddRange(librariesPins);
             allPins.AddRange(libraryPins);
             
             // Attach pins to the player node
@@ -70,11 +64,11 @@ public class PlayerNodeController : ControllerBase
                 Metadata = new GraphMetadata
                 {
                     QueryType = "SelectPlayer",
-                    QueryId = $"player-select-{resolvedPlayer.SteamId}",
+                    QueryId = $"player-select-{resolvedPlayer.InternalId}",
                     Timestamp = DateTime.UtcNow,
                     Context = new Dictionary<string, object>
                     {
-                        ["playerId"] = resolvedPlayer.SteamId ?? "unknown",
+                        ["playerId"] = resolvedPlayer.InternalId!,
                         ["operation"] = "node-selection"
                     }
                 }
@@ -84,7 +78,7 @@ public class PlayerNodeController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error selecting player {PlayerId}", request.Player?.SteamId);
+            _logger.LogError(ex, "Error selecting player {PlayerId}", request.Player?.Identifiers);
             return BadRequest(new { error = "Failed to process player selection" });
         }
     }

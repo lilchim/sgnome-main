@@ -21,10 +21,10 @@ public class LibraryController : ControllerBase
     }
 
     /// <summary>
-    /// Creates or returns an Organized Library node for a specific platform
+    /// Creates or returns a Library node for a specific platform
     /// </summary>
-    /// <param name="request">The organized library request containing platform and player information</param>
-    /// <returns>Graph response with organized library node and pins to games lists</returns>
+    /// <param name="request">The library request containing platform and player information</param>
+    /// <returns>Graph response with library node and pins</returns>
     [HttpPost("select")]
     [ProducesResponseType(typeof(GraphResponse), 200)]
     [ProducesResponseType(400)]
@@ -32,29 +32,32 @@ public class LibraryController : ControllerBase
     {
         try
         {
-            // Resolve the organized library node using the service
-            var resolvedOrganizedLibrary = await _libraryService.ResolveNodeAsync(new LibraryNode
+            // Create partial library node from request
+            var partialLibrary = new LibraryNode
             {
                 LibrarySource = request.LibrarySource,
-                PlayerId = request.PlayerId,
+                Identifiers = new Dictionary<string, string>
+                {
+                    ["player"] = request.PlayerId
+                },
                 DisplayName = $"{request.LibrarySource} Library"
-            });
+            };
 
-            // Create the graph node from the resolved organized library
-            var organizedLibraryGraphNode = NodeBuilder.CreateOrganizedLibraryNode(resolvedOrganizedLibrary);
+            // Consume the library node using the service
+            var (pins, resolvedLibrary) = await _libraryService.Consume(partialLibrary);
 
-            // Get pins from the service (these will include pins to games lists)
-            var pins = await _libraryService.GetLibraryPinsAsync(resolvedOrganizedLibrary);
+            // Create the graph node from the resolved library
+            var libraryGraphNode = NodeBuilder.CreateLibraryNode(resolvedLibrary);
             
-            // Attach pins to the organized library node
-            organizedLibraryGraphNode.Data.Pins.AddRange(pins);
+            // Attach pins to the library node
+            libraryGraphNode.Data.Pins.AddRange(pins);
 
             // Build the graph response
             var response = new GraphResponse
             {
-                Nodes = new List<Node> { organizedLibraryGraphNode },
+                Nodes = new List<Node> { libraryGraphNode },
                 Edges = request.OriginNodeId != null 
-                    ? new List<Edge> { EdgeBuilder.CreatePlayerToOrganizedLibraryEdge(request.OriginNodeId, organizedLibraryGraphNode.Id) }
+                    ? new List<Edge> { EdgeBuilder.CreatePlayerToLibraryEdge(request.OriginNodeId, libraryGraphNode.Id) }
                     : new List<Edge>(),
                 Metadata = new GraphMetadata
                 {
@@ -81,9 +84,89 @@ public class LibraryController : ControllerBase
     }
 }
 
+[ApiController]
+[Route("api/librarylist")]
+public class LibraryListController : ControllerBase
+{
+    private readonly ILibraryService _libraryService;
+    private readonly ILogger<LibraryListController> _logger;
+
+    public LibraryListController(
+        ILibraryService libraryService,
+        ILogger<LibraryListController> logger)
+    {
+        _libraryService = libraryService;
+        _logger = logger;
+    }
+
+    /// <summary>
+    /// Creates or returns a LibraryList node for a player
+    /// </summary>
+    /// <param name="request">The library list request containing player information</param>
+    /// <returns>Graph response with library list node and pins to individual libraries</returns>
+    [HttpPost("select")]
+    [ProducesResponseType(typeof(GraphResponse), 200)]
+    [ProducesResponseType(400)]
+    public async Task<IActionResult> SelectLibraryList([FromBody] LibraryListSelectRequest request)
+    {
+        try
+        {
+            // Create partial library list node from request
+            var partialLibraryList = new LibraryListNode
+            {
+                PlayerId = request.PlayerId,
+                DisplayName = "Game Libraries",
+                LibrarySourceMapping = new Dictionary<string, string>() // Will be populated by service
+            };
+
+            // Consume the library list node using the service
+            var (pins, resolvedLibraryList) = await _libraryService.Consume(partialLibraryList);
+
+            // Create the graph node from the resolved library list
+            var libraryListGraphNode = NodeBuilder.CreateLibrariesNode(resolvedLibraryList);
+            
+            // Attach pins to the library list node
+            libraryListGraphNode.Data.Pins.AddRange(pins);
+
+            // Build the graph response
+            var response = new GraphResponse
+            {
+                Nodes = new List<Node> { libraryListGraphNode },
+                Edges = request.OriginNodeId != null 
+                    ? new List<Edge> { EdgeBuilder.CreatePlayerToLibrariesEdge(request.OriginNodeId, libraryListGraphNode.Id) }
+                    : new List<Edge>(),
+                Metadata = new GraphMetadata
+                {
+                    QueryType = "SelectLibraryList",
+                    QueryId = $"librarylist-{request.PlayerId}",
+                    Timestamp = DateTime.UtcNow,
+                    Context = new Dictionary<string, object>
+                    {
+                        ["playerId"] = request.PlayerId,
+                        ["operation"] = "librarylist-selection"
+                    }
+                }
+            };
+
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error selecting library list for {PlayerId}", request.PlayerId);
+            return BadRequest(new { error = "Failed to process library list selection" });
+        }
+    }
+}
+
 public class LibrarySelectRequest
 {
     public string PlayerId { get; set; } = string.Empty;
     public string LibrarySource { get; set; } = string.Empty; // steam, epic, etc.
+    public string? OriginNodeId { get; set; } // Optional origin node for edge generation
+}
+
+public class LibraryListSelectRequest
+{
+    public string PlayerId { get; set; } = string.Empty;
     public string? OriginNodeId { get; set; } // Optional origin node for edge generation
 } 

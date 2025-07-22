@@ -2,10 +2,9 @@ using Sgnome.Models.Graph;
 using SteamApi.Client.Extensions;
 using PlayerService;
 using PlayerService.Providers;
-using LibrariesService;
-using LibrariesService.Providers;
 using LibraryService;
-using LibraryService.Providers;
+using LibraryService.Database;
+using Sgnome.Clients.Steam;
 using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -41,21 +40,17 @@ builder.Services.AddSteamApiClient(options =>
     options.ApiKey = builder.Configuration["SteamApi:ApiKey"] ?? "dev-key";
 });
 
+// Add Steam client with caching
+builder.Services.AddSteamClient();
+
 // Add Player services
 builder.Services.AddScoped<ISteamPlayerProvider, SteamPlayerProvider>();
 builder.Services.AddScoped<PlayerService.PlayerAggregator>();
 builder.Services.AddScoped<PlayerService.Database.IPlayerDatabase, PlayerService.Database.RedisPlayerDatabase>();
 builder.Services.AddScoped<IPlayerService, PlayerService.PlayerService>();
 
-// Add Libraries services
-builder.Services.AddScoped<ISteamLibrariesProvider, SteamLibrariesProvider>();
-builder.Services.AddScoped<LibrariesService.LibrariesAggregator>();
-builder.Services.AddScoped<ILibrariesService, LibrariesService.LibrariesService>();
-
 // Add Library services
-builder.Services.AddScoped<ISteamLibraryProvider, SteamLibraryProvider>();
-builder.Services.AddScoped<LibraryService.LibraryAggregator>();
-builder.Services.AddScoped<ILibraryService, LibraryService.LibraryService>();
+builder.Services.AddLibraryService();
 
 var app = builder.Build();
 
