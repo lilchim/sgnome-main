@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlayerService", "src\servic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibraryService", "src\services\LibraryService\LibraryService.csproj", "{5C086660-0161-09E5-E530-E8AC15CB8EAC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GamesService", "src\services\GamesService\GamesService.csproj", "{6D197771-1272-10F6-F641-F9BD26DC9FBD}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{827E0CD3-B72D-47B6-A68D-7590B98EB39B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sgnome.Clients", "src\Sgnome.Clients\Sgnome.Clients.csproj", "{058AD0E4-4152-449A-81B4-BC401AF102E3}"
@@ -79,5 +81,6 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{058AD0E4-4152-449A-81B4-BC401AF102E3} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
+		{6D197771-1272-10F6-F641-F9BD26DC9FBD} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 	EndGlobalSection
 EndGlobal
