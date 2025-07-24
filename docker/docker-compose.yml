@@ -40,6 +40,7 @@ services:
     environment:
       - SteamApi__BaseUrl=http://steam-api:8080
       - SteamApi__ApiKey=${STEAM_API_KEY:-dev-key}
+      - ConnectionStrings__Redis=redis:6379
     depends_on:
       - steam-api
       - redis
