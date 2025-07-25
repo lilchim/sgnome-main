@@ -27,9 +27,16 @@ public static class NodeBuilder
 
     public static Node CreateGameNode(GameNode game, double x = 400, double y = 300)
     {
+        // TODO: Create static identifier strings
+        var gameId = game.InternalId ?? 
+                    game.Identifiers.GetValueOrDefault("storefront:steam")?.ToString() ??
+                    game.Identifiers.GetValueOrDefault("storefront:epic")?.ToString() ??
+                    game.Identifiers.GetValueOrDefault("rawg:id")?.ToString() ??
+                    Guid.NewGuid().ToString();
+                    
         return new Node
         {
-            Id = $"game-{(game.SteamAppId?.ToString() ?? game.EpicId ?? Guid.NewGuid().ToString())}",
+            Id = $"game-{gameId}",
             Type = "default",
             Position = new Position { X = x, Y = y },
             Data = new NodeData
