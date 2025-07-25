@@ -84,6 +84,26 @@ public class GamesService : IGamesService
         }
     }
 
+    public async Task<IEnumerable<Pin>> Consume(GamesListNode gamesList)
+    {
+        _logger.LogInformation("Consuming GamesListNode for game data");
+        
+        try
+        {
+            var pins = new List<Pin>();
+            
+            // For now, we don't have specific game-related pins for games lists
+            // This could be expanded to show game statistics, popular games, etc.
+            
+            return pins;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error consuming GamesListNode for game data");
+            throw;
+        }
+    }
+
     private async Task<IEnumerable<Pin>> CreateGamePinsAsync(GameNode game, string originNodeId, string originNodeType)
     {
         var context = new PinContext

@@ -33,8 +33,6 @@ public class GameInfoPinGenerator
                     Preview = new Dictionary<string, object>
                     {
                         ["name"] = game.Name,
-                        ["steamAppId"] = game.SteamAppId,
-                        ["epicId"] = game.EpicId,
                         ["iconUrl"] = game.IconUrl,
                         ["logoUrl"] = game.LogoUrl
                     }
@@ -42,49 +40,30 @@ public class GameInfoPinGenerator
             });
         }
 
-        // Storefront availability pins
-        if (game.SteamAppId.HasValue)
+        // Storefront availability pins - will be generated from identifiers
+        foreach (var (key, value) in game.Identifiers)
         {
-            pins.Add(new Pin
+            if (key.StartsWith("storefront:"))
             {
-                Id = $"steam-availability-{game.InternalId}",
-                Label = "Available on Steam",
-                Type = "availability",
-                Behavior = PinBehavior.Informational,
-                Summary = new PinSummary
+                var storefront = key.Substring("storefront:".Length);
+                pins.Add(new Pin
                 {
-                    DisplayText = $"Steam App ID: {game.SteamAppId}",
-                    Icon = "🔗",
-                    Preview = new Dictionary<string, object>
+                    Id = $"{storefront}-availability-{game.InternalId}",
+                    Label = $"Available on {storefront}",
+                    Type = "availability",
+                    Behavior = PinBehavior.Informational,
+                    Summary = new PinSummary
                     {
-                        ["storefront"] = "steam",
-                        ["appId"] = game.SteamAppId.Value,
-                        ["url"] = $"https://store.steampowered.com/app/{game.SteamAppId}"
+                        DisplayText = $"{storefront} ID: {value}",
+                        Icon = "🔗",
+                        Preview = new Dictionary<string, object>
+                        {
+                            ["storefront"] = storefront,
+                            ["id"] = value
+                        }
                     }
-                }
-            });
-        }
-
-        if (!string.IsNullOrEmpty(game.EpicId))
-        {
-            pins.Add(new Pin
-            {
-                Id = $"epic-availability-{game.InternalId}",
-                Label = "Available on Epic",
-                Type = "availability",
-                Behavior = PinBehavior.Informational,
-                Summary = new PinSummary
-                {
-                    DisplayText = $"Epic ID: {game.EpicId}",
-                    Icon = "🔗",
-                    Preview = new Dictionary<string, object>
-                    {
-                        ["storefront"] = "epic",
-                        ["epicId"] = game.EpicId,
-                        ["url"] = $"https://store.epicgames.com/p/{game.EpicId}"
-                    }
-                }
-            });
+                });
+            }
         }
 
         _logger.LogInformation("Generated {PinCount} info pins for game {GameId}", pins.Count, game.InternalId);

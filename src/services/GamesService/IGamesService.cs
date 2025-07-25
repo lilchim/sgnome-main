@@ -25,4 +25,11 @@ public interface IGamesService
     /// <param name="player">Player node to analyze for game connections</param>
     /// <returns>Collection of pins representing game-related information</returns>
     Task<IEnumerable<Pin>> Consume(PlayerNode player);
+
+    /// <summary>
+    /// Consumes a GamesListNode (foreign-domain) - returns pins linking to game data
+    /// </summary>
+    /// <param name="gamesList">Games list node to analyze for game connections</param>
+    /// <returns>Collection of pins representing game-related information</returns>
+    Task<IEnumerable<Pin>> Consume(GamesListNode gamesList);
 } 
