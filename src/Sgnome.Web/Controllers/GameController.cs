@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Sgnome.Models.Graph;
 using Sgnome.Models.Nodes;
+using Sgnome.Models.Requests;
 using GamesService;
 
 namespace Sgnome.Web.Controllers;
@@ -18,11 +19,23 @@ public class GameController : ControllerBase
         _logger = logger;
     }
 
+    /// <summary>
+    /// Select a game by identifiers or internal ID
+    /// </summary>
+    /// <param name="request">Game selection request containing identifiers</param>
+    /// <returns>Graph response with the resolved game node and pins</returns>
     [HttpPost("select")]
-    public async Task<ActionResult<GraphResponse>> SelectGame([FromBody] GameNode gameNode)
+    public async Task<ActionResult<GraphResponse>> SelectGame([FromBody] GameSelectRequest request)
     {
         try
         {
+            // Create a GameNode from the request
+            var gameNode = new GameNode
+            {
+                InternalId = request.InternalId,
+                Identifiers = request.Identifiers
+            };
+
             var (pins, resolvedGame) = await _gamesService.Consume(gameNode);
             
             // Add pins to the game node's data
@@ -37,7 +50,7 @@ public class GameController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error consuming game node");
+            _logger.LogError(ex, "Error selecting game");
             return StatusCode(500, "Internal server error");
         }
     }

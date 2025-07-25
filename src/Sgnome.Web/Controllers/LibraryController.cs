@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Sgnome.Models.Nodes;
 using Sgnome.Models.Graph;
+using Sgnome.Models.Requests;
 using LibraryService;
 
 namespace Sgnome.Web.Controllers;
@@ -158,15 +159,4 @@ public class LibraryListController : ControllerBase
     }
 }
 
-public class LibrarySelectRequest
-{
-    public string PlayerId { get; set; } = string.Empty;
-    public string LibrarySource { get; set; } = string.Empty; // steam, epic, etc.
-    public string? OriginNodeId { get; set; } // Optional origin node for edge generation
-}
-
-public class LibraryListSelectRequest
-{
-    public string PlayerId { get; set; } = string.Empty;
-    public string? OriginNodeId { get; set; } // Optional origin node for edge generation
-} 
+ 
