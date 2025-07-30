@@ -1,6 +1,17 @@
 version: '3.8'
 
 services:
+  rawg-api:
+    image: lilchim/rawg-api-dotnet:latest
+    ports:
+      - "5234:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ApiKey__RequireApiKey=false
+      - RawgApi__ApiKey=${RAWG_API_KEY}
+    networks:
+      - sgnome-network
+
   steam-api:
     image: lilchim/steam-api-dotnet:latest
     ports:
