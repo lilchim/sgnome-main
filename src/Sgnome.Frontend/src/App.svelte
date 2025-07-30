@@ -1,7 +1,11 @@
 <script lang="ts">
   import './app.css';
+  import '@xyflow/svelte/dist/style.css';
+  import * as Sidebar from './lib/components/ui/sidebar/index.js';
+  import AppSidebar from './lib/components/AppSidebar.svelte';
   import GraphView from './lib/components/GraphView.svelte';
   import StateTest from './lib/components/StateTest.svelte';
+    import SiteHeader from '$lib/components/SiteHeader.svelte';
   
   let showDebug = $state(false);
   let isDark = $state(true); // Default to dark theme
@@ -16,32 +20,25 @@
   });
 </script>
 
-<div class="app">
-  <!-- Top Bar -->
-  <header class="top-bar">
-    <h1>Sgnome</h1>
-    <div class="flex items-center gap-2">
-      <button class="theme-btn" on:click={() => isDark = !isDark}>
-        {isDark ? '☀️' : '🌙'} {isDark ? 'Light' : 'Dark'}
-      </button>
-      <button class="debug-btn" on:click={() => showDebug = !showDebug}>
-        {showDebug ? 'Hide' : 'Show'} Debug
-      </button>
+<Sidebar.Provider>
+  <AppSidebar />
+  <Sidebar.Inset>
+  <main class="main-layout">
+    <SiteHeader />
+    
+    <div class="content-area">
+      <GraphView />
     </div>
-  </header>
-  
-  <!-- Main Content -->
-  <main class="main-content">
-    <GraphView />
+    
+    <!-- Debug Overlay -->
+    {#if showDebug}
+      <div class="debug-overlay">
+        <StateTest />
+      </div>
+    {/if}
   </main>
-  
-  <!-- Debug Overlay -->
-  {#if showDebug}
-    <div class="debug-overlay">
-      <StateTest />
-    </div>
-  {/if}
-</div>
+  </Sidebar.Inset>
+</Sidebar.Provider>
 
 <style>
   /* Global styles */
@@ -57,7 +54,7 @@
     overflow: hidden;
   }
 
-  .app {
+  .main-layout {
     height: 100vh;
     display: flex;
     flex-direction: column;
@@ -96,7 +93,7 @@
     opacity: 0.9;
   }
 
-  .main-content {
+  .content-area {
     flex: 1;
     overflow: hidden;
     background: var(--background);
