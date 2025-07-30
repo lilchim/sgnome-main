@@ -1,0 +1,79 @@
+/* This stylesheet contains any custom styles for xyflow's components, and styles the graph viewport*/
+
+/* Make SvelteFlow fill the container */
+.svelte-flow {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Ensure the viewport takes full space */
+.svelte-flow__viewport {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Ensure the canvas takes full space */
+.svelte-flow__canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Ensure the background fills the viewport */
+.svelte-flow__background {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Make Xyflow nodes transparent */
+.svelte-flow__node {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  min-width: auto !important;
+  text-align: left !important;
+  font-size: inherit !important;
+  box-shadow: none !important;
+  color: inherit !important;
+}
+
+/* Remove any hover effects from the node container */
+.svelte-flow__node:hover {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Remove selection styling from the node container */
+.svelte-flow__node.selected {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Make edges visible */
+.svelte-flow__edge-path {
+  stroke: var(--primary);
+  stroke-width: 2;
+}
+
+/* Style the SvelteFlow canvas background */
+.svelte-flow__background {
+  background-color: var(--background) !important;
+}
+
+/* Style the background pattern dots */
+.svelte-flow__background-pattern {
+  color: var(--muted-foreground) !important;
+  opacity: 0.3;
+}
+
+/* Ensure the canvas itself uses theme background */
+.svelte-flow__canvas {
+  background-color: var(--background) !important;
+}
+
+/* Style the viewport background */
+.svelte-flow__viewport {
+  background-color: var(--background) !important;
+} 
