@@ -4,6 +4,7 @@
   import type { Node, Edge } from '../types/graph';
   import { NodeState, PinBehavior, PinState } from '../types/graph';
   import CustomNode from './CustomNode.svelte';
+  import PlayerNode from './PlayerNode.svelte';
 
   // Test data for development
   const testSteamId = '76561197995791208';
@@ -32,7 +33,8 @@
 
   // Register custom node types
   const nodeTypes = {
-    default: CustomNode
+    // default: CustomNode,
+    default: PlayerNode
   };
 
   // Handle custom node pin expansion
@@ -93,8 +95,8 @@
 
   .controls {
     padding: 8px 16px;
-    background: #f5f5f5;
-    border-bottom: 1px solid #ddd;
+    background: var(--background);
+    border-bottom: 1px solid var(--border);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -105,7 +107,7 @@
     display: flex;
     gap: 16px;
     font-size: 14px;
-    color: #666;
+    color: var(--muted-foreground);
   }
 
   .actions {
@@ -115,57 +117,23 @@
 
   .actions button {
     padding: 4px 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--secondary);
+    color: var(--secondary-foreground);
     cursor: pointer;
     font-size: 12px;
+    transition: all 0.2s;
+  }
+
+  .actions button:hover {
+    background: var(--accent);
+    color: var(--accent-foreground);
   }
 
   .graph-view {
     flex: 1;
     position: relative;
     min-height: 0;
-  }
-
-  /* Make SvelteFlow fill the container */
-  :global(.svelte-flow) {
-    width: 100% !important;
-    height: 100% !important;
-  }
-
-  /* Ensure the viewport takes full space */
-  :global(.svelte-flow__viewport) {
-    width: 100% !important;
-    height: 100% !important;
-  }
-
-  /* Ensure the canvas takes full space */
-  :global(.svelte-flow__canvas) {
-    width: 100% !important;
-    height: 100% !important;
-  }
-
-  /* Ensure the background fills the viewport */
-  :global(.svelte-flow__background) {
-    width: 100% !important;
-    height: 100% !important;
-  }
-
-  /* Make nodes visible with basic styling */
-  :global(.svelte-flow__node) {
-    background: white;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    padding: 4px 8px;
-    min-width: 80px;
-    text-align: center;
-    font-size: 12px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  }
-
-  /* Make edges visible */
-  :global(.svelte-flow__edge-path) {
-    stroke: #007bff;
-    stroke-width: 2;
   }
 </style> 
