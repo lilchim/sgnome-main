@@ -37,4 +37,10 @@ export class PlayerPresenter {
         }
         return result;
     }
+
+    getLibraryPins({pins}: {pins: Pin[]}): Pin[] {
+        const r = pins.filter(pin => pin.type === PIN_CONSTANTS.PIN_TYPES.LIBRARY_PINS.LIBRARY);
+        console.log(r);
+        return r;
+    }
 }

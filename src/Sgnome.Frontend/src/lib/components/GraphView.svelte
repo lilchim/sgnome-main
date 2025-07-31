@@ -4,7 +4,7 @@
   import type { Node, Edge } from '../types/graph';
   import { NodeState, PinBehavior, PinState } from '../types/graph';
   import CustomNode from './CustomNode.svelte';
-  import PlayerNode from './PlayerNode.svelte';
+  import PlayerNode from './nodes/playerNode/PlayerNode.svelte';
   import GraphHeader from './GraphHeader.svelte';
 
   // Register custom node types

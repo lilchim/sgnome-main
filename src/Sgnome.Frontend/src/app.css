@@ -139,4 +139,12 @@
   }
 }
 
+.pin-handle {
+  position: relative !important;
+  background: #555 !important;
+  width: 16px !important;
+  height: 16px !important;
+  border: 2px solid white !important;
+  transform: none !important;
+}
 

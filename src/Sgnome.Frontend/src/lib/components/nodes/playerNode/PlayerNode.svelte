@@ -1,10 +1,11 @@
 <script lang="ts">
-    import type { NodeData } from "../types/graph";
-    import { PinBehavior, PinState } from "../types/graph";
-    import { PlayerPresenter } from "../presenters/PlayerPresenter";
+    import type { NodeData } from "../../../types/graph";
+    import { PinBehavior, PinState } from "../../../types/graph";
+    import { PlayerPresenter } from "../../../presenters/PlayerPresenter";
     import * as Card from "$lib/components/ui/card/index.js";
-    import { Separator } from "./ui/separator";
-    import * as Accordion from "./ui/accordion";
+    import { Separator } from "../../ui/separator";
+    import * as Accordion from "../../ui/accordion";
+    import { Handle, Position } from "@xyflow/svelte";
 
     export let data: NodeData;
     export let id: string; // The node ID from SvelteFlow
@@ -21,8 +22,10 @@
     $: avatarUrl = presenter.getAvatarUrl(data);
     $: profilesBySource = presenter.getProfilesBySource(data);
     $: availableProfileSources = presenter.getAvailableProfileSources(data);
-    // $: internalId = playerData.internalId as string | undefined;
+    $: internalId = data.properties.InternalId as string | undefined;
     // $: identifiers = playerData.identifiers as Record<string, string> | undefined;
+
+    $: libraryPins = presenter.getLibraryPins(data);
 </script>
 
 <Card.Root class="w-80">
@@ -47,20 +50,18 @@
                 <Card.Title class="text-sm font-medium truncate">
                     {displayName}
                 </Card.Title>
-                <!-- {#if internalId}
+                {#if internalId}
                     <Card.Description class="text-xs text-muted-foreground">
                         ID: {internalId}
                     </Card.Description>
-                {/if} -->
+                {/if}
             </div>
         </div>
     </Card.Header>
     <Separator />
 
-
     <!-- Player Profiles -->
     <Card.Content class="pt-0">
-
         <Accordion.Root type="single">
             <Accordion.Item value="item-1">
                 <Accordion.Trigger>Profiles</Accordion.Trigger>
@@ -73,7 +74,10 @@
                                 </Accordion.Trigger>
                                 <Accordion.Content>
                                     {#each profilesBySource[source] as pin}
-                                        <div>{pin.label} {pin.summary.displayText}</div>
+                                        <div>
+                                            {pin.label}
+                                            {pin.summary.displayText}
+                                        </div>
                                     {/each}
                                 </Accordion.Content>
                             </Accordion.Item>
@@ -82,13 +86,23 @@
                 </Accordion.Content>
             </Accordion.Item>
         </Accordion.Root>
-
     </Card.Content>
+
     <Separator />
+
     <Card.Content class="pt-0">
-        Libraries
         <div>
-            {libraryCount}
+            {#each libraryPins as pin}
+                <div class="flex items-center justify-between">
+                    <span>{pin.summary.displayText}</span>
+                    <Handle
+                        type="source"
+                        position={Position.Right}
+                        id={pin.id}
+                        class="pin-handle"
+                    />
+                </div>
+            {/each}
         </div>
     </Card.Content>
 </Card.Root>
