@@ -7,7 +7,7 @@ public class Pin
 {
     public string Id { get; set; } = string.Empty;
     public string Label { get; set; } = string.Empty;
-    public string Type { get; set; } = string.Empty; // "recently-played", "publisher", "release-date", etc.
+    public string Type { get; set; } = string.Empty; // "namespace:key" format e.g. "player:display-name"
     public PinState State { get; set; } = PinState.Unexpanded;
     public PinBehavior Behavior { get; set; } = PinBehavior.Expandable;
     
@@ -23,6 +23,7 @@ public class PinSummary
     public string DisplayText { get; set; } = string.Empty;
     public int? Count { get; set; }
     public string? Icon { get; set; }
+    public string? Source { get; set; } // "steam", "epic", "rawg", "internal", etc.
     public Dictionary<string, object> Preview { get; set; } = new();
 }
 
