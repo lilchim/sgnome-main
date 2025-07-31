@@ -12,11 +12,11 @@ public static class NodeBuilder
         return new Node
         {
             Id = $"player-{playerId}",
-            Type = "default", // xyflow node type
+            Type = "player", // xyflow node type
             Position = new Position { X = x, Y = y },
             Data = new NodeData
             {
-                Label = player.DisplayName ?? "Unknown Player",
+                Label = "Player",
                 NodeType = "player",
                 Properties = SerializeToDictionary(player),
                 Pins = new List<Pin>(), // Will be populated by services
