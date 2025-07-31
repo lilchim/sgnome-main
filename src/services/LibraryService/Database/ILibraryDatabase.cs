@@ -14,7 +14,7 @@ public interface ILibraryDatabase
     /// <param name="librarySource">The library source (steam, epic, etc.)</param>
     /// <param name="displayName">Optional display name for new libraries</param>
     /// <returns>Resolved LibraryNode with all identifiers up to date</returns>
-    Task<LibraryNode> ResolveLibraryAsync(Dictionary<string, string> identifiers, string librarySource, string? displayName = null);
+    Task<LibraryNode> ResolveLibraryAsync(Dictionary<string, string> identifiers, string librarySource);
     
     /// <summary>
     /// Adds additional identifiers to an existing library

@@ -24,7 +24,7 @@ public class RedisLibraryListDatabase : ILibraryListDatabase
     /// <summary>
     /// MegaUpsert: Get existing library list or create new one for player
     /// </summary>
-    public async Task<LibraryListNode> ResolveLibraryListAsync(string playerId, string? displayName = null)
+    public async Task<LibraryListNode> ResolveLibraryListAsync(string playerId)
     {
         _logger.LogDebug("Resolving library list for player {PlayerId}", playerId);
 
@@ -44,7 +44,6 @@ public class RedisLibraryListDatabase : ILibraryListDatabase
         var newLibraryList = new LibraryListNode
         {
             PlayerId = playerId,
-            DisplayName = displayName ?? "Game Libraries",
             LibrarySourceMapping = new Dictionary<string, string>(), // Start empty, will be populated by handlers
             LastUpdated = DateTime.UtcNow
         };

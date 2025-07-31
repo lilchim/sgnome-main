@@ -31,25 +31,11 @@ public class LibraryNode
     public string LibrarySource { get; set; } = string.Empty;
     
     /// <summary>
-    /// Display name for this organized library view
-    /// </summary>
-    public string DisplayName { get; set; } = string.Empty;
-    
-    /// <summary>
     /// External service identifiers and relationships
     /// Example: { ["player"] = "player-internal-id", ["steam"] = "76561198012345678" }
     /// </summary>
     public Dictionary<string, string> Identifiers { get; set; } = new();
     
-    /// <summary>
-    /// Total number of games in this library
-    /// </summary>
-    public int TotalGameCount { get; set; }
-    
-    /// <summary>
-    /// Available organization categories (recently-played, favorites, all-games, etc.)
-    /// </summary>
-    public List<string> AvailableCategories { get; set; } = new();
     
     /// <summary>
     /// Last time this library was updated

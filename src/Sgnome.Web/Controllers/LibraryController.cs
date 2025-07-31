@@ -41,7 +41,6 @@ public class LibraryController : ControllerBase
                 {
                     ["player"] = request.PlayerId
                 },
-                DisplayName = $"{request.LibrarySource} Library"
             };
 
             // Consume the library node using the service
@@ -116,7 +115,6 @@ public class LibraryListController : ControllerBase
             var partialLibraryList = new LibraryListNode
             {
                 PlayerId = request.PlayerId,
-                DisplayName = "Game Libraries",
                 LibrarySourceMapping = new Dictionary<string, string>() // Will be populated by service
             };
 

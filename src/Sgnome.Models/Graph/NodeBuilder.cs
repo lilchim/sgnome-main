@@ -77,7 +77,7 @@ public static class NodeBuilder
             Position = new Position { X = x, Y = y },
             Data = new NodeData
             {
-                Label = libraries.DisplayName ?? "Game Libraries",
+                Label = "Game Libraries",
                 NodeType = "libraries",
                 Properties = SerializeToDictionary(libraries),
                 Pins = new List<Pin>(),
@@ -95,7 +95,7 @@ public static class NodeBuilder
             Position = new Position { X = x, Y = y },
             Data = new NodeData
             {
-                Label = library.DisplayName ?? $"{library.LibrarySource} Library",
+                Label = $"{library.LibrarySource} Library",
                 NodeType = "library",
                 Properties = SerializeToDictionary(library),
                 Pins = new List<Pin>(),

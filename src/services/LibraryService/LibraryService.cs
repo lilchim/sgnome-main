@@ -43,7 +43,7 @@ public class LibraryService : ILibraryService
         try
         {
             // Resolve the library node
-            var resolvedNode = await _libraryDatabase.ResolveLibraryAsync(partial.Identifiers, partial.LibrarySource, partial.DisplayName);
+            var resolvedNode = await _libraryDatabase.ResolveLibraryAsync(partial.Identifiers, partial.LibrarySource);
             var pins = await CreateLibraryPinsAsync(resolvedNode, partial.InternalId!, "library");
             _logger.LogInformation("Consumed library with internal ID {InternalId}", resolvedNode.InternalId);
             
@@ -68,7 +68,7 @@ public class LibraryService : ILibraryService
         try
         {
             // Resolve the library list node
-            var resolvedNode = await _libraryListDatabase.ResolveLibraryListAsync(partial.PlayerId, partial.DisplayName);
+            var resolvedNode = await _libraryListDatabase.ResolveLibraryListAsync(partial.PlayerId);
             _logger.LogInformation("Consumed library list with internal ID {InternalId}", resolvedNode.InternalId);
             
             // Generate pins for member libraries
@@ -145,8 +145,7 @@ public class LibraryService : ILibraryService
                     // Resolve this specific library
                     var library = await _libraryDatabase.ResolveLibraryAsync(
                         new Dictionary<string, string> { ["player"] = player.InternalId, [source] = libraryIdentifiers[source] },
-                        source,
-                        $"{source} Library"
+                        source
                     );
                     
                     resolvedLibraries.Add(library);
@@ -162,7 +161,7 @@ public class LibraryService : ILibraryService
             // Generate collection pin by resolving LibraryListNode and using CollectionHandler
             if (resolvedLibraries.Count > 0)
             {
-                var libraryList = await _libraryListDatabase.ResolveLibraryListAsync(player.InternalId, "Game Libraries");
+                var libraryList = await _libraryListDatabase.ResolveLibraryListAsync(player.InternalId);
                 
                 // Add library source mappings to the library list
                 var librarySourceMappings = resolvedLibraries.ToDictionary(
@@ -176,7 +175,7 @@ public class LibraryService : ILibraryService
                 );
                 
                 // Get the updated library list with the new mappings
-                var updatedLibraryList = await _libraryListDatabase.ResolveLibraryListAsync(player.InternalId, "Game Libraries");
+                var updatedLibraryList = await _libraryListDatabase.ResolveLibraryListAsync(player.InternalId);
                 
                 // Generate individual library pins for each resolved library
                 // foreach (var library in resolvedLibraries)
