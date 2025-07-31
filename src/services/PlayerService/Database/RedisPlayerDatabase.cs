@@ -60,7 +60,6 @@ public class RedisPlayerDatabase : IPlayerDatabase
         _logger.LogDebug("No existing player found, creating new player");
         return await CreatePlayerAsync(new PlayerNode
         {
-            DisplayName = "Unknown Player", // Will be updated by external API calls
             Identifiers = new Dictionary<string, string>()
         }, identifiers);
     }
