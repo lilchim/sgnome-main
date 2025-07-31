@@ -35,6 +35,7 @@ export interface PinSummary {
   displayText: string;
   count?: number;
   icon?: string;
+  source?: string;
   preview: Record<string, unknown>;
 }
 
