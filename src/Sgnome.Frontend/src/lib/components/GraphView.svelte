@@ -10,7 +10,7 @@
   // Register custom node types
   const nodeTypes = {
     // default: CustomNode,
-    default: PlayerNode
+    player: PlayerNode
   };
 
   // Handle custom node pin expansion
