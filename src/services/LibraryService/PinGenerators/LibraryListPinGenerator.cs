@@ -62,8 +62,8 @@ public class LibraryListPinGenerator
         return new Pin
         {
             Id = $"librarylist-{libraryList.InternalId}",
-            Label = libraryList.DisplayName,
-            Type = "library-list",
+            Label = $"Game Libraries",
+            Type = PinConstants.PinTypes.LibraryPins.LibraryList,
             Behavior = PinBehavior.Expandable,
             Summary = new PinSummary
             {

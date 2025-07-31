@@ -29,13 +29,14 @@ public static class SteamLibraryPins
         {
             Id = $"steam-library-{context.ApiParameters["playerId"]}",
             Label = $"Steam Library ({response.GameCount} games)",
-            Type = "library",
+            Type = PinConstants.PinTypes.LibraryPins.LibraryList,
             Behavior = PinBehavior.Expandable,
             Summary = new PinSummary
             {
                 DisplayText = $"{response.GameCount} games on Steam",
                 Count = response.GameCount,
-                Icon = "steam"
+                Icon = "steam",
+                Source = PinConstants.Sources.Steam
             },
             Metadata = new PinMetadata
             {
@@ -69,15 +70,16 @@ public static class SteamLibraryPins
         // Steam library informational pin
         var steamLibraryInfoPin = new Pin
         {
-            Id = $"steam-library-info-{context.InputNodeId}",
-            Label = $"Steam Library Info ({response.GameCount} games)",
-            Type = "library",
+            Id = $"steam-library-{context.InputNodeId}",
+            Label = $"Steam Library",
+            Type = PinConstants.PinTypes.LibraryPins.Library,
             Behavior = PinBehavior.Informational,
             Summary = new PinSummary
             {
                 DisplayText = $"{response.GameCount} games on Steam",
                 Count = response.GameCount,
-                Icon = "steam"
+                Icon = "steam",
+                Source = PinConstants.Sources.Steam
             },
             Metadata = new PinMetadata
             {
