@@ -37,5 +37,5 @@ public interface ISteamClient
     /// <param name="steamId">The Steam ID of the user</param>
     /// <param name="transform">Function to transform the response</param>
     /// <returns>Transformed result from the Steam API</returns>
-    Task<T> GetPlayerDetailsAsync<T>(string steamId, Func<OwnedGamesResponse, T> transform);
+    Task<T> GetPlayerDetailsAsync<T>(string steamId, Func<PlayerSummariesResponse, T> transform);
 } 

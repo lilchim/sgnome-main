@@ -74,11 +74,11 @@ public class SteamClient : ISteamClient
     /// <param name="steamId">The Steam ID of the user</param>
     /// <param name="transform">Function to transform the response</param>
     /// <returns>Transformed result from the Steam API</returns>
-    public async Task<T> GetPlayerDetailsAsync<T>(string steamId, Func<OwnedGamesResponse, T> transform)
+    public async Task<T> GetPlayerDetailsAsync<T>(string steamId, Func<PlayerSummariesResponse, T> transform)
     {
-        var cacheKey = $"steam:player-details:{steamId}";
-        return await ExecuteWithCacheAsync<SteamResponse<OwnedGamesResponse>, T>(cacheKey,
-            () => _apiClient.GetOwnedGamesAsync(steamId), 
+        var cacheKey = $"steam:player-summary:{steamId}";
+        return await ExecuteWithCacheAsync<SteamResponse<PlayerSummariesResponse>, T>(cacheKey,
+            () => _apiClient.GetPlayerSummariesAsync(steamId), 
             response => response?.Response != null ? transform(response.Response) : transform(null));
     }
 
