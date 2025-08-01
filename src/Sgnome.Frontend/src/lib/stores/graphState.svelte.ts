@@ -144,10 +144,9 @@ async function fetchFromPin(nodeId: string, pinId: string) {
     };
     addNode(nodeWithUpdatedPins);
 
-    // Make API call using pin metadata, including origin node ID for edge generation
+    // Make API call using pin metadata
     const requestBody = {
-      ...pin.metadata.parameters,
-      originNodeId: nodeId // Add the origin node ID for edge generation
+      ...pin.metadata.parameters
     };
     
     const response = await fetch(pin.metadata.apiEndpoint, {
@@ -163,7 +162,39 @@ async function fetchFromPin(nodeId: string, pinId: string) {
     }
     
     const graphResponse: GraphResponse = await response.json();
-    updateGraph(graphResponse);
+    
+    // Create a new edge from the origin node to the new node
+    if (graphResponse.nodes && graphResponse.nodes.length > 0) {
+      const newNode = graphResponse.nodes[0]; // Assuming the API returns one new node
+      
+      const newEdge: Edge = {
+        id: `edge-${nodeId}-${newNode.id}`,
+        source: nodeId,
+        sourceHandle: pinId, // Use the specific pin ID as the source handle
+        target: newNode.id,
+        targetHandle: `${newNode.id}-input`, // Use the generic input handle
+        type: 'default',
+        data: {
+          label: pin.label || 'Connection',
+          edgeType: 'expansion',
+          properties: {
+            sourcePin: pinId,
+            sourceNode: nodeId
+          }
+        }
+      };
+      
+      // Add the edge to the GraphResponse
+      const updatedGraphResponse: GraphResponse = {
+        ...graphResponse,
+        edges: [...(graphResponse.edges || []), newEdge]
+      };
+      
+      updateGraph(updatedGraphResponse);
+    } else {
+      // No new nodes returned, just update the original response
+      updateGraph(graphResponse);
+    }
 
     // Update pin state to expanded
     const finalPins = nodeWithUpdatedPins.data.pins.map(p => 
