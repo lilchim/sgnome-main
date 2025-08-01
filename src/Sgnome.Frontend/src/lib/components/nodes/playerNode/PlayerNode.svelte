@@ -7,6 +7,7 @@
     import * as Accordion from "../../ui/accordion";
     import { Handle, Position } from "@xyflow/svelte";
     import PlayerLibrariesWidget from "$lib/components/widgets/PlayerLibrariesWidget.svelte";
+    import IOHandles from "$lib/components/widgets/IOHandles.svelte";
 
     export let data: NodeData;
     export let id: string; // The node ID from SvelteFlow
@@ -30,6 +31,9 @@
 </script>
 
 <Card.Root class="w-80">
+    <Card.Content>
+        <IOHandles hostId={id} />
+    </Card.Content>
     <Card.Header class="pb-2">
         <div class="flex items-center gap-3">
             {#if avatarUrl}
