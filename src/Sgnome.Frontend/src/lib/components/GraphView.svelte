@@ -6,6 +6,7 @@
   import CustomNode from './CustomNode.svelte';
   import PlayerNode from './nodes/playerNode/PlayerNode.svelte';
   import GraphHeader from './GraphHeader.svelte';
+  import type { OnConnectStartParams } from '@xyflow/svelte';
 
   // Register custom node types
   const nodeTypes = {
@@ -34,6 +35,45 @@
       document.removeEventListener('expandPin', handlePinExpand as EventListener);
     };
   });
+
+  let isConnecting = false; // Track if we're in a connection
+  let connectionStartData: OnConnectStartParams | null = null; // Store connection start info
+
+  const handleConnectStart = (event: MouseEvent | TouchEvent, connectionState: OnConnectStartParams | null) => {
+    console.log('Connection started:', connectionState);
+    isConnecting = true;
+    connectionStartData = connectionState;
+  };
+
+  const handleConnectEnd = (event: MouseEvent | TouchEvent, connectionState: any) => {
+    // Only process if we were actually connecting
+    if (!isConnecting) {
+      return;
+    }
+    
+    console.log('Connection ended:', connectionState);
+    
+    // Check if we dropped in empty space (no target)
+    if (!connectionState?.toNode) {
+      const { clientX, clientY } = 
+        'changedTouches' in event ? event.changedTouches[0] : event;
+      
+      console.log('Dropped in empty space at:', { clientX, clientY });
+      
+      // Get the pin data from the connection start
+      if (connectionStartData?.handleId && connectionStartData?.nodeId) {
+        const pinId = connectionStartData.handleId;
+        const nodeId = connectionStartData.nodeId;
+        console.log('fetching pin', nodeId, pinId);
+        
+        fetchFromPin(nodeId, pinId);
+      }
+    }
+    
+    // Reset connection state
+    isConnecting = false;
+    connectionStartData = null;
+  };
 </script>
 
 <div class="graph-container">
@@ -45,6 +85,8 @@
       nodes={getState().nodes} 
       edges={getState().edges}
       nodeTypes={nodeTypes}
+      onconnectstart={(event, connectionState) => handleConnectStart(event, connectionState)}
+      onconnectend={(event, connectionState) => handleConnectEnd(event, connectionState)}
     >
       <Background />
     </SvelteFlow>
