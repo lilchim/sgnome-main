@@ -61,6 +61,8 @@ export enum PinBehavior {
 export interface Edge {
   id: string;
   source: string;
+  sourceHandle: string;
+  targetHandle: string;
   target: string;
   type: string;
   data: EdgeData;
