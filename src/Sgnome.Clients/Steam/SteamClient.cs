@@ -36,7 +36,7 @@ public class SteamClient : ISteamClient
     {
         var cacheKey = $"steam:owned-games:{steamId}";
         return await ExecuteWithCacheAsync<SteamResponse<OwnedGamesResponse>, T>(cacheKey, 
-            () => _apiClient.GetOwnedGamesAsync(steamId), 
+            () => _apiClient.GetOwnedGamesAsync(steamId, true, true), 
             response => response?.Response != null ? transform(response.Response) : transform(null));
     }
 
