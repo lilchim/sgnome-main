@@ -8,5 +8,10 @@ export class LibraryPresenter {
         return libraryPins.length > 0 ? libraryPins[0].label : 'Library';
     }
 
+    getGameListWidgetInput(pins: Pin[]): { gamePins: Pin[] } {
+        let gamePins = pins.filter(pin => pin.type === PIN_CONSTANTS.PIN_TYPES.GAME_PINS.GAME);
+        return { gamePins };
+    }
+
 
 }
