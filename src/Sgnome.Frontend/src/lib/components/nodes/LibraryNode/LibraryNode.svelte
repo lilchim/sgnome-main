@@ -3,12 +3,13 @@
     import { LibraryPresenter } from "$lib/presenters/LibraryPresenter";
     import type { NodeData, Pin } from "$lib/types/graph";
     import IOHandles from "$lib/components/widgets/IOHandles.svelte";
+    import GameListWidget from "$lib/components/widgets/GameListWidget.svelte";
     export let data: NodeData;
     export let id: string;
 
     const libraryPresenter = new LibraryPresenter();
     $: libraryLabel = libraryPresenter.getLibraryLabel(data);
-
+    $: gameListInput = libraryPresenter.getGameListWidgetInput(data.pins);
 </script>
 
 <Card.Root class="w-80">
@@ -18,4 +19,7 @@
     <Card.Header>
         <Card.Title>{libraryLabel}</Card.Title>
     </Card.Header>
-</Card.Root>
+    <Card.Content>
+        <GameListWidget input={gameListInput} />
+    </Card.Content>
+</Card.Root>    
