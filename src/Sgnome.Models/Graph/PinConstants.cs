@@ -28,5 +28,9 @@ public static class PinConstants
             public const string Library = "library:library";
             public const string LibraryList = "library:library-list";
         }
+        public static class GamePins
+        {
+            public const string Game = "game:game";
+        }
     }
 }

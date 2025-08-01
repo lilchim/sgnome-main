@@ -18,6 +18,9 @@ export const PIN_CONSTANTS = {
         LIBRARY_PINS: {
             LIBRARY: 'library:library',
             LIBRARY_LIST: 'library:library-list'
+        },
+        GAME_PINS: {
+            GAME: 'game:game'
         }
     }
 } as const;
