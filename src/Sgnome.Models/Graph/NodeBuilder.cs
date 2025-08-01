@@ -91,7 +91,7 @@ public static class NodeBuilder
         return new Node
         {
             Id = $"library-{library.LibrarySource}-{library.InternalId}",
-            Type = "default",
+            Type = "library",
             Position = new Position { X = x, Y = y },
             Data = new NodeData
             {
