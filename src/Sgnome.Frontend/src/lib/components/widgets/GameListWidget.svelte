@@ -1,13 +1,23 @@
 <script lang="ts">
     import type { Pin } from "$lib/types/graph";
+    import { Handle, Position } from "@xyflow/svelte";
 
-    export let input: { gamePins: Pin[] };
+    const { gamePins } = $props<{ gamePins: Pin[] }>();
+
+    const selectedGames = $state<Pin[]>([]);
 </script>
 
 <div>
-    {#each input.gamePins as gamePin}
-        <div>
+    {#each gamePins as gamePin}
+        <div class="flex justify-between">
+            
             <h1>{gamePin.label}</h1>
+            <Handle
+                id={gamePin.id}
+                type="source"
+                position={Position.Right}
+                class="pin-handle"
+            />
         </div>
     {/each}
 </div>

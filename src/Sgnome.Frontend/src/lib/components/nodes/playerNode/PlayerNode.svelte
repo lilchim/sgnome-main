@@ -9,25 +9,21 @@
     import PlayerLibrariesWidget from "$lib/components/widgets/PlayerLibrariesWidget.svelte";
     import IOHandles from "$lib/components/widgets/IOHandles.svelte";
 
-    export let data: NodeData;
-    export let id: string; // The node ID from SvelteFlow
+    const { data, id } = $props<{ data: NodeData, id: string }>();
 
     const presenter = new PlayerPresenter();
 
     // Extract player data from the node data properties
 
-    $: displayName = presenter.getDisplayName(data);
-    $: libraryCount = presenter.getLibraryCount(data);
+    const displayName = $derived(presenter.getDisplayName(data));
+    const libraryCount = $derived(presenter.getLibraryCount(data));
 
-    // $: playerData = (data?.properties as any) || {};
-    // // $: displayName = (playerData.displayName as string) || "Unknown Player";
-    $: avatarUrl = presenter.getAvatarUrl(data);
-    $: profilesBySource = presenter.getProfilesBySource(data);
-    $: availableProfileSources = presenter.getAvailableProfileSources(data);
-    $: internalId = data.properties.InternalId as string | undefined;
-    // $: identifiers = playerData.identifiers as Record<string, string> | undefined;
+    const avatarUrl = $derived(presenter.getAvatarUrl(data));
+    const profilesBySource = $derived(presenter.getProfilesBySource(data));
+    const availableProfileSources = $derived(presenter.getAvailableProfileSources(data));
+    const internalId = $derived(data.properties.InternalId as string | undefined);
 
-    $: libraryPins = presenter.getLibraryPins(data);
+    const libraryPins = $derived(presenter.getLibraryPins(data));
 </script>
 
 <Card.Root class="w-80">

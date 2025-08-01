@@ -4,15 +4,15 @@
     import type { NodeData, Pin } from "$lib/types/graph";
     import IOHandles from "$lib/components/widgets/IOHandles.svelte";
     import GameListWidget from "$lib/components/widgets/GameListWidget.svelte";
-    export let data: NodeData;
-    export let id: string;
+    
+    const { data, id } = $props<{ data: NodeData, id: string }>();
 
     const libraryPresenter = new LibraryPresenter();
-    $: libraryLabel = libraryPresenter.getLibraryLabel(data);
-    $: gameListInput = libraryPresenter.getGameListWidgetInput(data.pins);
+    const libraryLabel = $derived(libraryPresenter.getLibraryLabel(data));
+    const gameListInput = $derived(libraryPresenter.getGameListWidgetInput(data.pins));
 </script>
 
-<Card.Root class="w-80">
+<Card.Root style="width: 480px;">
     <Card.Content>
         <IOHandles hostId={id} />
     </Card.Content>
@@ -20,6 +20,6 @@
         <Card.Title>{libraryLabel}</Card.Title>
     </Card.Header>
     <Card.Content>
-        <GameListWidget input={gameListInput} />
+        <GameListWidget gamePins={gameListInput.gamePins} />
     </Card.Content>
 </Card.Root>    
