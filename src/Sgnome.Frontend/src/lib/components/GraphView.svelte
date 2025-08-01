@@ -1,75 +1,62 @@
 <script lang="ts">
-  import { SvelteFlow, Controls, Background } from '@xyflow/svelte';
-  import { getState, fetchFromPin } from '../stores/graphState.svelte';
-  import type { Node, Edge } from '../types/graph';
-  import { NodeState, PinBehavior, PinState } from '../types/graph';
-  import CustomNode from './CustomNode.svelte';
-  import PlayerNode from './nodes/playerNode/PlayerNode.svelte';
-  import GraphHeader from './GraphHeader.svelte';
-  import type { OnConnectStartParams } from '@xyflow/svelte';
+  import { SvelteFlow, Controls, Background } from "@xyflow/svelte";
+  import { getState, fetchFromPin, addEdge } from "../stores/graphState.svelte";
+  import type { Node, Edge } from "../types/graph";
+  import { NodeState, PinBehavior, PinState } from "../types/graph";
+  import CustomNode from "./CustomNode.svelte";
+  import PlayerNode from "./nodes/playerNode/PlayerNode.svelte";
+  import LibraryNode from "./nodes/LibraryNode/LibraryNode.svelte";
+  import GraphHeader from "./GraphHeader.svelte";
+  import type { OnConnectStartParams } from "@xyflow/svelte";
 
   // Register custom node types
   const nodeTypes = {
     // default: CustomNode,
-    player: PlayerNode
+    player: PlayerNode,
+    library: LibraryNode,
   };
 
-  // Handle custom node pin expansion
-  function handleCustomNodeExpand(event: CustomEvent<{ nodeId: string; pinId: string }>) {
-    fetchFromPin(event.detail.nodeId, event.detail.pinId);
-  }
-
-  // Set up global event listener for custom node pin expansion
-  import { onMount } from 'svelte';
-  
-  onMount(() => {
-    const handlePinExpand = (event: CustomEvent<{ nodeId: string; pinId: string }>) => {
-      if (event.type === 'expandPin') {
-        fetchFromPin(event.detail.nodeId, event.detail.pinId);
-      }
-    };
-
-    document.addEventListener('expandPin', handlePinExpand as EventListener);
-    
-    return () => {
-      document.removeEventListener('expandPin', handlePinExpand as EventListener);
-    };
-  });
-
+  // Events to handle pin expansion
   let isConnecting = false; // Track if we're in a connection
-  let connectionStartData: OnConnectStartParams | null = null; // Store connection start info
+  let connectionStartData: OnConnectStartParams | null = null; // Stores connection start info
 
-  const handleConnectStart = (event: MouseEvent | TouchEvent, connectionState: OnConnectStartParams | null) => {
-    console.log('Connection started:', connectionState);
+  const handleConnectStart = (
+    event: MouseEvent | TouchEvent,
+    connectionState: OnConnectStartParams | null,
+  ) => {
+    console.log("Connection started:", connectionState);
     isConnecting = true;
     connectionStartData = connectionState;
   };
 
-  const handleConnectEnd = (event: MouseEvent | TouchEvent, connectionState: any) => {
+  const handleConnectEnd = (
+    event: MouseEvent | TouchEvent,
+    connectionState: any,
+  ) => {
     // Only process if we were actually connecting
     if (!isConnecting) {
       return;
     }
-    
-    console.log('Connection ended:', connectionState);
-    
+
+    console.log("Connection ended:", connectionState);
+
     // Check if we dropped in empty space (no target)
     if (!connectionState?.toNode) {
-      const { clientX, clientY } = 
-        'changedTouches' in event ? event.changedTouches[0] : event;
-      
-      console.log('Dropped in empty space at:', { clientX, clientY });
-      
+      const { clientX, clientY } =
+        "changedTouches" in event ? event.changedTouches[0] : event;
+
+      console.log("Dropped in empty space at:", { clientX, clientY });
+
       // Get the pin data from the connection start
       if (connectionStartData?.handleId && connectionStartData?.nodeId) {
         const pinId = connectionStartData.handleId;
         const nodeId = connectionStartData.nodeId;
-        console.log('fetching pin', nodeId, pinId);
-        
+        console.log("fetching pin", nodeId, pinId);
+
         fetchFromPin(nodeId, pinId);
       }
     }
-    
+
     // Reset connection state
     isConnecting = false;
     connectionStartData = null;
@@ -78,15 +65,17 @@
 
 <div class="graph-container">
   <GraphHeader />
-  
+
   <!-- Graph view -->
   <div class="graph-view">
-    <SvelteFlow 
-      nodes={getState().nodes} 
+    <SvelteFlow
+      nodes={getState().nodes}
       edges={getState().edges}
-      nodeTypes={nodeTypes}
-      onconnectstart={(event, connectionState) => handleConnectStart(event, connectionState)}
-      onconnectend={(event, connectionState) => handleConnectEnd(event, connectionState)}
+      {nodeTypes}
+      onconnectstart={(event, connectionState) =>
+        handleConnectStart(event, connectionState)}
+      onconnectend={(event, connectionState) =>
+        handleConnectEnd(event, connectionState)}
     >
       <Background />
     </SvelteFlow>
@@ -106,4 +95,4 @@
     position: relative;
     min-height: 0;
   }
-</style> 
+</style>
