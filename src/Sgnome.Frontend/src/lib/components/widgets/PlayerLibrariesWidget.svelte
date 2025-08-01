@@ -1,0 +1,20 @@
+<script lang="ts">
+    import { Handle, Position } from "@xyflow/svelte";
+    import type { Pin } from "$lib/types/graph";
+    export let libraryPins: Pin[];
+</script>
+
+<div>
+    Libraries
+    {#each libraryPins as pin}
+        <div class="flex items-center justify-between">
+            <span>{pin.summary.displayText}</span>
+            <Handle
+                type="source"
+                position={Position.Right}
+                id={pin.id}
+                class="pin-handle"
+            />
+        </div>
+    {/each}
+</div>

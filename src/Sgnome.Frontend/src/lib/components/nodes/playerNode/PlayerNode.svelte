@@ -6,6 +6,7 @@
     import { Separator } from "../../ui/separator";
     import * as Accordion from "../../ui/accordion";
     import { Handle, Position } from "@xyflow/svelte";
+    import PlayerLibrariesWidget from "$lib/components/widgets/PlayerLibrariesWidget.svelte";
 
     export let data: NodeData;
     export let id: string; // The node ID from SvelteFlow
@@ -91,18 +92,6 @@
     <Separator />
 
     <Card.Content class="pt-0">
-        <div>
-            {#each libraryPins as pin}
-                <div class="flex items-center justify-between">
-                    <span>{pin.summary.displayText}</span>
-                    <Handle
-                        type="source"
-                        position={Position.Right}
-                        id={pin.id}
-                        class="pin-handle"
-                    />
-                </div>
-            {/each}
-        </div>
+        <PlayerLibrariesWidget {libraryPins} />
     </Card.Content>
 </Card.Root>
