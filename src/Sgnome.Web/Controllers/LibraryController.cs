@@ -3,6 +3,7 @@ using Sgnome.Models.Nodes;
 using Sgnome.Models.Graph;
 using Sgnome.Models.Requests;
 using LibraryService;
+using GamesService;
 
 namespace Sgnome.Web.Controllers;
 
@@ -11,13 +12,16 @@ namespace Sgnome.Web.Controllers;
 public class LibraryController : ControllerBase
 {
     private readonly ILibraryService _libraryService;
-    private readonly ILogger<LibraryController> _logger;
+    private readonly IGamesService _gamesService;
+    private readonly ILogger<LibraryController> _logger;    
 
     public LibraryController(
         ILibraryService libraryService,
+        IGamesService gamesService,
         ILogger<LibraryController> logger)
     {
         _libraryService = libraryService;
+        _gamesService = gamesService;
         _logger = logger;
     }
 
@@ -51,6 +55,12 @@ public class LibraryController : ControllerBase
             
             // Attach pins to the library node
             libraryGraphNode.Data.Pins.AddRange(pins);
+
+            // Get Game Pins
+            var gamePins = await _gamesService.Consume(resolvedLibrary);
+
+            // Attach game pins to the library node
+            libraryGraphNode.Data.Pins.AddRange(gamePins);
 
             // Build the graph response
             var response = new GraphResponse
