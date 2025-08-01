@@ -23,7 +23,6 @@ export class PlayerPresenter {
             let pinsBySource = pins.filter(pin => pin.summary.source === source);
             result[source] = pinsBySource;
         }
-        console.log(result);
         return result;
     }
 
@@ -40,7 +39,6 @@ export class PlayerPresenter {
 
     getLibraryPins({pins}: {pins: Pin[]}): Pin[] {
         const r = pins.filter(pin => pin.type === PIN_CONSTANTS.PIN_TYPES.LIBRARY_PINS.LIBRARY);
-        console.log(r);
         return r;
     }
 }
