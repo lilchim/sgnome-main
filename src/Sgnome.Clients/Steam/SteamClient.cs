@@ -3,6 +3,7 @@ using SteamApi.Models.Steam.Responses;
 using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
 using System.Text.Json;
+using SteamApi.Models.Steam.Store;
 
 namespace Sgnome.Clients.Steam;
 
@@ -83,6 +84,20 @@ public class SteamClient : ISteamClient
     }
 
     /// <summary>
+    /// Gets app details for a Steam app.
+    /// </summary>
+    /// <param name="appId">The Steam app ID</param>
+    /// <param name="transform">Function to transform the response</param>
+    /// <returns>Transformed result from the Steam API</returns>
+    public async Task<T> GetAppDetailsAsync<T>(string appId, Func<Dictionary<string, StoreAppDetailsResponse>, T> transform)
+    {
+        var cacheKey = $"steam:app-details:{appId}";
+        return await ExecuteWithCacheAsync<Dictionary<string, StoreAppDetailsResponse>, T>(cacheKey,
+            () => _apiClient.GetStoreAppDetailsAsync(int.Parse(appId)),
+            response => response?.FirstOrDefault().Value != null ? transform(response) : transform(null));
+    }
+
+    /// <summary>
     /// Executes an API call with Redis caching.
     /// </summary>
     /// <typeparam name="T">The type of the API response</typeparam>
@@ -118,14 +133,14 @@ public class SteamClient : ISteamClient
             // Make API call
             _logger.LogDebug("Cache miss for key: {CacheKey}, making API call", cacheKey);
             var response = await apiCall();
-            
+
             if (response != null)
             {
                 // Cache the response
                 var responseJson = JsonSerializer.Serialize(response);
                 await database.StringSetAsync(cacheKey, responseJson, expiry);
                 _logger.LogDebug("Cached response for key: {CacheKey}", cacheKey);
-                
+
                 return transform(response);
             }
 
