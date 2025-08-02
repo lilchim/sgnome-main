@@ -20,7 +20,10 @@ export const PIN_CONSTANTS = {
             LIBRARY_LIST: 'library:library-list'
         },
         GAME_PINS: {
-            GAME: 'game:game'
+            GAME: 'game:game',
+            STEAM_APP_ID: 'game:steam-app-id',
+            GAME_NAME: 'game:name',
+            HEADER_IMAGE_URL: 'game:header-image-url',
         }
     }
 } as const;

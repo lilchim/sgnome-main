@@ -33,6 +33,7 @@ public static class PinConstants
             public const string Game = "game:game";
             public const string SteamAppId = "game:steam-app-id";
             public const string GameName = "game:name";
+            public const string HeaderImageUrl = "game:header-image-url";
         }
     }
 }
