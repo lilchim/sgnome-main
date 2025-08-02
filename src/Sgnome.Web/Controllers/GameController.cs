@@ -37,7 +37,7 @@ public class GameController : ControllerBase
             };
 
             var (pins, resolvedGame) = await _gamesService.Consume(gameNode);
-            var gameGraphNode = NodeBuilder.CreateGameNode(resolvedGame);
+            var gameGraphNode = NodeBuilder.CreateGameNode(resolvedGame, request.X, request.Y);
 
             
             // Add pins to the game node's data
