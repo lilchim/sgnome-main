@@ -6,16 +6,13 @@ namespace Sgnome.Models.Nodes;
 public class GameNode : Node
 {
     public string? InternalId { get; set; }
-    public string? Name { get; set; }
-    public string? IconUrl { get; set; }
-    public string? LogoUrl { get; set; }
     
     // Core identity properties only
-    public Dictionary<string, object> Identifiers { get; set; } = new();
+    public Dictionary<string, object> Identifiers { get; set; } = [];
 
     public GameNode()
     {
-        Type = "gameNode";
-        Data.NodeType = "game";
+        Type = NodeConstants.NodeTypes.Game;
+        Data.NodeType = NodeConstants.NodeTypes.Game;
     }
 } 
