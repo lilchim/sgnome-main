@@ -1,20 +1,19 @@
 <script lang="ts">
-  import { SvelteFlow, Controls, Background } from "@xyflow/svelte";
-  import { getState, fetchFromPin, addEdge } from "../stores/graphState.svelte";
-  import type { Node, Edge } from "../types/graph";
-  import { NodeState, PinBehavior, PinState } from "../types/graph";
+  import { SvelteFlow, Background } from "@xyflow/svelte";
+  import { getState, fetchFromPin } from "../stores/graphState.svelte";
   import PlayerNode from "./nodes/PlayerNode.svelte";
   import LibraryNode from "./nodes/LibraryNode.svelte";
   import GraphHeader from "./GraphHeader.svelte";
   import type { OnConnectStartParams } from "@xyflow/svelte";
-    import GameNode from "./nodes/GameNode.svelte";
+  import GameNode from "./nodes/GameNode.svelte";
+  import { convertScreenToCanvas } from "$lib/util/convertScreenToCanvas";
 
   // Register custom node types
   const nodeTypes = {
     // default: CustomNode,
     player: PlayerNode,
     library: LibraryNode,
-    GameNode: GameNode
+    GameNode: GameNode,
   };
 
   // Events to handle pin expansion
@@ -48,13 +47,19 @@
 
       console.log("Dropped in empty space at:", { clientX, clientY });
 
+      // Convert screen coordinates to canvas coordinates
+      const { x: canvasX, y: canvasY } = convertScreenToCanvas(
+        clientX,
+        clientY,
+      );
+
       // Get the pin data from the connection start
       if (connectionStartData?.handleId && connectionStartData?.nodeId) {
         const pinId = connectionStartData.handleId;
         const nodeId = connectionStartData.nodeId;
         console.log("fetching pin", nodeId, pinId);
 
-        fetchFromPin(nodeId, pinId, clientX, clientY);
+        fetchFromPin(nodeId, pinId, canvasX, canvasY);
       }
     }
 
@@ -77,6 +82,7 @@
         handleConnectStart(event, connectionState)}
       onconnectend={(event, connectionState) =>
         handleConnectEnd(event, connectionState)}
+      minZoom={0.2}
     >
       <Background />
     </SvelteFlow>
