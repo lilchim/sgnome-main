@@ -5,7 +5,7 @@
     import { Button } from "$lib/components/ui/button";
     import { ListPlusIcon, ListXIcon } from "@lucide/svelte";
     import { Input } from "$lib/components/ui/input/index.js";
-    import { Label } from "$lib/components/ui/label/index.js";
+    import { ScrollArea } from "$lib/components/ui/scroll-area";
 
     const { gamePins } = $props<{ gamePins: Pin[] }>();
 
@@ -26,6 +26,11 @@
             gamePin.label.toLowerCase().includes(searchLower),
         );
     });
+
+    // Prevent scroll events from propagating to XYFlow, otherwise it will zoom
+    function handleScrollAreaWheel(event: WheelEvent) {
+        event.stopPropagation();
+    }
 </script>
 
 <div class="flex flex-col gap-2">
@@ -57,7 +62,7 @@
         {/each}
     </div>
     <Separator />
-    <div>
+    <div class="flex flex-col gap-2">
         <h1>Available Games</h1>
         <div class="flex w-full max-w-sm flex-col gap-1.5">
             <Input
@@ -67,19 +72,21 @@
                 bind:value={searchText}
             />
         </div>
-        {#each filteredUnselectedGames() as gamePin}
-            <div class="flex items-center p-2">
-                <Button
-                    size="icon"
-                    variant="ghost"
-                    onclick={() => {
-                        selectedGames.push(gamePin);
-                    }}
-                >
-                    <ListPlusIcon />
-                </Button>
-                <span class="text-md">{gamePin.label}</span>
-            </div>
-        {/each}
+        <ScrollArea class="h-[320px] rounded-md border" onwheel={handleScrollAreaWheel}>
+            {#each filteredUnselectedGames() as gamePin}
+                <div class="flex items-center p-2">
+                    <Button
+                        size="icon"
+                        variant="ghost"
+                        onclick={() => {
+                            selectedGames.push(gamePin);
+                        }}
+                    >
+                        <ListPlusIcon />
+                    </Button>
+                    <span class="text-md">{gamePin.label}</span>
+                </div>
+            {/each}
+        </ScrollArea>
     </div>
 </div>
