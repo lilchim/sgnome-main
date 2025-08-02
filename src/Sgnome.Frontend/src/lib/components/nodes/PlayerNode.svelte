@@ -1,9 +1,9 @@
 <script lang="ts">
-    import type { NodeData } from "../../../types/graph";
-    import { PlayerPresenter } from "../../../presenters/PlayerPresenter";
+    import type { NodeData } from "$lib/types/graph";
+    import { PlayerPresenter } from "$lib/presenters/PlayerPresenter";
     import * as Card from "$lib/components/ui/card/index.js";
-    import { Separator } from "../../ui/separator";
-    import * as Accordion from "../../ui/accordion";
+    import { Separator } from "$lib/components/ui/separator";
+    import * as Accordion from "$lib/components/ui/accordion";
     import PlayerLibrariesWidget from "$lib/components/widgets/PlayerLibrariesWidget.svelte";
     import IOHandles from "$lib/components/widgets/IOHandles.svelte";
 
