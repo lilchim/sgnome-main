@@ -3,17 +3,18 @@
   import { getState, fetchFromPin, addEdge } from "../stores/graphState.svelte";
   import type { Node, Edge } from "../types/graph";
   import { NodeState, PinBehavior, PinState } from "../types/graph";
-  import CustomNode from "./CustomNode.svelte";
-  import PlayerNode from "./nodes/playerNode/PlayerNode.svelte";
-  import LibraryNode from "./nodes/LibraryNode/LibraryNode.svelte";
+  import PlayerNode from "./nodes/PlayerNode.svelte";
+  import LibraryNode from "./nodes/LibraryNode.svelte";
   import GraphHeader from "./GraphHeader.svelte";
   import type { OnConnectStartParams } from "@xyflow/svelte";
+    import GameNode from "./nodes/GameNode.svelte";
 
   // Register custom node types
   const nodeTypes = {
     // default: CustomNode,
     player: PlayerNode,
     library: LibraryNode,
+    GameNode: GameNode
   };
 
   // Events to handle pin expansion
