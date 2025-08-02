@@ -16,6 +16,7 @@ public static class ExtractSteamGameInfoPins
             {
                 pins.Add(MakeSteamAppIdPin(result.Data, context));
                 pins.Add(MakeGameNamePin(result.Data, context));
+                pins.Add(MakeHeaderImageUrlPin(result.Data, context));
             }
         });
         return pins;
@@ -59,6 +60,27 @@ public static class ExtractSteamGameInfoPins
                 Preview = new Dictionary<string, object>
                 {
                     ["gameName"] = data.Name
+                }
+            }
+        };
+    }
+
+    private static Pin MakeHeaderImageUrlPin(StoreAppDetails data, PinContext context)
+    {
+        return new Pin
+        {
+            Id = context.InputNodeId,
+            Label = "Header Image URL",
+            Type = PinConstants.PinTypes.GamePins.HeaderImageUrl,
+            Behavior = PinBehavior.Informational,
+            Summary = new PinSummary
+            {
+                DisplayText = "Header Image",
+                Icon = "game",
+                Source = "steam",
+                Preview = new Dictionary<string, object>
+                {
+                    ["headerImageUrl"] = data.HeaderImage
                 }
             }
         };
