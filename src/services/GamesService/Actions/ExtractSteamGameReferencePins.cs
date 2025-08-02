@@ -3,7 +3,7 @@ using SteamApi.Models.Steam.Responses;
 
 namespace GamesService.Actions;
 
-public static class ExtractSteamGamePins
+public static class ExtractSteamGameReferencePins
 {
     public static IEnumerable<Pin> Extract(OwnedGamesResponse response, PinContext context)
     {
