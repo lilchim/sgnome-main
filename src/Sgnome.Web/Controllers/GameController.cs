@@ -40,10 +40,10 @@ public class GameController : ControllerBase
             
             // Add pins to the game node's data
             resolvedGame.Data.Pins.AddRange(pins);
-            
+            var gameGraphNode = NodeBuilder.CreateGameNode(resolvedGame);
             var response = new GraphResponse
             {
-                Nodes = new List<Node> { resolvedGame }
+                Nodes = new List<Node> { gameGraphNode }
             };
 
             return Ok(response);
@@ -65,7 +65,6 @@ public class GameController : ControllerBase
             var gameNode = new GameNode
             {
                 InternalId = internalId,
-                Name = $"Game {internalId}",
                 Identifiers = new Dictionary<string, object>
                 {
                     ["internalId"] = internalId
@@ -76,10 +75,11 @@ public class GameController : ControllerBase
             
             // Add pins to the game node's data
             resolvedGame.Data.Pins.AddRange(pins);
+            var gameGraphNode = NodeBuilder.CreateGameNode(resolvedGame);
             
             var response = new GraphResponse
             {
-                Nodes = new List<Node> { resolvedGame }
+                Nodes = new List<Node> { gameGraphNode }
             };
 
             return Ok(response);
