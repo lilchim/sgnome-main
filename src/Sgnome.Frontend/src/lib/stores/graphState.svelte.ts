@@ -1,7 +1,6 @@
 import type { Node, Edge, GraphResponse, GraphState, GraphMetadata } from '../types/graph';
 import { NodeState, PinState } from '../types/graph';
 
-// Initialize reactive state with $state
 let state = $state<GraphState>({
   nodes: [],
   edges: [],
@@ -9,7 +8,6 @@ let state = $state<GraphState>({
   lastUpdated: ''
 });
 
-// Derived state for computed values (like NgRx selectors)
 const nodeCount = $derived(state.nodes.length);
 const edgeCount = $derived(state.edges.length);
 const metadataCount = $derived(state.metadata.size);
@@ -27,19 +25,17 @@ function selectMetadataCount() {
   return metadataCount;
 }
 
-// Reducer-like function for complex state updates
 function reduceGraph(current: GraphState, newData: Partial<GraphResponse>): GraphState {
-  // Merge nodes (prevent duplicates, preserve existing, add new)
+  // Merge nodes (preserve existing positions and data, only add new nodes)
   const updatedNodes = newData.nodes
     ? [
-        ...current.nodes.filter((existing: Node) => 
-          !newData.nodes!.some((newNode: Node) => newNode.id === existing.id)
-        ),
-        ...newData.nodes
+        ...current.nodes, 
+        ...newData.nodes.filter((newNode: Node) => 
+          !current.nodes.some((existing: Node) => existing.id === newNode.id)
+        )
       ]
     : current.nodes;
 
-  // Merge edges (prevent duplicates, preserve existing, add new)
   const updatedEdges = newData.edges
     ? [
         ...current.edges.filter((existing: Edge) => 
@@ -49,7 +45,6 @@ function reduceGraph(current: GraphState, newData: Partial<GraphResponse>): Grap
       ]
     : current.edges;
 
-  // Merge metadata
   const updatedMetadata = new Map(current.metadata);
   if (newData.metadata) {
     updatedMetadata.set(newData.metadata.queryId, newData.metadata);
@@ -68,11 +63,33 @@ function updateGraph(newData: Partial<GraphResponse>) {
   state = reduceGraph(state, newData);
 }
 
-// Action-like functions for user interactions
 function addNode(node: Node) {
-  state = { 
-    ...state, 
-    nodes: [...state.nodes.filter((n: Node) => n.id !== node.id), node],
+  const existingNode = state.nodes.find(n => n.id === node.id);
+  if (existingNode) {
+    const updatedNode = {
+      ...node,
+      position: existingNode.position 
+    };
+    state = { 
+      ...state, 
+      nodes: state.nodes.map(n => n.id === node.id ? updatedNode : n),
+      lastUpdated: new Date().toISOString()
+    };
+  } else {
+    state = { 
+      ...state, 
+      nodes: [...state.nodes, node],
+      lastUpdated: new Date().toISOString()
+    };
+  }
+}
+
+function updateNode(nodeId: string, updates: Partial<Node>) {
+  state = {
+    ...state,
+    nodes: state.nodes.map(node => 
+      node.id === nodeId ? { ...node, ...updates } : node
+    ),
     lastUpdated: new Date().toISOString()
   };
 }
@@ -112,7 +129,7 @@ function clearGraph() {
   };
 }
 
-// Generic API call function using pin metadata (like NgRx effects)
+// Generic API call function using pin metadata 
 async function fetchFromPin(nodeId: string, pinId: string, x: number = 0, y: number = 0) {
   const node = state.nodes.find(n => n.id === nodeId);
   if (!node) {
@@ -127,28 +144,10 @@ async function fetchFromPin(nodeId: string, pinId: string, x: number = 0, y: num
   }
 
   try {
-    // Update node state to loading
-    const updatedNode = {
-      ...node,
-      data: { ...node.data, state: NodeState.Loading }
-    };
-    addNode(updatedNode);
-
-    // Update pin state to loading
-    const updatedPins = node.data.pins.map(p => 
-      p.id === pinId ? { ...p, state: PinState.Loading } : p
-    );
-    const nodeWithUpdatedPins = {
-      ...updatedNode,
-      data: { ...updatedNode.data, pins: updatedPins }
-    };
-    addNode(nodeWithUpdatedPins);
-
-    // Make API call using pin metadata
     const requestBody = {
       ...pin.metadata.parameters,
-      x,
-      y
+      x: Math.round(x),
+      y: Math.round(y)
     };
     
     const response = await fetch(pin.metadata.apiEndpoint, {
@@ -167,14 +166,14 @@ async function fetchFromPin(nodeId: string, pinId: string, x: number = 0, y: num
     
     // Create a new edge from the origin node to the new node
     if (graphResponse.nodes && graphResponse.nodes.length > 0) {
-      const newNode = graphResponse.nodes[0]; // Assuming the API returns one new node
+      const newNode = graphResponse.nodes[0];
       
       const newEdge: Edge = {
         id: `edge-${nodeId}-${newNode.id}`,
         source: nodeId,
-        sourceHandle: pinId, // Use the specific pin ID as the source handle
+        sourceHandle: pinId, 
         target: newNode.id,
-        targetHandle: `${newNode.id}-input`, // Use the generic input handle
+        targetHandle: `${newNode.id}-input`, 
         type: 'default',
         data: {
           label: pin.label || 'Connection',
@@ -186,7 +185,6 @@ async function fetchFromPin(nodeId: string, pinId: string, x: number = 0, y: num
         }
       };
       
-      // Add the edge to the GraphResponse
       const updatedGraphResponse: GraphResponse = {
         ...graphResponse,
         edges: [...(graphResponse.edges || []), newEdge]
@@ -198,15 +196,7 @@ async function fetchFromPin(nodeId: string, pinId: string, x: number = 0, y: num
       updateGraph(graphResponse);
     }
 
-    // Update pin state to expanded
-    const finalPins = nodeWithUpdatedPins.data.pins.map(p => 
-      p.id === pinId ? { ...p, state: PinState.Expanded } : p
-    );
-    const finalNode = {
-      ...nodeWithUpdatedPins,
-      data: { ...nodeWithUpdatedPins.data, state: NodeState.Loaded, pins: finalPins }
-    };
-    addNode(finalNode);
+
 
   } catch (error) {
     console.error('Failed to fetch from pin:', error);
@@ -216,17 +206,7 @@ async function fetchFromPin(nodeId: string, pinId: string, x: number = 0, y: num
       ...node,
       data: { ...node.data, state: NodeState.Error }
     };
-    addNode(errorNode);
-
-    // Update pin state to unexpanded (allow retry)
-    const errorPins = node.data.pins.map(p => 
-      p.id === pinId ? { ...p, state: PinState.Unexpanded } : p
-    );
-    const errorNodeWithPins = {
-      ...errorNode,
-      data: { ...errorNode.data, pins: errorPins }
-    };
-    addNode(errorNodeWithPins);
+    updateNode(nodeId, errorNode);
   }
 }
 
@@ -252,54 +232,19 @@ async function fetchWithEndpoint(endpoint: string, parameters: Record<string, un
   }
 }
 
-// Pin expansion function
-async function expandPin(nodeId: string, pinId: string) {
-  const node = state.nodes.find(n => n.id === nodeId);
-  if (!node) return;
 
-  const pin = node.data.pins.find(p => p.id === pinId);
-  if (!pin || pin.type !== 'expandable' || !pin.metadata?.apiEndpoint) return;
-
-  try {
-    const response = await fetch(pin.metadata.apiEndpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        nodeId,
-        pinId,
-        ...pin.metadata.parameters
-      })
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const graphResponse: GraphResponse = await response.json();
-    updateGraph(graphResponse);
-  } catch (error) {
-    console.error('Failed to expand pin:', error);
-  }
-}
-
-// Get node by ID
 function getNode(nodeId: string): Node | undefined {
   return state.nodes.find(n => n.id === nodeId);
 }
 
-// Get edges for a node
 function getNodeEdges(nodeId: string): Edge[] {
   return state.edges.filter(e => e.source === nodeId || e.target === nodeId);
 }
 
-// Get metadata for an operation
 function getMetadata(queryId: string): GraphMetadata | undefined {
   return state.metadata.get(queryId);
 }
 
-// Export a getter function for the state
 function getState() {
   return state;
 }
@@ -312,7 +257,6 @@ export {
   updateGraph, 
   fetchFromPin,
   fetchWithEndpoint,
-  expandPin,
   addNode, 
   removeNode,
   addEdge,
@@ -320,5 +264,6 @@ export {
   clearGraph,
   getNode,
   getNodeEdges,
-  getMetadata
+  getMetadata,
+  updateNode
 }; 
