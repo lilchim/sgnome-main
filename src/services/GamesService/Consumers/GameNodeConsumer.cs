@@ -56,7 +56,7 @@ public class GameNodeConsumer
         if (steamAppId != null)
         {
             _logger.LogDebug("This is a steam gaben.");
-            var steamGamePins = await _steamClient.GetAppDetailsAsync<IEnumerable<Pin>>(steamAppId, (response) => ExtractSteamGameInfoPins.Extract(response, context));
+            var steamGamePins = await _steamClient.GetAppDetailsAsync(steamAppId, (response) => ExtractSteamGameInfoPins.Extract(response, context));
             pins.AddRange(steamGamePins);
         }
 
