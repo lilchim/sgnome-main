@@ -1,6 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
 using GamesService.Database;
-using GamesService.PinGenerators;
 
 namespace GamesService;
 
@@ -10,8 +9,7 @@ public static class GamesServiceExtensions
     {
         services.AddScoped<IGamesService, GamesService>();
         services.AddScoped<IGamesDatabase, RedisGamesDatabase>();
-        services.AddScoped<GameInfoPinGenerator>();
-        
+        services.AddScoped<GameNodeConsumer>();
         return services;
     }
 } 

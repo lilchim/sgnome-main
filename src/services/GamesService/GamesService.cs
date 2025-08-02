@@ -1,7 +1,6 @@
 using Sgnome.Models.Graph;
 using Sgnome.Models.Nodes;
 using GamesService.Database;
-using GamesService.PinGenerators;
 using Microsoft.Extensions.Logging;
 using Sgnome.Clients.Steam;
 using GamesService.Actions;
@@ -11,43 +10,23 @@ namespace GamesService;
 public class GamesService : IGamesService
 {
     private readonly IGamesDatabase _database;
-    private readonly GameInfoPinGenerator _infoPinGenerator;
     private readonly ILogger<GamesService> _logger;
     private readonly ISteamClient _steamClient;
+    private readonly GameNodeConsumer _gameNodeConsumer;
 
     public GamesService(
         IGamesDatabase database,
-        GameInfoPinGenerator infoPinGenerator,
         ISteamClient steamClient,
+        GameNodeConsumer gameNodeConsumer,
         ILogger<GamesService> logger)
     {
         _database = database;
-        _infoPinGenerator = infoPinGenerator;
         _steamClient = steamClient;
+        _gameNodeConsumer = gameNodeConsumer;
         _logger = logger;
     }
 
-    public async Task<(IEnumerable<Pin> Pins, GameNode ResolvedNode)> Consume(GameNode partial)
-    {
-        _logger.LogInformation("Consuming GameNode");
-
-        try
-        {
-            // Resolve game from database (creates or updates as needed)
-            var resolvedGame = await _database.ResolveGameAsync(partial.Identifiers);
-            _logger.LogInformation("Resolved game with internal ID {InternalId}", resolvedGame.InternalId);
-
-            // Generate enrichment pins for the resolved game
-            var pins = await CreateGamePinsAsync(resolvedGame, resolvedGame.InternalId!, "game");
-
-            return (pins, resolvedGame);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error consuming GameNode");
-            throw;
-        }
-    }
+    public async Task<(IEnumerable<Pin> Pins, GameNode ResolvedNode)> Consume(GameNode partial) => await _gameNodeConsumer.Consume(partial);
 
     public async Task<IEnumerable<Pin>> Consume(LibraryNode library)
     {
@@ -68,7 +47,7 @@ public class GamesService : IGamesService
                     ApiEndpoint = "/api/game/select"
                 };
 
-                var ownedGames = await _steamClient.GetOwnedGamesAsync(library.Identifiers[LibraryIdentifiers.Steam], (response) => ExtractSteamGamePins.Extract(response, context));
+                var ownedGames = await _steamClient.GetOwnedGamesAsync(library.Identifiers[LibraryIdentifiers.Steam], (response) => ExtractSteamGameReferencePins.Extract(response, context));
                 pins.AddRange(ownedGames);
             }
 
@@ -121,26 +100,4 @@ public class GamesService : IGamesService
         }
     }
 
-    private async Task<IEnumerable<Pin>> CreateGamePinsAsync(GameNode game, string originNodeId, string originNodeType)
-    {
-        var context = new PinContext
-        {
-            InputNodeId = originNodeId,
-            InputNodeType = originNodeType,
-            TargetNodeType = "game",
-            ApiEndpoint = "/api/game/select",
-            ApiParameters = new Dictionary<string, object>
-            {
-                ["internalId"] = game.InternalId!
-            }
-        };
-
-        var allPins = new List<Pin>();
-
-        // Generate info pins
-        var infoPins = await _infoPinGenerator.GeneratePinsAsync(game);
-        allPins.AddRange(infoPins);
-
-        return allPins;
-    }
 }
