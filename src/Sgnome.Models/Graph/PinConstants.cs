@@ -31,6 +31,8 @@ public static class PinConstants
         public static class GamePins
         {
             public const string Game = "game:game";
+            public const string SteamAppId = "game:steam-app-id";
+            public const string GameName = "game:name";
         }
     }
 }
