@@ -37,10 +37,11 @@ public class GameController : ControllerBase
             };
 
             var (pins, resolvedGame) = await _gamesService.Consume(gameNode);
+            var gameGraphNode = NodeBuilder.CreateGameNode(resolvedGame);
+
             
             // Add pins to the game node's data
-            resolvedGame.Data.Pins.AddRange(pins);
-            var gameGraphNode = NodeBuilder.CreateGameNode(resolvedGame);
+            gameGraphNode.Data.Pins.AddRange(pins);
             var response = new GraphResponse
             {
                 Nodes = new List<Node> { gameGraphNode }
@@ -72,10 +73,10 @@ public class GameController : ControllerBase
             };
 
             var (pins, resolvedGame) = await _gamesService.Consume(gameNode);
+            var gameGraphNode = NodeBuilder.CreateGameNode(resolvedGame);
             
             // Add pins to the game node's data
-            resolvedGame.Data.Pins.AddRange(pins);
-            var gameGraphNode = NodeBuilder.CreateGameNode(resolvedGame);
+            gameGraphNode.Data.Pins.AddRange(pins);
             
             var response = new GraphResponse
             {
