@@ -34,7 +34,10 @@ public static class ExtractSteamGameReferencePins
                     ApiEndpoint = "/api/game/select",
                     Parameters = new Dictionary<string, object>
                     {
-                        ["steamId"] = game.AppId.ToString()
+                        ["identifiers"] = new Dictionary<string, string>
+                        {
+                            ["steam"] = game.AppId.ToString()
+                        }
                     }
                 }
             };
