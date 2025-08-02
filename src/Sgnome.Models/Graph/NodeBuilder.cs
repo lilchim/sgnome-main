@@ -28,21 +28,17 @@ public static class NodeBuilder
     public static Node CreateGameNode(GameNode game, double x = 400, double y = 300)
     {
         // TODO: Create static identifier strings
-        var gameId = game.InternalId ?? 
-                    game.Identifiers.GetValueOrDefault("storefront:steam")?.ToString() ??
-                    game.Identifiers.GetValueOrDefault("storefront:epic")?.ToString() ??
-                    game.Identifiers.GetValueOrDefault("rawg:id")?.ToString() ??
-                    Guid.NewGuid().ToString();
+        var gameId = game.InternalId;
                     
         return new Node
         {
             Id = $"game-{gameId}",
-            Type = "default",
+            Type = NodeConstants.NodeTypes.Game,
             Position = new Position { X = x, Y = y },
             Data = new NodeData
             {
-                Label = game.Name ?? "Unknown Game",
-                NodeType = "game",
+                Label = "Game",
+                NodeType = NodeConstants.NodeTypes.Game,
                 Properties = SerializeToDictionary(game),
                 Pins = new List<Pin>(),
                 State = NodeState.Loading
