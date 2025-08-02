@@ -54,7 +54,7 @@
         const nodeId = connectionStartData.nodeId;
         console.log("fetching pin", nodeId, pinId);
 
-        fetchFromPin(nodeId, pinId);
+        fetchFromPin(nodeId, pinId, clientX, clientY);
       }
     }
 

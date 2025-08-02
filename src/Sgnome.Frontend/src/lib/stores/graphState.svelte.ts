@@ -113,7 +113,7 @@ function clearGraph() {
 }
 
 // Generic API call function using pin metadata (like NgRx effects)
-async function fetchFromPin(nodeId: string, pinId: string) {
+async function fetchFromPin(nodeId: string, pinId: string, x: number = 0, y: number = 0) {
   const node = state.nodes.find(n => n.id === nodeId);
   if (!node) {
     console.error('Node not found:', nodeId);
@@ -146,7 +146,9 @@ async function fetchFromPin(nodeId: string, pinId: string) {
 
     // Make API call using pin metadata
     const requestBody = {
-      ...pin.metadata.parameters
+      ...pin.metadata.parameters,
+      x,
+      y
     };
     
     const response = await fetch(pin.metadata.apiEndpoint, {
