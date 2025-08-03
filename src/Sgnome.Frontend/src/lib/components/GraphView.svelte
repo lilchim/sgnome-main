@@ -1,6 +1,6 @@
 <script lang="ts">
   import { SvelteFlow, Background } from "@xyflow/svelte";
-  import { getState, fetchFromPin, fetchWithEndpoint } from "../stores/graphState.svelte";
+  import { getState, fetchFromPin, fetchWithEndpoint, updateNode } from "../stores/graphState.svelte";
   import PlayerNode from "./nodes/PlayerNode.svelte";
   import LibraryNode from "./nodes/LibraryNode.svelte";
   import GraphHeader from "./GraphHeader.svelte";
@@ -81,6 +81,7 @@
     const isNode = target.closest('[data-id]') || target.closest('.svelte-flow__node');
     
     if (isNode) {
+      //TODO: A node-specific menu or...whatever can go here
       return; 
     }
 
@@ -135,6 +136,20 @@
     contextMenuOpen = false;
   }
 
+  // update node position when dragging stops
+  function handleNodeDragStop(event: any) {
+    console.log('Node drag stopped:', event);
+    
+    if (event.nodes) {
+      event.nodes.forEach((node: any) => {
+        console.log(`Node ${node.id} moved to:`, node.position);
+        
+        // Update the node position in the store
+        updateNode(node.id, { position: node.position });
+      });
+    }
+  }
+
   // Close context menu when clicking outside
   function handleGlobalClick(event: MouseEvent) {
     if (contextMenuOpen) {
@@ -159,6 +174,7 @@
       onconnectend={(event, connectionState) =>
         handleConnectEnd(event, connectionState)}
       oncontextmenu={handleCanvasContextMenu}
+      onnodedragstop={handleNodeDragStop}
       minZoom={0.2}
     >
       <Background />
