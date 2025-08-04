@@ -5,7 +5,13 @@
 </script>
 
 <div>
-    Libraries
+    {#if libraryPins.length === 0}
+        No Libraries
+    {:else if libraryPins.length === 1}
+        Library
+    {:else}
+        {libraryPins.length} Libraries
+    {/if}
     {#each libraryPins as pin}
         <div class="flex items-center justify-between">
             <span>{pin.summary.displayText}</span>
