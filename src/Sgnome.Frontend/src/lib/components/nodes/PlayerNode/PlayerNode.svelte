@@ -6,28 +6,51 @@
     import * as Accordion from "$lib/components/ui/accordion";
     import PlayerLibrariesWidget from "$lib/components/widgets/PlayerLibrariesWidget.svelte";
     import IOHandles from "$lib/components/widgets/IOHandles.svelte";
+    import ContextToggle from "$lib/components/widgets/ContextToggle.svelte";
+    import AllCard from "./AllCard.svelte";
+    import SteamCard from "./SteamCard.svelte";
+    import EpicCard from "./EpicCard.svelte";
+    import XboxCard from "./XboxCard.svelte";
+    import PlayStationCard from "./PlayStationCard.svelte";
 
-    const { data, id } = $props<{ data: NodeData, id: string }>();
+    const { data, id } = $props<{ data: NodeData; id: string }>();
+
+    let contexts = [
+        { value: "all", label: "All" },
+        { value: "steam", label: "Steam" },
+        { value: "epic", label: "Epic" },
+        { value: "xbox", label: "Xbox" },
+        { value: "playstation", label: "PlayStation" },
+    ];
+
+    let selectedContext = $state("all");
+    function handleContextChange(context: string) {
+        selectedContext = context;
+    }
 
     const presenter = new PlayerPresenter();
 
     // Extract player data from the node data properties
-
     const displayName = $derived(presenter.getDisplayName(data));
     const libraryCount = $derived(presenter.getLibraryCount(data));
-
     const avatarUrl = $derived(presenter.getAvatarUrl(data));
     const profilesBySource = $derived(presenter.getProfilesBySource(data));
-    const availableProfileSources = $derived(presenter.getAvailableProfileSources(data));
-    const internalId = $derived(data.properties.InternalId as string | undefined);
-
+    const availableProfileSources = $derived(
+        presenter.getAvailableProfileSources(data),
+    );
+    const internalId = $derived(
+        data.properties.InternalId as string | undefined,
+    );
     const libraryPins = $derived(presenter.getLibraryPins(data));
 </script>
 
 <Card.Root class="w-80">
-    <Card.Content>
-        <IOHandles hostId={id} />
-    </Card.Content>
+    <ContextToggle
+        {contexts}
+        bind:selectedContext
+        onContextChange={handleContextChange}
+    />
+    <IOHandles hostId={id} />
     <Card.Header class="pb-2">
         <div class="flex items-center gap-3">
             {#if avatarUrl}
@@ -59,37 +82,36 @@
     </Card.Header>
     <Separator />
 
-    <!-- Player Profiles -->
-    <Card.Content class="pt-0">
-        <Accordion.Root type="single">
-            <Accordion.Item value="item-1">
-                <Accordion.Trigger>Profiles</Accordion.Trigger>
-                <Accordion.Content>
-                    <Accordion.Root type="multiple">
-                        {#each availableProfileSources as source}
-                            <Accordion.Item value={source}>
-                                <Accordion.Trigger>
-                                    {source}
-                                </Accordion.Trigger>
-                                <Accordion.Content>
-                                    {#each profilesBySource[source] as pin}
-                                        <div>
-                                            {pin.label}
-                                            {pin.summary.displayText}
-                                        </div>
-                                    {/each}
-                                </Accordion.Content>
-                            </Accordion.Item>
-                        {/each}
-                    </Accordion.Root>
-                </Accordion.Content>
-            </Accordion.Item>
-        </Accordion.Root>
-    </Card.Content>
+    {#if selectedContext === "all"}
+        <AllCard 
+            playerNode={data}   
+            {availableProfileSources}
+            onContextChange={handleContextChange}
+        />
+    {:else if selectedContext === "steam"}
+        <SteamCard 
+            playerNode={data}
+            {availableProfileSources}
+            {profilesBySource}
+        />
+    {:else if selectedContext === "epic"}
+        <EpicCard 
+            {availableProfileSources}
+            {profilesBySource}
+        />
+    {:else if selectedContext === "xbox"}
+        <XboxCard 
+            {availableProfileSources}
+            {profilesBySource}
+        />
+    {:else if selectedContext === "playstation"}
+        <PlayStationCard 
+            {availableProfileSources}
+            {profilesBySource}
+        />
+    {/if}
 
-    <Separator />
-
-    <Card.Content class="pt-0">
-        <PlayerLibrariesWidget {libraryPins} />
-    </Card.Content>
 </Card.Root>
+
+
+
