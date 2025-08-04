@@ -104,6 +104,26 @@ function addTempNode(nodeType: string, position: { x: number, y: number }) {
   return tempId;
 }
 
+function addGettingStartedNode() {
+  const gettingStartedNode: Node = {
+    id: "getting-started",
+    type: "gettingStarted",
+    position: { x: 100, y: 100 },
+    data: {
+      label: "Getting Started",
+      nodeType: "gettingStarted",
+      properties: {},
+      state: NodeState.Loaded,
+      pins: [],
+    }
+  };
+  
+  // Only add if it doesn't already exist
+  if (!state.nodes.find(n => n.id === "getting-started")) {
+    addNode(gettingStartedNode);
+  }
+}
+
 function updateNode(nodeId: string, updates: Partial<Node>) {
   state = {
     ...state,
@@ -279,6 +299,7 @@ export {
   fetchWithEndpoint,
   addNode, 
   addTempNode,
+  addGettingStartedNode,
   removeNode,
   addEdge,
   removeEdge,

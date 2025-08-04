@@ -1,20 +1,27 @@
 <script lang="ts">
   import { SvelteFlow, Background } from "@xyflow/svelte";
-  import { getState, fetchFromPin, fetchWithEndpoint, updateNode, addTempNode } from "../stores/graphState.svelte";
+  import { getState, fetchFromPin, fetchWithEndpoint, updateNode, addTempNode, addGettingStartedNode } from "../stores/graphState.svelte";
   import PlayerNode from "$lib/components/nodes/PlayerNode/PlayerNode.svelte";
   import LibraryNode from "./nodes/LibraryNode.svelte";
   import GraphHeader from "./GraphHeader.svelte";
   import type { OnConnectStartParams } from "@xyflow/svelte";
   import GameNode from "./nodes/GameNode.svelte";
+  import GettingStartedNode from "./nodes/GettingStartedNode.svelte";
   import { convertScreenToCanvas } from "$lib/util/convertScreenToCanvas";
   import CanvasContextMenu from "./CanvasContextMenu.svelte";
   import { CANVAS_CONTEXT_MENU_EVENTS } from "$lib/constants/canvasContextMenuEvents";
+  
+  // Initialize getting started node if graph is empty
+  if (getState().nodes.length === 0) {
+    addGettingStartedNode();
+  }
   // Register custom node types
   const nodeTypes = { 
     // default: CustomNode,
     player: PlayerNode,
     library: LibraryNode,
     GameNode: GameNode,
+    gettingStarted: GettingStartedNode,
   };
 
   // Events to handle pin expansion

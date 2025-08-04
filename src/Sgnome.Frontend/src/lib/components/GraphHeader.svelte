@@ -15,10 +15,9 @@
 
     // Create a test player node by calling the API
     async function handleAddTestPlayer() {
-        // Use the development helper to test with a canned endpoint
         fetchWithEndpoint("/api/player/select", {
             identifiers: {
-                steam: testSteamId,
+                steam: "76561197995791208",
             },
         });
     }
