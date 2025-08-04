@@ -91,6 +91,7 @@
     {:else if selectedContext === "steam"}
         <SteamCard 
             playerNode={data}
+            nodeId={id}
             {availableProfileSources}
             {profilesBySource}
         />
