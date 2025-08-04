@@ -29,7 +29,7 @@
     const presenter = new PlayerPresenter();
 
     // Extract player data from the node data properties
-    const displayName = $derived(presenter.getDisplayName(data));
+    const displayName = $derived(presenter.getFirstDisplayName(data));
     const libraryCount = $derived(presenter.getLibraryCount(data));
     const avatarUrl = $derived(presenter.getAvatarUrl(data));
     const profilesBySource = $derived(presenter.getProfilesBySource(data));

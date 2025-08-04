@@ -4,8 +4,11 @@
     import { PlayerPresenter } from "$lib/presenters/PlayerPresenter";
     import { Input } from "$lib/components/ui/input";
     import { Button } from "$lib/components/ui/button";
+    import { Badge } from "$lib/components/ui/badge";
+    import { KeyValueDisplay } from "$lib/components/ui/key-value-display";
     import { addSteamIdToPlayer } from "$lib/stores/graphState.svelte";
     import type { Pin } from "$lib/types/graph";
+    import { Separator } from "$lib/components/ui/separator";
 
     let {
         playerNode = $bindable({} as NodeData),
@@ -21,6 +24,7 @@
 
     const playerPresenter = new PlayerPresenter();
     let libraryPins = $derived(playerPresenter.getLibraryPins(playerNode));
+    let steamPlayerProfile = $derived(playerPresenter.getSteamPlayerProfile(playerNode));
     
     let steamId = $state("");
     let isSubmitting = $state(false);
@@ -76,14 +80,28 @@
             </div>
         </div>
     {:else}
-        <div class="space-y-3">
-            <h4 class="text-sm font-medium">Steam Profile</h4>
-            {#each profilesBySource["steam"] as pin}
-                <div class="text-sm">
-                    <span class="font-medium">{pin.label}:</span> {pin.summary.displayText}
-                </div>
-            {/each}
+    <div class="space-y-3">
+        <div class="space-y-1">
+            <h3 class="text-lg font-semibold">Steam Profile</h3>
+            
+            <KeyValueDisplay label="Profile URL">
+                <Button variant="link" href={steamPlayerProfile.profileUrl} class="justify-start p-0">
+                    <span class="truncate">{steamPlayerProfile.profileUrl}</span>
+                </Button>
+            </KeyValueDisplay>
+            
+            <KeyValueDisplay label="Created At" value={steamPlayerProfile.createdAt} />
+            
+            {#if steamPlayerProfile.status}
+                <KeyValueDisplay label="Status">
+                    <Badge variant={steamPlayerProfile.status === 'online' ? 'default' : 'secondary'}>
+                        {steamPlayerProfile.status}
+                    </Badge>
+                </KeyValueDisplay>
+            {/if}
         </div>
+        <Separator />
         <PlayerLibrariesWidget {libraryPins} />
+    </div>
     {/if}
-</Card.Content> 
+</Card.Content>
