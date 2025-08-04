@@ -2,6 +2,8 @@
 
 A gaming research tool that allows users to naturally explore relationships between games, developers, and publishers through an interactive graph interface.
 
+[Demo Here](https://sgnome-web-app.fly.dev)
+
 ## Architecture
 
 ### Monorepo Structure
