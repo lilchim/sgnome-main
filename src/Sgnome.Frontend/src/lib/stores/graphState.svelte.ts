@@ -272,6 +272,89 @@ async function fetchWithEndpoint(endpoint: string, parameters: Record<string, un
   }
 }
 
+// Generic function to add identifiers to any node type
+// If the current node is a temp node, it will be removed and replaced with the API response
+async function addIdentifiersToNode(
+  nodeId: string, 
+  endpoint: string, 
+  newIdentifiers: Record<string, string>
+) {
+  const node = state.nodes.find(n => n.id === nodeId);
+  if (!node) {
+    console.error('Node not found:', nodeId);
+    return;
+  }
+
+  try {
+    // Get existing identifiers from the node data if available
+    const existingIdentifiers = node.data.properties.Identifiers as Record<string, string> || {};
+    
+    // Merge existing and new identifiers
+    const allIdentifiers = {
+      ...existingIdentifiers,
+      ...newIdentifiers
+    };
+
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        identifiers: allIdentifiers,
+        x: Math.round(node.position.x),
+        y: Math.round(node.position.y)
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const graphResponse: GraphResponse = await response.json();
+    
+    // If this was a temp node, remove it and add the real node
+    if (nodeId.startsWith('temp-')) {
+      removeNode(nodeId);
+    }
+    
+    updateGraph(graphResponse);
+  } catch (error) {
+    console.error('Failed to add identifiers to node:', error);
+    
+    // Update node state to error
+    const errorNode = {
+      ...node,
+      data: { ...node.data, state: NodeState.Error }
+    };
+    updateNode(nodeId, errorNode);
+  }
+}
+
+async function addSteamIdToPlayer(nodeId: string, steamId: string) {
+  return addIdentifiersToNode(nodeId, '/api/player/select', { steam: steamId });
+}
+
+async function addEpicIdToPlayer(nodeId: string, epicId: string) {
+  return addIdentifiersToNode(nodeId, '/api/player/select', { epic: epicId });
+}
+
+async function addXboxIdToPlayer(nodeId: string, xboxId: string) {
+  return addIdentifiersToNode(nodeId, '/api/player/select', { xbox: xboxId });
+}
+
+async function addPlayStationIdToPlayer(nodeId: string, playStationId: string) {
+  return addIdentifiersToNode(nodeId, '/api/player/select', { playstation: playStationId });
+}
+
+async function addSteamAppIdToGame(nodeId: string, appId: string) {
+  return addIdentifiersToNode(nodeId, '/api/game/select', { 'storefront:steam': appId });
+}
+
+async function addRawgIdToGame(nodeId: string, rawgId: string) {
+  return addIdentifiersToNode(nodeId, '/api/game/select', { 'rawg:id': rawgId });
+}
+
 
 function getNode(nodeId: string): Node | undefined {
   return state.nodes.find(n => n.id === nodeId);
@@ -297,6 +380,13 @@ export {
   updateGraph, 
   fetchFromPin,
   fetchWithEndpoint,
+  addIdentifiersToNode,
+  addSteamIdToPlayer,
+  addEpicIdToPlayer,
+  addXboxIdToPlayer,
+  addPlayStationIdToPlayer,
+  addSteamAppIdToGame,
+  addRawgIdToGame,
   addNode, 
   addTempNode,
   addGettingStartedNode,
