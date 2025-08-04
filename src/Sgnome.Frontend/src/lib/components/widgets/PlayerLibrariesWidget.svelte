@@ -6,14 +6,16 @@
 
 <div>
     {#if libraryPins.length === 0}
-        No Libraries
+        <span class="text-lg font-semibold">No Libraries</span>
     {:else if libraryPins.length === 1}
-        Library
+        <span class="text-lg font-semibold">Library</span>
     {:else}
-        {libraryPins.length} Libraries
+        <span class="text-lg font-semibold">{libraryPins.length} Libraries</span
+        >
     {/if}
     {#each libraryPins as pin}
         <div class="flex items-center justify-between">
+            <span>{pin.summary.source}</span>
             <span>{pin.summary.displayText}</span>
             <Handle
                 type="source"
