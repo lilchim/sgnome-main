@@ -9,7 +9,7 @@ public class PlayerSelectRequest
     /// Internal ID of the player (if known)
     /// </summary>
     public string? InternalId { get; set; }
-    
+
     /// <summary>
     /// Dictionary of identifiers to resolve the player
     /// 
@@ -20,9 +20,21 @@ public class PlayerSelectRequest
     /// - "internalId" - Internal system ID (if known)
     /// </summary>
     public Dictionary<string, string> Identifiers { get; set; } = new();
-    
+
     /// <summary>
     /// ID of the node that originated this request (for context and edge generation)
     /// </summary>
     public string? OriginNodeId { get; set; }
-} 
+
+    /// <summary>
+    /// X position of the game node
+    /// Default to 0
+    /// </summary>
+    public int X { get; set; } = 0;
+
+    /// <summary>
+    /// Y position of the game node
+    /// Default to 0
+    /// </summary>
+    public int Y { get; set; } = 0;
+}

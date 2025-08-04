@@ -48,7 +48,7 @@ public class PlayerNodeController : ControllerBase
             var (playerPins, resolvedPlayer) = await _playerService.Consume(playerNode);
             
             // Create the graph node from the resolved player
-            var playerGraphNode = NodeBuilder.CreatePlayerNode(resolvedPlayer);
+            var playerGraphNode = NodeBuilder.CreatePlayerNode(resolvedPlayer, request.X, request.Y);
             
             // Get cross-domain pins from library service
             var libraryPins = await _libraryService.Consume(resolvedPlayer);
@@ -65,9 +65,6 @@ public class PlayerNodeController : ControllerBase
             var response = new GraphResponse
             {
                 Nodes = new List<Node> { playerGraphNode },
-                Edges = request.OriginNodeId != null
-                    ? new List<Edge> { EdgeBuilder.CreateEdge(request.OriginNodeId, playerGraphNode.Id, "expands_to", "Expands To") }
-                    : new List<Edge>(),
                 Metadata = new GraphMetadata
                 {
                     QueryType = "SelectPlayer",

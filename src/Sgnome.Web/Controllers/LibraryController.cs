@@ -51,7 +51,7 @@ public class LibraryController : ControllerBase
             var (pins, resolvedLibrary) = await _libraryService.Consume(partialLibrary);
 
             // Create the graph node from the resolved library
-            var libraryGraphNode = NodeBuilder.CreateLibraryNode(resolvedLibrary);
+            var libraryGraphNode = NodeBuilder.CreateLibraryNode(resolvedLibrary, request.X, request.Y);
             
             // Attach pins to the library node
             libraryGraphNode.Data.Pins.AddRange(pins);
@@ -66,9 +66,6 @@ public class LibraryController : ControllerBase
             var response = new GraphResponse
             {
                 Nodes = new List<Node> { libraryGraphNode },
-                Edges = request.OriginNodeId != null 
-                    ? new List<Edge> { EdgeBuilder.CreatePlayerToLibraryEdge(request.OriginNodeId, libraryGraphNode.Id) }
-                    : new List<Edge>(),
                 Metadata = new GraphMetadata
                 {
                     QueryType = "SelectLibrary",

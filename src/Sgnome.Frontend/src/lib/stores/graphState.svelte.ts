@@ -84,6 +84,26 @@ function addNode(node: Node) {
   }
 }
 
+function addTempNode(nodeType: string, position: { x: number, y: number }) {
+  const tempId = `temp-${nodeType}-${Date.now()}`;
+  
+  const tempNode: Node = {
+    id: tempId,
+    type: nodeType,
+    position,
+    data: {
+      label: `New ${nodeType}`,
+      nodeType: nodeType,
+      properties: {},
+      state: NodeState.Loading,
+      pins: [],
+    }
+  };
+  
+  addNode(tempNode);
+  return tempId;
+}
+
 function updateNode(nodeId: string, updates: Partial<Node>) {
   state = {
     ...state,
@@ -258,6 +278,7 @@ export {
   fetchFromPin,
   fetchWithEndpoint,
   addNode, 
+  addTempNode,
   removeNode,
   addEdge,
   removeEdge,

@@ -14,6 +14,7 @@ COPY src/Sgnome.Web/*.csproj ./src/Sgnome.Web/
 COPY src/Sgnome.Models/*.csproj ./src/Sgnome.Models/
 COPY src/services/PlayerService/*.csproj ./src/services/PlayerService/
 COPY src/services/LibraryService/*.csproj ./src/services/LibraryService/
+COPY src/services/GamesService/*.csproj ./src/services/GamesService/
 COPY src/Sgnome.Clients/*.csproj ./src/Sgnome.Clients/
 RUN dotnet restore
 

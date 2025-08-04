@@ -2,37 +2,37 @@
     import * as Card from "$lib/components/ui/card";
     import type { NodeData, Pin } from "$lib/types/graph";
     import IOHandles from "$lib/components/widgets/IOHandles.svelte";
+    import ContextToggle from "$lib/components/widgets/ContextToggle.svelte";
     import { GamePresenter } from "$lib/presenters/GamePresenter";
-    import * as Tabs from "$lib/components/ui/tabs";
-    import * as ToggleGroup from "$lib/components/ui/toggle-group";
 
     const { data, id } = $props<{ data: NodeData; id: string }>();
 
     const gamePresenter = new GamePresenter();
     const steamGameData = $derived(gamePresenter.getSteamGameData(data));
 
-    let selectedTab = $state("steam");
-    const setSelectedTab = (value: string) => {
-        selectedTab = value;
-    };
+    let selectedContext = $state("steam");
+    
+    const platforms = [
+        { value: "steam", label: "Steam" },
+        { value: "rawg", label: "RAWG" }
+    ];
+
+    function handleContextChange(context: string) {
+        selectedContext = context;
+    }
 </script>
 
 <Card.Root style="width: 480px;">
-    <div style="position: absolute; top: -18px; right: 16px;">
-        <ToggleGroup.Root
-            type="single"
-            value={selectedTab}
-            onValueChange={setSelectedTab}
-        >
-            <ToggleGroup.Item value="steam">Steam</ToggleGroup.Item>
-            <ToggleGroup.Item value="rawg">RAWG</ToggleGroup.Item>
-        </ToggleGroup.Root>
-    </div>
+    <ContextToggle 
+        contexts={platforms}
+        bind:selectedContext
+        onContextChange={handleContextChange}
+    />
     <IOHandles hostId={id}></IOHandles>
 
-    {#if selectedTab === "steam"}
+    {#if selectedContext === "steam"}
         {@render steamCard()}
-    {:else if selectedTab === "rawg"}
+    {:else if selectedContext === "rawg"}
         {@render rawgCard()}
     {/if}
 </Card.Root>
