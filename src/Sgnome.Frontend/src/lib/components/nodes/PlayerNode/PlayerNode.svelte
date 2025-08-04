@@ -19,8 +19,6 @@
         { value: "all", label: "All" },
         { value: "steam", label: "Steam" },
         { value: "epic", label: "Epic" },
-        { value: "xbox", label: "Xbox" },
-        { value: "playstation", label: "PlayStation" },
     ];
 
     let selectedContext = $state("all");
