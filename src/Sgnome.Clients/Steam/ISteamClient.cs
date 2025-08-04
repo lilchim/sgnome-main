@@ -1,4 +1,5 @@
 using SteamApi.Models.Steam.Responses;
+using SteamApi.Models.Steam.Store;
 
 namespace Sgnome.Clients.Steam;
 
@@ -37,5 +38,13 @@ public interface ISteamClient
     /// <param name="steamId">The Steam ID of the user</param>
     /// <param name="transform">Function to transform the response</param>
     /// <returns>Transformed result from the Steam API</returns>
-    Task<T> GetPlayerDetailsAsync<T>(string steamId, Func<OwnedGamesResponse, T> transform);
+    Task<T> GetPlayerDetailsAsync<T>(string steamId, Func<PlayerSummariesResponse, T> transform);
+
+    /// <summary>
+    /// Gets app details for a Steam app.
+    /// </summary>
+    /// <param name="appId">The Steam app ID</param>
+    /// <param name="transform">Function to transform the response</param>
+    /// <returns>Transformed result from the Steam API</returns>
+    Task<T> GetAppDetailsAsync<T>(string appId, Func<Dictionary<string, StoreAppDetailsResponse>, T> transform);
 } 

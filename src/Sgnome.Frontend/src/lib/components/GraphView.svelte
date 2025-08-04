@@ -1,87 +1,186 @@
 <script lang="ts">
-  import { SvelteFlow, Controls, Background } from '@xyflow/svelte';
-  import { getState, selectNodeCount, selectEdgeCount, fetchFromPin, fetchWithEndpoint, clearGraph } from '../stores/graphState.svelte';
-  import type { Node, Edge } from '../types/graph';
-  import { NodeState, PinBehavior, PinState } from '../types/graph';
-  import CustomNode from './CustomNode.svelte';
-
-  // Test data for development
-  const testSteamId = '76561197995791208';
-
-  function handleClearGraph() {
-    clearGraph();
-  }
-
-  // Create a test player node by calling the API
-  async function handleAddTestPlayer() {
-    // Use the development helper to test with a canned endpoint
-    fetchWithEndpoint('/api/player/select', {
-      player: {
-        steamId: testSteamId,
-        displayName: 'Test Player',
-        epicId: null,
-        identifiers: {}
-      }
-    });
-  }
-
-  // Handle pin expansion
-  function handleExpandPin(nodeId: string, pinId: string) {
-    fetchFromPin(nodeId, pinId);
-  }
-
+  import { SvelteFlow, Background } from "@xyflow/svelte";
+  import { getState, fetchFromPin, fetchWithEndpoint, updateNode, addTempNode } from "../stores/graphState.svelte";
+  import PlayerNode from "$lib/components/nodes/PlayerNode/PlayerNode.svelte";
+  import LibraryNode from "./nodes/LibraryNode.svelte";
+  import GraphHeader from "./GraphHeader.svelte";
+  import type { OnConnectStartParams } from "@xyflow/svelte";
+  import GameNode from "./nodes/GameNode.svelte";
+  import { convertScreenToCanvas } from "$lib/util/convertScreenToCanvas";
+  import CanvasContextMenu from "./CanvasContextMenu.svelte";
+  import { CANVAS_CONTEXT_MENU_EVENTS } from "$lib/constants/canvasContextMenuEvents";
   // Register custom node types
-  const nodeTypes = {
-    default: CustomNode
+  const nodeTypes = { 
+    // default: CustomNode,
+    player: PlayerNode,
+    library: LibraryNode,
+    GameNode: GameNode,
   };
 
-  // Handle custom node pin expansion
-  function handleCustomNodeExpand(event: CustomEvent<{ nodeId: string; pinId: string }>) {
-    fetchFromPin(event.detail.nodeId, event.detail.pinId);
+  // Events to handle pin expansion
+  let isConnecting = false; // Track if we're in a connection
+  let connectionStartData: OnConnectStartParams | null = null; // Stores connection start info
+
+  // Context menu state
+  let contextMenuOpen = $state(false);
+  let contextMenuPosition = $state({ x: 0, y: 0 });
+  let canvasPosition = $state({ x: 0, y: 0 });
+
+  const handleConnectStart = (
+    event: MouseEvent | TouchEvent,
+    connectionState: OnConnectStartParams | null,
+  ) => {
+    console.log("Connection started:", connectionState);
+    isConnecting = true;
+    connectionStartData = connectionState;
+  };
+
+  const handleConnectEnd = (
+    event: MouseEvent | TouchEvent,
+    connectionState: any,
+  ) => {
+    if (!isConnecting) {
+      return;
+    }
+
+    console.log("Connection ended:", connectionState);
+
+    // Check if we dropped in empty space (no target)
+    if (!connectionState?.toNode) {
+      const { clientX, clientY } =
+        "changedTouches" in event ? event.changedTouches[0] : event;
+
+      console.log("Dropped in empty space at:", { clientX, clientY });
+
+      // Convert screen coordinates to canvas coordinates
+      const { x: canvasX, y: canvasY } = convertScreenToCanvas(
+        clientX,
+        clientY,
+      );
+
+      // Get the pin data from the connection start
+      if (connectionStartData?.handleId && connectionStartData?.nodeId) {
+        const pinId = connectionStartData.handleId;
+        const nodeId = connectionStartData.nodeId;
+        console.log("fetching pin", nodeId, pinId);
+
+        fetchFromPin(nodeId, pinId, canvasX, canvasY);
+      }
+    }
+
+    // Reset connection state
+    isConnecting = false;
+    connectionStartData = null;
+  };
+
+  // Handler for xyflow "oncontextmenu" which fires when right clicking the canvas
+  function handleCanvasContextMenu(event: MouseEvent) {
+    event.preventDefault();
+    
+    const target = event.target as HTMLElement;
+    const isNode = target.closest('[data-id]') || target.closest('.svelte-flow__node');
+    
+    if (isNode) {
+      //TODO: A node-specific menu or...whatever can go here
+      return; 
+    }
+
+    openContextMenu(event);
   }
 
-  // Set up global event listener for custom node pin expansion
-  import { onMount } from 'svelte';
-  
-  onMount(() => {
-    const handlePinExpand = (event: CustomEvent<{ nodeId: string; pinId: string }>) => {
-      if (event.type === 'expandPin') {
-        fetchFromPin(event.detail.nodeId, event.detail.pinId);
-      }
-    };
-
-    document.addEventListener('expandPin', handlePinExpand as EventListener);
+  function openContextMenu(event: MouseEvent) {
+    event.preventDefault();
     
-    return () => {
-      document.removeEventListener('expandPin', handlePinExpand as EventListener);
-    };
-  });
+    const { clientX, clientY } = event;
+    const { x: canvasX, y: canvasY } = convertScreenToCanvas(clientX, clientY);
+    console.log(`open context menu at ${clientX}, ${clientY}`);
+    
+    // Set context menu position and canvas position
+    contextMenuPosition = { x: clientX, y: clientY };
+    canvasPosition = { x: canvasX, y: canvasY };
+    contextMenuOpen = true;
+  }
+
+  // Handle context menu actions
+  function handleContextMenuAction(action: string) {
+    console.log(`Action: ${action} at canvas position:`, $state.snapshot(canvasPosition));
+    const x = Math.round(canvasPosition.x);
+    const y = Math.round(canvasPosition.y);
+    
+    switch (action) {
+      case CANVAS_CONTEXT_MENU_EVENTS.ADD_NODE_PLAYER:
+        console.log('Add temp player at:', $state.snapshot(canvasPosition));
+        addTempNode('player', { x, y });
+        break;
+      case CANVAS_CONTEXT_MENU_EVENTS.CENTER_VIEW:
+        // TODO: Implement center view on position
+        console.log('Center view on:', $state.snapshot(canvasPosition));
+        break;
+      case CANVAS_CONTEXT_MENU_EVENTS.FIT_VIEW:
+        // TODO: Implement fit to view
+        console.log('Fit to view');
+        break;
+      case CANVAS_CONTEXT_MENU_EVENTS.CLEAR_GRAPH:
+        // TODO: Implement clear graph
+        console.log('Clear graph');
+        break;
+    }
+    
+    contextMenuOpen = false;
+  }
+
+  // update node position when dragging stops
+  function handleNodeDragStop(event: any) {
+    console.log('Node drag stopped:', event);
+    
+    if (event.nodes) {
+      event.nodes.forEach((node: any) => {
+        console.log(`Node ${node.id} moved to:`, node.position);
+        
+        // Update the node position in the store
+        updateNode(node.id, { position: node.position });
+      });
+    }
+  }
+
+  // Close context menu when clicking outside
+  function handleGlobalClick(event: MouseEvent) {
+    if (contextMenuOpen) {
+      contextMenuOpen = false;
+    }
+  }
 </script>
 
+<svelte:window on:click={handleGlobalClick} />
+
 <div class="graph-container">
-  <!-- Minimal controls -->
-  <div class="controls">
-    <div class="stats">
-      <span>Nodes: {selectNodeCount()}</span>
-      <span>Edges: {selectEdgeCount()}</span>
-    </div>
-    <div class="actions">
-      <button on:click={handleAddTestPlayer}>Add Test Player</button>
-      <button on:click={handleClearGraph}>Clear</button>
-    </div>
-  </div>
+  <GraphHeader />
 
   <!-- Graph view -->
   <div class="graph-view">
-    <SvelteFlow 
-      nodes={getState().nodes} 
+    <SvelteFlow
+      nodes={getState().nodes}
       edges={getState().edges}
-      nodeTypes={nodeTypes}
+      {nodeTypes}
+      onconnectstart={(event, connectionState) =>
+        handleConnectStart(event, connectionState)}
+      onconnectend={(event, connectionState) =>
+        handleConnectEnd(event, connectionState)}
+      oncontextmenu={handleCanvasContextMenu}
+      onnodedragstop={handleNodeDragStop}
+      minZoom={0.2}
     >
       <Background />
     </SvelteFlow>
   </div>
 </div>
+
+<!-- Canvas Context Menu -->
+<CanvasContextMenu 
+  bind:open={contextMenuOpen}
+  bind:position={contextMenuPosition}
+  onAction={handleContextMenuAction}
+/>
 
 <style>
   .graph-container {
@@ -91,81 +190,9 @@
     width: 100%;
   }
 
-  .controls {
-    padding: 8px 16px;
-    background: #f5f5f5;
-    border-bottom: 1px solid #ddd;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-shrink: 0;
-  }
-
-  .stats {
-    display: flex;
-    gap: 16px;
-    font-size: 14px;
-    color: #666;
-  }
-
-  .actions {
-    display: flex;
-    gap: 8px;
-  }
-
-  .actions button {
-    padding: 4px 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 12px;
-  }
-
   .graph-view {
     flex: 1;
     position: relative;
     min-height: 0;
   }
-
-  /* Make SvelteFlow fill the container */
-  :global(.svelte-flow) {
-    width: 100% !important;
-    height: 100% !important;
-  }
-
-  /* Ensure the viewport takes full space */
-  :global(.svelte-flow__viewport) {
-    width: 100% !important;
-    height: 100% !important;
-  }
-
-  /* Ensure the canvas takes full space */
-  :global(.svelte-flow__canvas) {
-    width: 100% !important;
-    height: 100% !important;
-  }
-
-  /* Ensure the background fills the viewport */
-  :global(.svelte-flow__background) {
-    width: 100% !important;
-    height: 100% !important;
-  }
-
-  /* Make nodes visible with basic styling */
-  :global(.svelte-flow__node) {
-    background: white;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    padding: 4px 8px;
-    min-width: 80px;
-    text-align: center;
-    font-size: 12px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  }
-
-  /* Make edges visible */
-  :global(.svelte-flow__edge-path) {
-    stroke: #007bff;
-    stroke-width: 2;
-  }
-</style> 
+</style>

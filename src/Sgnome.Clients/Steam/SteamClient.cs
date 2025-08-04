@@ -3,6 +3,7 @@ using SteamApi.Models.Steam.Responses;
 using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
 using System.Text.Json;
+using SteamApi.Models.Steam.Store;
 
 namespace Sgnome.Clients.Steam;
 
@@ -36,7 +37,7 @@ public class SteamClient : ISteamClient
     {
         var cacheKey = $"steam:owned-games:{steamId}";
         return await ExecuteWithCacheAsync<SteamResponse<OwnedGamesResponse>, T>(cacheKey, 
-            () => _apiClient.GetOwnedGamesAsync(steamId), 
+            () => _apiClient.GetOwnedGamesAsync(steamId, true, true), 
             response => response?.Response != null ? transform(response.Response) : transform(null));
     }
 
@@ -74,12 +75,26 @@ public class SteamClient : ISteamClient
     /// <param name="steamId">The Steam ID of the user</param>
     /// <param name="transform">Function to transform the response</param>
     /// <returns>Transformed result from the Steam API</returns>
-    public async Task<T> GetPlayerDetailsAsync<T>(string steamId, Func<OwnedGamesResponse, T> transform)
+    public async Task<T> GetPlayerDetailsAsync<T>(string steamId, Func<PlayerSummariesResponse, T> transform)
     {
-        var cacheKey = $"steam:player-details:{steamId}";
-        return await ExecuteWithCacheAsync<SteamResponse<OwnedGamesResponse>, T>(cacheKey,
-            () => _apiClient.GetOwnedGamesAsync(steamId), 
+        var cacheKey = $"steam:player-summary:{steamId}";
+        return await ExecuteWithCacheAsync<SteamResponse<PlayerSummariesResponse>, T>(cacheKey,
+            () => _apiClient.GetPlayerSummariesAsync(steamId), 
             response => response?.Response != null ? transform(response.Response) : transform(null));
+    }
+
+    /// <summary>
+    /// Gets app details for a Steam app.
+    /// </summary>
+    /// <param name="appId">The Steam app ID</param>
+    /// <param name="transform">Function to transform the response</param>
+    /// <returns>Transformed result from the Steam API</returns>
+    public async Task<T> GetAppDetailsAsync<T>(string appId, Func<Dictionary<string, StoreAppDetailsResponse>, T> transform)
+    {
+        var cacheKey = $"steam:app-details:{appId}";
+        return await ExecuteWithCacheAsync<Dictionary<string, StoreAppDetailsResponse>, T>(cacheKey,
+            () => _apiClient.GetStoreAppDetailsAsync(int.Parse(appId)),
+            response => response?.FirstOrDefault().Value != null ? transform(response) : transform(null));
     }
 
     /// <summary>
@@ -118,14 +133,14 @@ public class SteamClient : ISteamClient
             // Make API call
             _logger.LogDebug("Cache miss for key: {CacheKey}, making API call", cacheKey);
             var response = await apiCall();
-            
+
             if (response != null)
             {
                 // Cache the response
                 var responseJson = JsonSerializer.Serialize(response);
                 await database.StringSetAsync(cacheKey, responseJson, expiry);
                 _logger.LogDebug("Cached response for key: {CacheKey}", cacheKey);
-                
+
                 return transform(response);
             }
 

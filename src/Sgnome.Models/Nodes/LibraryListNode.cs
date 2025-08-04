@@ -30,10 +30,6 @@ public class LibraryListNode
     /// </summary>
     public string PlayerId { get; set; } = string.Empty;
     
-    /// <summary>
-    /// Display name for the library collection
-    /// </summary>
-    public string DisplayName { get; set; } = string.Empty;
     
     /// <summary>
     /// Maps library source to internal ID for efficient resolution
@@ -41,7 +37,6 @@ public class LibraryListNode
     /// </summary>
     public Dictionary<string, string> LibrarySourceMapping { get; set; } = new();
     
-
     
     /// <summary>
     /// Last time the library data was updated

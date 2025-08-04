@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Sgnome.Models.Nodes;
 using Sgnome.Models.Graph;
+using Sgnome.Models.Requests;
 using LibraryService;
+using GamesService;
 
 namespace Sgnome.Web.Controllers;
 
@@ -10,13 +12,16 @@ namespace Sgnome.Web.Controllers;
 public class LibraryController : ControllerBase
 {
     private readonly ILibraryService _libraryService;
-    private readonly ILogger<LibraryController> _logger;
+    private readonly IGamesService _gamesService;
+    private readonly ILogger<LibraryController> _logger;    
 
     public LibraryController(
         ILibraryService libraryService,
+        IGamesService gamesService,
         ILogger<LibraryController> logger)
     {
         _libraryService = libraryService;
+        _gamesService = gamesService;
         _logger = logger;
     }
 
@@ -40,25 +45,27 @@ public class LibraryController : ControllerBase
                 {
                     ["player"] = request.PlayerId
                 },
-                DisplayName = $"{request.LibrarySource} Library"
             };
 
             // Consume the library node using the service
             var (pins, resolvedLibrary) = await _libraryService.Consume(partialLibrary);
 
             // Create the graph node from the resolved library
-            var libraryGraphNode = NodeBuilder.CreateLibraryNode(resolvedLibrary);
+            var libraryGraphNode = NodeBuilder.CreateLibraryNode(resolvedLibrary, request.X, request.Y);
             
             // Attach pins to the library node
             libraryGraphNode.Data.Pins.AddRange(pins);
+
+            // Get Game Pins
+            var gamePins = await _gamesService.Consume(resolvedLibrary);
+
+            // Attach game pins to the library node
+            libraryGraphNode.Data.Pins.AddRange(gamePins);
 
             // Build the graph response
             var response = new GraphResponse
             {
                 Nodes = new List<Node> { libraryGraphNode },
-                Edges = request.OriginNodeId != null 
-                    ? new List<Edge> { EdgeBuilder.CreatePlayerToLibraryEdge(request.OriginNodeId, libraryGraphNode.Id) }
-                    : new List<Edge>(),
                 Metadata = new GraphMetadata
                 {
                     QueryType = "SelectLibrary",
@@ -115,7 +122,6 @@ public class LibraryListController : ControllerBase
             var partialLibraryList = new LibraryListNode
             {
                 PlayerId = request.PlayerId,
-                DisplayName = "Game Libraries",
                 LibrarySourceMapping = new Dictionary<string, string>() // Will be populated by service
             };
 
@@ -158,15 +164,4 @@ public class LibraryListController : ControllerBase
     }
 }
 
-public class LibrarySelectRequest
-{
-    public string PlayerId { get; set; } = string.Empty;
-    public string LibrarySource { get; set; } = string.Empty; // steam, epic, etc.
-    public string? OriginNodeId { get; set; } // Optional origin node for edge generation
-}
-
-public class LibraryListSelectRequest
-{
-    public string PlayerId { get; set; } = string.Empty;
-    public string? OriginNodeId { get; set; } // Optional origin node for edge generation
-} 
+ 

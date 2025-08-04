@@ -1,9 +1,8 @@
 using Sgnome.Models.Graph;
 using SteamApi.Client.Extensions;
 using PlayerService;
-using PlayerService.Providers;
 using LibraryService;
-using LibraryService.Database;
+using GamesService;
 using Sgnome.Clients.Steam;
 using StackExchange.Redis;
 
@@ -44,11 +43,13 @@ builder.Services.AddSteamApiClient(options =>
 builder.Services.AddSteamClient();
 
 // Add Player services
-builder.Services.AddScoped<ISteamPlayerProvider, SteamPlayerProvider>();
 builder.Services.AddPlayerService();
 
 // Add Library services
 builder.Services.AddLibraryService();
+
+// Add Games services
+builder.Services.AddGamesService();
 
 var app = builder.Build();
 

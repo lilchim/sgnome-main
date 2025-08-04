@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Sgnome.Models.Nodes;
 using Sgnome.Models.Graph;
+using Sgnome.Models.Requests;
 using PlayerService;
 using LibraryService;
 
@@ -36,11 +37,18 @@ public class PlayerNodeController : ControllerBase
     {
         try
         {
+            // Create a PlayerNode from the request
+            var playerNode = new PlayerNode
+            {
+                InternalId = request.InternalId,
+                Identifiers = request.Identifiers
+            };
+            
             // Consume the player node using the service (resolves and generates enrichment pins)
-            var (playerPins, resolvedPlayer) = await _playerService.Consume(request.Player);
+            var (playerPins, resolvedPlayer) = await _playerService.Consume(playerNode);
             
             // Create the graph node from the resolved player
-            var playerNode = NodeBuilder.CreatePlayerNode(resolvedPlayer);
+            var playerGraphNode = NodeBuilder.CreatePlayerNode(resolvedPlayer, request.X, request.Y);
             
             // Get cross-domain pins from library service
             var libraryPins = await _libraryService.Consume(resolvedPlayer);
@@ -51,15 +59,12 @@ public class PlayerNodeController : ControllerBase
             allPins.AddRange(libraryPins);
             
             // Attach pins to the player node
-            playerNode.Data.Pins.AddRange(allPins);
+            playerGraphNode.Data.Pins.AddRange(allPins);
             
             // Build the graph response
             var response = new GraphResponse
             {
-                Nodes = new List<Node> { playerNode },
-                Edges = request.OriginNodeId != null
-                    ? new List<Edge> { EdgeBuilder.CreateEdge(request.OriginNodeId, playerNode.Id, "expands_to", "Expands To") }
-                    : new List<Edge>(),
+                Nodes = new List<Node> { playerGraphNode },
                 Metadata = new GraphMetadata
                 {
                     QueryType = "SelectPlayer",
@@ -77,14 +82,10 @@ public class PlayerNodeController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error selecting player {PlayerId}", request.Player?.Identifiers);
+            _logger.LogError(ex, "Error selecting player {PlayerId}", request.InternalId ?? request.Identifiers.ToString());
             return BadRequest(new { error = "Failed to process player selection" });
         }
     }
 }
 
-public class PlayerSelectRequest
-{
-    public PlayerNode Player { get; set; } = new PlayerNode();
-    public string? OriginNodeId { get; set; } // Optional origin node for edge generation
-} 
+ 

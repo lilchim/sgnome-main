@@ -35,6 +35,7 @@ export interface PinSummary {
   displayText: string;
   count?: number;
   icon?: string;
+  source?: string;
   preview: Record<string, unknown>;
 }
 
@@ -60,6 +61,8 @@ export enum PinBehavior {
 export interface Edge {
   id: string;
   source: string;
+  sourceHandle: string;
+  targetHandle: string;
   target: string;
   type: string;
   data: EdgeData;

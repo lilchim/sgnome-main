@@ -1,6 +1,5 @@
 using Sgnome.Models.Graph;
 using Sgnome.Models.Nodes;
-using PlayerService.Providers;
 using PlayerService.Database;
 using PlayerService.PinGenerators;
 using Microsoft.Extensions.Logging;
@@ -11,21 +10,15 @@ public class PlayerService : IPlayerService
 {
     private readonly IPlayerDatabase _database;
     private readonly PlayerInfoPinGenerator _infoPinGenerator;
-    private readonly PlayerFriendsPinGenerator _friendsPinGenerator;
-    private readonly PlayerActivityPinGenerator _activityPinGenerator;
     private readonly ILogger<PlayerService> _logger;
 
     public PlayerService(
         IPlayerDatabase database,
         PlayerInfoPinGenerator infoPinGenerator,
-        PlayerFriendsPinGenerator friendsPinGenerator,
-        PlayerActivityPinGenerator activityPinGenerator,
         ILogger<PlayerService> logger)
     {
         _database = database;
         _infoPinGenerator = infoPinGenerator;
-        _friendsPinGenerator = friendsPinGenerator;
-        _activityPinGenerator = activityPinGenerator;
         _logger = logger;
     }
 
@@ -112,12 +105,10 @@ public class PlayerService : IPlayerService
         allPins.AddRange(infoPins);
         
         // Generate friends pins
-        var friendsPins = await _friendsPinGenerator.GeneratePinsAsync(player, context);
-        allPins.AddRange(friendsPins);
+
         
         // Generate activity pins
-        var activityPins = await _activityPinGenerator.GeneratePinsAsync(player, context);
-        allPins.AddRange(activityPins);
+
         
         return allPins;
     }

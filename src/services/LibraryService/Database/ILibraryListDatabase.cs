@@ -13,7 +13,7 @@ public interface ILibraryListDatabase
     /// <param name="playerId">The player's internal ID</param>
     /// <param name="displayName">Optional display name for new library lists</param>
     /// <returns>Resolved LibraryListNode with all mappings up to date</returns>
-    Task<LibraryListNode> ResolveLibraryListAsync(string playerId, string? displayName = null);
+    Task<LibraryListNode> ResolveLibraryListAsync(string playerId);
     
     /// <summary>
     /// Adds additional library source mappings to an existing library list

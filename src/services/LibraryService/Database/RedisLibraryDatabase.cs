@@ -24,7 +24,7 @@ public class RedisLibraryDatabase : ILibraryDatabase
     /// <summary>
     /// MegaUpsert: Get existing library, update with new identifiers, or create new library
     /// </summary>
-    public async Task<LibraryNode> ResolveLibraryAsync(Dictionary<string, string> identifiers, string librarySource, string? displayName = null)
+    public async Task<LibraryNode> ResolveLibraryAsync(Dictionary<string, string> identifiers, string librarySource)
     {
         _logger.LogDebug("Resolving library with {IdentifierCount} identifiers for {LibrarySource}", 
             identifiers.Count, librarySource);
@@ -44,9 +44,7 @@ public class RedisLibraryDatabase : ILibraryDatabase
         var newLibrary = new LibraryNode
         {
             LibrarySource = librarySource,
-            DisplayName = displayName ?? $"{librarySource} Library",
             Identifiers = new Dictionary<string, string>(identifiers), // Copy all identifiers
-            AvailableCategories = new List<string> { "recently-played", "owned-games" },
             LastUpdated = DateTime.UtcNow
         };
 
