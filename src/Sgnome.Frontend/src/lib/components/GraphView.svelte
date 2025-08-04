@@ -1,7 +1,7 @@
 <script lang="ts">
   import { SvelteFlow, Background } from "@xyflow/svelte";
-  import { getState, fetchFromPin, fetchWithEndpoint, updateNode } from "../stores/graphState.svelte";
-  import PlayerNode from "./nodes/PlayerNode.svelte";
+  import { getState, fetchFromPin, fetchWithEndpoint, updateNode, addTempNode } from "../stores/graphState.svelte";
+  import PlayerNode from "$lib/components/nodes/PlayerNode/PlayerNode.svelte";
   import LibraryNode from "./nodes/LibraryNode.svelte";
   import GraphHeader from "./GraphHeader.svelte";
   import type { OnConnectStartParams } from "@xyflow/svelte";
@@ -10,7 +10,7 @@
   import CanvasContextMenu from "./CanvasContextMenu.svelte";
   import { CANVAS_CONTEXT_MENU_EVENTS } from "$lib/constants/canvasContextMenuEvents";
   // Register custom node types
-  const nodeTypes = {
+  const nodeTypes = { 
     // default: CustomNode,
     player: PlayerNode,
     library: LibraryNode,
@@ -109,15 +109,8 @@
     
     switch (action) {
       case CANVAS_CONTEXT_MENU_EVENTS.ADD_NODE_PLAYER:
-        // TODO: Implement add node at position
-        console.log('Add player at:', $state.snapshot(canvasPosition));
-        fetchWithEndpoint("/api/player/select", {
-            identifiers: {
-                steam: "76561197995791208",
-            },
-            x,
-            y
-        });
+        console.log('Add temp player at:', $state.snapshot(canvasPosition));
+        addTempNode('player', { x, y });
         break;
       case CANVAS_CONTEXT_MENU_EVENTS.CENTER_VIEW:
         // TODO: Implement center view on position
