@@ -34,6 +34,14 @@ public static class PinConstants
             public const string SteamAppId = "game:steam-app-id";
             public const string GameName = "game:name";
             public const string HeaderImageUrl = "game:header-image-url";
+            public const string ReleaseDate = "game:release-date";
+            public const string Publisher = "game:publisher";
+            public const string Developer = "game:developer";
+            public const string Genre = "game:genre";
+            public const string Platform = "game:platform";
+            public const string Description_Short = "game:description-short";
+            public const string Description_Long = "game:description-long";
+            public const string Website = "game:website";   
         }
     }
 }

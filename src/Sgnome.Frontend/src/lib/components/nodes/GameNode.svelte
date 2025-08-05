@@ -4,6 +4,7 @@
     import IOHandles from "$lib/components/widgets/IOHandles.svelte";
     import ContextToggle from "$lib/components/widgets/ContextToggle.svelte";
     import { GamePresenter } from "$lib/presenters/GamePresenter";
+    import { KeyValueDisplay } from "$lib/components/ui/key-value-display";
 
     const { data, id } = $props<{ data: NodeData; id: string }>();
 
@@ -40,21 +41,30 @@
 {#snippet steamCard()}
     <img
         src={steamGameData?.headerImageUrl}
-        alt={steamGameData?.gameName}
+        alt={steamGameData?.name}
         style="width: 100%; height: 100%; object-fit: cover;"
     />
     <Card.Content>
-        <div class="flex flex-col gap-2">
-            <span>Name: {steamGameData?.gameName}</span>
-            <span>App ID: {steamGameData?.appId}</span>
-            <span>Release Date</span>
-            <span>Publisher</span>
-            <span>Developer</span>
-            <span>Genre</span>
-            <span>Platforms</span>
-            <span>Tags</span>
-            <span>Description</span>
-            <span>Website</span>
+        <div class="flex flex-col gap-3">
+            <KeyValueDisplay label="Name" value={steamGameData?.name} />
+            {#if steamGameData?.website}
+                <KeyValueDisplay label="Website" value={steamGameData.website} />
+            {/if}
+
+            <!-- <KeyValueDisplay label="App ID" value={steamGameData?.appId} /> -->
+            
+            <KeyValueDisplay label="Release Date" value={steamGameData?.releaseDate} />
+            
+            <KeyValueDisplay label="Publisher" value={steamGameData?.publishers.join(", ")} />
+            
+            <KeyValueDisplay label="Developer" value={steamGameData?.developers.join(", ")} />
+            
+            <KeyValueDisplay label="Genre" value={steamGameData?.genres.join(", ")} />
+            
+            <KeyValueDisplay label="Platforms" value={steamGameData?.platforms.join(", ")} />
+            
+            <KeyValueDisplay label="Description" value={steamGameData?.descriptionShort ?? steamGameData?.descriptionLong} />
+
         </div>
     </Card.Content>
 {/snippet}
