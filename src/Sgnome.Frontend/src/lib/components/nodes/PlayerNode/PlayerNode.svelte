@@ -12,6 +12,7 @@
     import EpicCard from "./EpicCard.svelte";
     import XboxCard from "./XboxCard.svelte";
     import PlayStationCard from "./PlayStationCard.svelte";
+    import { SteamIcon, EpicIcon, XboxIcon, PlayStationIcon } from "$lib/components/ui/icons";
 
     const { data, id } = $props<{ data: NodeData; id: string }>();
 
@@ -47,7 +48,25 @@
         {contexts}
         bind:selectedContext
         onContextChange={handleContextChange}
+        renderContexts={{
+            steam: steamIcon,
+            epic: epicIcon,
+            xbox: xboxIcon,
+            playstation: playstationIcon
+        }}
     />
+    {#snippet steamIcon()}
+        <SteamIcon size={16} class="text-blue-600" />
+    {/snippet}
+    {#snippet epicIcon()}
+        <EpicIcon size={16} class="text-purple-600" />
+    {/snippet}
+    {#snippet xboxIcon()}
+        <XboxIcon size={16} class="text-green-600" />
+    {/snippet}
+    {#snippet playstationIcon()}
+        <PlayStationIcon size={16} class="text-blue-500" />
+    {/snippet}
     <IOHandles hostId={id} />
     <Card.Header class="pb-2">
         <div class="flex items-center gap-3">
