@@ -3,6 +3,7 @@
     import { Separator } from "$lib/components/ui/separator";
     import PlayerLibrariesWidget from "$lib/components/widgets/PlayerLibrariesWidget.svelte";
     import { PlayerPresenter } from "$lib/presenters/PlayerPresenter";
+    import ExampleUsage from "$lib/components/ui/key-value-display/example-usage.svelte";
 
     let {
         playerNode = $bindable({} as Node),
@@ -18,7 +19,7 @@
     let libraryPins = $derived(playerPresenter.getLibraryPins(playerNode));
 </script>
 
-<Card.Content class="pt-4">
+<Card.Content>
     {#if availableProfileSources.length === 0}
         <div class="text-center py-4">
             <p class="text-sm text-muted-foreground mb-2">
@@ -60,8 +61,9 @@
             </div>
         </div>
     {:else}
+    <div class="space-y-3">
         <div class="space-y-3">
-            <h4 class="text-sm font-medium">Linked Platforms</h4>
+            <h4 class="text-lg font-semibold">Linked Platforms</h4>
             <div class="flex flex-wrap gap-2">
                 {#each availableProfileSources as source}
                     <button
@@ -114,8 +116,7 @@
         </div>
 
         <Separator />
-        <Card.Content class="pt-0">
-            <PlayerLibrariesWidget {libraryPins} />
-        </Card.Content>
+        <PlayerLibrariesWidget {libraryPins} />
+    </div>
     {/if}
 </Card.Content>

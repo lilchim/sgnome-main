@@ -141,10 +141,10 @@
 
 .pin-handle {
   position: relative !important;
-  background: #555 !important;
+  background: var(--chart-2) !important;
   width: 16px !important;
   height: 16px !important;
-  border: 2px solid white !important;
+  border: 2px solid var(--foreground) !important;
   transform: none !important;
 }
 
