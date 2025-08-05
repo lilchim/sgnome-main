@@ -3,7 +3,8 @@
     import { Separator } from "$lib/components/ui/separator";
     import PlayerLibrariesWidget from "$lib/components/widgets/PlayerLibrariesWidget.svelte";
     import { PlayerPresenter } from "$lib/presenters/PlayerPresenter";
-    import ExampleUsage from "$lib/components/ui/key-value-display/example-usage.svelte";
+    import { SteamIcon, EpicIcon, XboxIcon, PlayStationIcon } from "$lib/components/ui/icons";
+    import { Button } from "$lib/components/ui/button";
 
     let {
         playerNode = $bindable({} as Node),
@@ -33,30 +34,39 @@
                     Add platform accounts:
                 </p>
                 <div class="flex flex-wrap gap-2 justify-center">
-                    <button
-                        class="px-3 py-1 text-xs bg-secondary text-secondary-foreground rounded hover:bg-secondary/80"
+                    <Button variant="outline"
+                        size="sm"
+                        class="flex items-center gap-2"
                         onclick={() => onContextChange("steam")}
                     >
+                        <SteamIcon size={16} class="text-blue-600" />
                         Add Steam
-                    </button>
-                    <button
-                        class="px-3 py-1 text-xs bg-secondary text-secondary-foreground rounded hover:bg-secondary/80"
+                    </Button>
+                    <Button variant="outline"
+                        size="sm"
+                        class="flex items-center gap-2"
                         onclick={() => onContextChange("epic")}
                     >
+                        <EpicIcon size={16} class="text-purple-600" />
                         Add Epic
-                    </button>
-                    <button
-                        class="px-3 py-1 text-xs bg-secondary text-secondary-foreground rounded hover:bg-secondary/80"
+                    </Button>
+                    <Button variant="outline"
+                        size="sm"
+                        class="flex items-center gap-2"
                         onclick={() => onContextChange("xbox")}
-                    >
+                    >   
+                        <XboxIcon size={16} class="text-green-600" />
                         Add Xbox
-                    </button>
-                    <button
-                        class="px-3 py-1 text-xs bg-secondary text-secondary-foreground rounded hover:bg-secondary/80"
+                    </Button>
+                    <Button
+                        variant="outline"   
+                        size="sm"
+                        class="flex items-center gap-2"
                         onclick={() => onContextChange("playstation")}
                     >
+                        <PlayStationIcon size={16} class="text-blue-500" />
                         Add PlayStation
-                    </button>
+                    </Button>
                 </div>
             </div>
         </div>
@@ -80,36 +90,48 @@
                 </p>
                 <div class="flex flex-wrap gap-2">
                     {#if !availableProfileSources.includes("steam")}
-                        <button
-                            class="px-2 py-1 text-xs bg-secondary text-secondary-foreground rounded hover:bg-secondary/80"
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            class="flex items-center gap-2"
                             onclick={() => onContextChange("steam")}
                         >
+                            <SteamIcon size={16} class="text-blue-600" />
                             Add Steam
-                        </button>
+                        </Button>
                     {/if}
                     {#if !availableProfileSources.includes("epic")}
-                        <button
-                            class="px-2 py-1 text-xs bg-secondary text-secondary-foreground rounded hover:bg-secondary/80"
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            class="flex items-center gap-2"
                             onclick={() => onContextChange("epic")}
                         >
+                            <EpicIcon size={16} class="text-purple-600" />
                             Add Epic
-                        </button>
+                        </Button>
                     {/if}
                     {#if !availableProfileSources.includes("xbox")}
-                        <button
-                            class="px-2 py-1 text-xs bg-secondary text-secondary-foreground rounded hover:bg-secondary/80"
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            class="flex items-center gap-2"
                             onclick={() => onContextChange("xbox")}
                         >
+                            <XboxIcon size={16} class="text-green-600" />
                             Add Xbox
-                        </button>
+                        </Button>
                     {/if}
                     {#if !availableProfileSources.includes("playstation")}
-                        <button
-                            class="px-2 py-1 text-xs bg-secondary text-secondary-foreground rounded hover:bg-secondary/80"
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            class="flex items-center gap-2"
                             onclick={() => onContextChange("playstation")}
                         >
+                            <PlayStationIcon size={16} class="text-blue-500" />
                             Add PlayStation
-                        </button>
+                        </Button>
                     {/if}
                 </div>
             </div>

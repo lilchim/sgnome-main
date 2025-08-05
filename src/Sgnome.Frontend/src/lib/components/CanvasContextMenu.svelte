@@ -58,6 +58,15 @@
                     </Menubar.Item>
                 </Menubar.Content>
             </Menubar.Menu>
+
+            <Menubar.Menu>
+                <Menubar.Trigger onclick={(event) => event.stopPropagation()}>
+                    Debug
+                </Menubar.Trigger>
+                <Menubar.Content>
+                    <Menubar.Item onclick={(event) => handleAction(CANVAS_CONTEXT_MENU_EVENTS.ADD_NODE_DEBUG_PLATFORM_ICONS, event)}>Platform Icons</Menubar.Item>
+                </Menubar.Content>
+            </Menubar.Menu>
         </Menubar.Root>
     </div>
 {/if}
