@@ -24,6 +24,14 @@ export const PIN_CONSTANTS = {
             STEAM_APP_ID: 'game:steam-app-id',
             GAME_NAME: 'game:name',
             HEADER_IMAGE_URL: 'game:header-image-url',
+            RELEASE_DATE: 'game:release-date',
+            PUBLISHER: 'game:publisher',
+            DEVELOPER: 'game:developer',
+            GENRE: 'game:genre',
+            PLATFORM: 'game:platform',
+            DESCRIPTION_SHORT: 'game:description-short',
+            DESCRIPTION_LONG: 'game:description-long',
+            WEBSITE: 'game:website'
         }
     }
 } as const;
