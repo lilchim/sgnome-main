@@ -10,6 +10,7 @@
   import { convertScreenToCanvas } from "$lib/util/convertScreenToCanvas";
   import CanvasContextMenu from "./CanvasContextMenu.svelte";
   import { CANVAS_CONTEXT_MENU_EVENTS } from "$lib/constants/canvasContextMenuEvents";
+  import { DEBUG_NODE_TYPES } from "./nodes/debug/debugNodes";
   
   // Initialize getting started node if graph is empty
   if (getState().nodes.length === 0) {
@@ -22,7 +23,8 @@
     library: LibraryNode,
     GameNode: GameNode,
     gettingStarted: GettingStartedNode,
-  };
+    ...DEBUG_NODE_TYPES
+  }
 
   // Events to handle pin expansion
   let isConnecting = false; // Track if we're in a connection
@@ -118,6 +120,10 @@
       case CANVAS_CONTEXT_MENU_EVENTS.ADD_NODE_PLAYER:
         console.log('Add temp player at:', $state.snapshot(canvasPosition));
         addTempNode('player', { x, y });
+        break;
+      case CANVAS_CONTEXT_MENU_EVENTS.ADD_NODE_DEBUG_PLATFORM_ICONS:
+        console.log('Add temp debug platform icons at:', $state.snapshot(canvasPosition));
+        addTempNode('debugPlatformIcons', { x, y });
         break;
       case CANVAS_CONTEXT_MENU_EVENTS.CENTER_VIEW:
         // TODO: Implement center view on position

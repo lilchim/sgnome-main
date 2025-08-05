@@ -12,6 +12,12 @@
     import EpicCard from "./EpicCard.svelte";
     import XboxCard from "./XboxCard.svelte";
     import PlayStationCard from "./PlayStationCard.svelte";
+    import {
+        SteamIcon,
+        EpicIcon,
+        XboxIcon,
+        PlayStationIcon,
+    } from "$lib/components/ui/icons";
 
     const { data, id } = $props<{ data: NodeData; id: string }>();
 
@@ -29,8 +35,7 @@
     const presenter = new PlayerPresenter();
 
     // Extract player data from the node data properties
-    const displayName = $derived(presenter.getDisplayName(data));
-    const libraryCount = $derived(presenter.getLibraryCount(data));
+    const displayName = $derived(presenter.getFirstDisplayName(data));
     const avatarUrl = $derived(presenter.getAvatarUrl(data));
     const profilesBySource = $derived(presenter.getProfilesBySource(data));
     const availableProfileSources = $derived(
@@ -39,14 +44,32 @@
     const internalId = $derived(
         data.properties.InternalId as string | undefined,
     );
-    const libraryPins = $derived(presenter.getLibraryPins(data));
 </script>
+
+{#snippet steamIcon()}
+    <SteamIcon size={16} class="text-blue-600" />
+{/snippet}
+{#snippet epicIcon()}
+    <EpicIcon size={16} class="text-purple-600" />
+{/snippet}
+{#snippet xboxIcon()}
+    <XboxIcon size={16} class="text-green-600" />
+{/snippet}
+{#snippet playstationIcon()}
+    <PlayStationIcon size={16} class="text-blue-500" />
+{/snippet}
 
 <Card.Root class="w-80">
     <ContextToggle
         {contexts}
         bind:selectedContext
         onContextChange={handleContextChange}
+        renderContexts={{
+            steam: steamIcon,
+            epic: epicIcon,
+            xbox: xboxIcon,
+            playstation: playstationIcon,
+        }}
     />
     <IOHandles hostId={id} />
     <Card.Header class="pb-2">
@@ -81,36 +104,23 @@
     <Separator />
 
     {#if selectedContext === "all"}
-        <AllCard 
-            playerNode={data}   
+        <AllCard
+            playerNode={data}
             {availableProfileSources}
             onContextChange={handleContextChange}
         />
     {:else if selectedContext === "steam"}
-        <SteamCard 
+        <SteamCard
             playerNode={data}
             nodeId={id}
             {availableProfileSources}
             {profilesBySource}
         />
     {:else if selectedContext === "epic"}
-        <EpicCard 
-            {availableProfileSources}
-            {profilesBySource}
-        />
+        <EpicCard {availableProfileSources} {profilesBySource} />
     {:else if selectedContext === "xbox"}
-        <XboxCard 
-            {availableProfileSources}
-            {profilesBySource}
-        />
+        <XboxCard {availableProfileSources} {profilesBySource} />
     {:else if selectedContext === "playstation"}
-        <PlayStationCard 
-            {availableProfileSources}
-            {profilesBySource}
-        />
+        <PlayStationCard {availableProfileSources} {profilesBySource} />
     {/if}
-
 </Card.Root>
-
-
-
