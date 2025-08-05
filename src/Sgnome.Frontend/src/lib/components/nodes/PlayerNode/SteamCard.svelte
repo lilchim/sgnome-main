@@ -6,6 +6,7 @@
     import { Button } from "$lib/components/ui/button";
     import { Badge } from "$lib/components/ui/badge";
     import { KeyValueDisplay } from "$lib/components/ui/key-value-display";
+    import { SteamIcon } from "$lib/components/ui/icons";
     import { addSteamIdToPlayer } from "$lib/stores/graphState.svelte";
     import type { Pin } from "$lib/types/graph";
     import { Separator } from "$lib/components/ui/separator";
@@ -82,7 +83,10 @@
     {:else}
     <div class="space-y-3">
         <div class="space-y-1">
-            <h3 class="text-lg font-semibold">Steam Profile</h3>
+            <div class="flex items-center gap-2">
+                <SteamIcon size={20}/>
+                <h3 class="text-lg font-semibold">Steam Profile</h3>
+            </div>
             
             <KeyValueDisplay label="Profile URL">
                 <Button variant="link" href={steamPlayerProfile.profileUrl} class="justify-start p-0">
