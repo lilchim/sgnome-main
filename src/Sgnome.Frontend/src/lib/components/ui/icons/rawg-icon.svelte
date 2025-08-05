@@ -1,0 +1,24 @@
+<script lang="ts">
+    let {
+        size = $bindable(24),
+        class: className = $bindable("text-slate-300")
+    } = $props<{
+        size?: number;
+        class?: string;
+    }>();
+</script>
+
+<svg 
+    width={size} 
+    height={size} 
+    viewBox="0 0 127.000000 143.000000" 
+    fill="currentColor" 
+    class={className}
+    xmlns="http://www.w3.org/2000/svg" 
+    preserveAspectRatio="xMidYMid meet"
+>
+    <g transform="translate(0.000000,143.000000) scale(0.100000,-0.100000)">
+        <path d="M0 715 l0 -715 635 0 635 0 0 715 0 715 -635 0 -635 0 0 -715z m760 341 c45 -24 78 -54 96 -88 18 -34 18 -129 0 -171 -13 -33 -97 -117 -116 -117 -6 0 43 -67 110 -150 66 -82 120 -152 120 -155 0 -3 -42 -5 -94 -5 l-94 0 -103 135 -104 135 -47 0 -48 0 0 -135 0 -135 -80 0 -80 0 0 356 0 356 203 -4 c173 -3 207 -6 237 -22z"/>
+        <path d="M480 860 l0 -113 73 5 c40 3 86 11 102 19 60 29 72 141 18 176 -16 11 -54 18 -109 21 l-84 5 0 -113z"/>
+    </g>
+</svg> 
