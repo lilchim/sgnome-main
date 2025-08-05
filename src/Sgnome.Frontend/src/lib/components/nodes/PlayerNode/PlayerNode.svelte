@@ -31,7 +31,6 @@
 
     // Extract player data from the node data properties
     const displayName = $derived(presenter.getFirstDisplayName(data));
-    const libraryCount = $derived(presenter.getLibraryCount(data));
     const avatarUrl = $derived(presenter.getAvatarUrl(data));
     const profilesBySource = $derived(presenter.getProfilesBySource(data));
     const availableProfileSources = $derived(
@@ -40,7 +39,6 @@
     const internalId = $derived(
         data.properties.InternalId as string | undefined,
     );
-    const libraryPins = $derived(presenter.getLibraryPins(data));
 </script>
 
 <Card.Root class="w-80">

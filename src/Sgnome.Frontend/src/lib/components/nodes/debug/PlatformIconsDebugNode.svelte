@@ -3,6 +3,7 @@
     import ExampleUsage from "$lib/components/ui/icons/example-usage.svelte";
     import { Button } from "$lib/components/ui/button";
     import { removeNode } from "$lib/stores/graphState.svelte";
+    import type { NodeData } from "$lib/types/graph";
 
     const { data, id } = $props<{ data: NodeData; id: string }>();
 </script>
