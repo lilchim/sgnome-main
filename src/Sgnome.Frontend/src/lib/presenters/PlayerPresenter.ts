@@ -52,6 +52,16 @@ export class PlayerPresenter {
         return r;
     }
 
+    getRecentActivityPins({pins}: {pins: Pin[]}): Pin[] {
+        const gamePins = pins.filter(pin => pin.type === PIN_CONSTANTS.PIN_TYPES.GAME_PINS.GAME);
+        const gamePinsByTime = gamePins.sort((a, b) => {
+            const aTime = a.summary.preview['playtime-forever'] as number;
+            const bTime = b.summary.preview['playtime-forever'] as number;
+            return bTime - aTime;
+        });
+        return gamePinsByTime;
+    }
+
     getSteamPlayerProfile({pins}: {pins: Pin[]}): SteamPlayerProfile {
         const displayNamePin = pins.find(pin => pin.type === PIN_CONSTANTS.PIN_TYPES.PLAYER_INFO.DISPLAY_NAME);
         const realNamePin = pins.find(pin => pin.type === PIN_CONSTANTS.PIN_TYPES.PLAYER_INFO.REAL_NAME);
