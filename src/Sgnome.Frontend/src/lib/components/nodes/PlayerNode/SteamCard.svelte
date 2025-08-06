@@ -1,6 +1,7 @@
 <script lang="ts">
     import * as Card from "$lib/components/ui/card/index.js";
     import PlayerLibrariesWidget from "$lib/components/widgets/PlayerLibrariesWidget.svelte";
+    import PlayerRecentActivityWidget from "$lib/components/widgets/PlayerRecentActivity.svelte";
     import { PlayerPresenter } from "$lib/presenters/PlayerPresenter";
     import { Input } from "$lib/components/ui/input";
     import { Button } from "$lib/components/ui/button";
@@ -29,6 +30,7 @@
     let steamPlayerProfile = $derived(
         playerPresenter.getSteamPlayerProfile(playerNode),
     );
+    let recentActivityPins = $derived(playerPresenter.getRecentActivityPins(playerNode).filter(pin => pin.summary.source === "steam"));
 
     let steamId = $state("");
     let isSubmitting = $state(false);
@@ -121,6 +123,8 @@
                     value={steamPlayerProfile.createdAt}
                 />
             </div>
+            <Separator />
+            <PlayerRecentActivityWidget pins={recentActivityPins} />
             <Separator />
             <PlayerLibrariesWidget {libraryPins} />
         </div>
