@@ -2,6 +2,7 @@
     import * as Card from "$lib/components/ui/card/index.js";
     import { Separator } from "$lib/components/ui/separator";
     import PlayerLibrariesWidget from "$lib/components/widgets/PlayerLibrariesWidget.svelte";
+    import PlayerRecentActivityWidget from "$lib/components/widgets/PlayerRecentActivity.svelte";
     import { PlayerPresenter } from "$lib/presenters/PlayerPresenter";
     import { SteamIcon, EpicIcon, XboxIcon, PlayStationIcon } from "$lib/components/ui/icons";
     import { Button } from "$lib/components/ui/button";
@@ -18,6 +19,7 @@
 
     const playerPresenter = new PlayerPresenter();
     let libraryPins = $derived(playerPresenter.getLibraryPins(playerNode));
+    let recentActivityPins = $derived(playerPresenter.getRecentActivityPins(playerNode));
 </script>
 
 <Card.Content>
@@ -137,6 +139,8 @@
             </div>
         </div>
 
+        <Separator />
+        <PlayerRecentActivityWidget pins={recentActivityPins} />
         <Separator />
         <PlayerLibrariesWidget {libraryPins} />
     </div>

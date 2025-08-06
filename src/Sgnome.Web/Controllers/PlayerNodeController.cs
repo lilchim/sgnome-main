@@ -4,6 +4,7 @@ using Sgnome.Models.Graph;
 using Sgnome.Models.Requests;
 using PlayerService;
 using LibraryService;
+using GamesService;
 
 namespace Sgnome.Web.Controllers;
 
@@ -13,15 +14,18 @@ public class PlayerNodeController : ControllerBase
 {
     private readonly IPlayerService _playerService;
     private readonly ILibraryService _libraryService;
+    private readonly IGamesService _gamesService;
     private readonly ILogger<PlayerNodeController> _logger;
 
     public PlayerNodeController(
         IPlayerService playerService, 
         ILibraryService libraryService,
+        IGamesService gamesService,
         ILogger<PlayerNodeController> logger)
     {
         _playerService = playerService;
         _libraryService = libraryService;
+        _gamesService = gamesService;
         _logger = logger;
     }
 
@@ -52,11 +56,14 @@ public class PlayerNodeController : ControllerBase
             
             // Get cross-domain pins from library service
             var libraryPins = await _libraryService.Consume(resolvedPlayer);
+
+            var gamePins = await _gamesService.Consume(resolvedPlayer);
             
             // Combine all pins
             var allPins = new List<Pin>();
             allPins.AddRange(playerPins);
             allPins.AddRange(libraryPins);
+            allPins.AddRange(gamePins);
             
             // Attach pins to the player node
             playerGraphNode.Data.Pins.AddRange(allPins);

@@ -4,6 +4,7 @@ using GamesService.Database;
 using Microsoft.Extensions.Logging;
 using Sgnome.Clients.Steam;
 using GamesService.Actions;
+using Sgnome.Services.GamesService.Consumers;
 
 namespace GamesService;
 
@@ -12,17 +13,20 @@ public class GamesService : IGamesService
     private readonly IGamesDatabase _database;
     private readonly ILogger<GamesService> _logger;
     private readonly ISteamClient _steamClient;
+    private readonly PlayerNodeConsumer _playerNodeConsumer;
     private readonly GameNodeConsumer _gameNodeConsumer;
 
     public GamesService(
         IGamesDatabase database,
         ISteamClient steamClient,
         GameNodeConsumer gameNodeConsumer,
+        PlayerNodeConsumer playerNodeConsumer,
         ILogger<GamesService> logger)
     {
         _database = database;
         _steamClient = steamClient;
         _gameNodeConsumer = gameNodeConsumer;
+        _playerNodeConsumer = playerNodeConsumer;
         _logger = logger;
     }
 
@@ -60,25 +64,7 @@ public class GamesService : IGamesService
         }
     }
 
-    public async Task<IEnumerable<Pin>> Consume(PlayerNode player)
-    {
-        _logger.LogInformation("Consuming PlayerNode for game data");
-
-        try
-        {
-            var pins = new List<Pin>();
-
-            // For now, we don't have specific game-related pins for players
-            // This could be expanded to show favorite games, recently played, etc.
-
-            return pins;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error consuming PlayerNode for game data");
-            throw;
-        }
-    }
+    public async Task<IEnumerable<Pin>> Consume(PlayerNode player) => await _playerNodeConsumer.Consume(player);
 
     public async Task<IEnumerable<Pin>> Consume(GamesListNode gamesList)
     {

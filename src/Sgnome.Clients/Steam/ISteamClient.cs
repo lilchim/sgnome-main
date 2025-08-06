@@ -30,7 +30,7 @@ public interface ISteamClient
     /// <param name="steamId">The Steam ID of the user</param>
     /// <param name="transform">Function to transform the response</param>
     /// <returns>Transformed result from the Steam API</returns>
-    Task<T> GetRecentlyPlayedGamesAsync<T>(string steamId, Func<OwnedGamesResponse, T> transform);
+    Task<T> GetRecentlyPlayedGamesAsync<T>(string steamId, Func<RecentlyPlayedGamesResponse, T> transform);
 
     /// <summary>
     /// Gets player details for a Steam user.
