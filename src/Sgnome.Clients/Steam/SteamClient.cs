@@ -61,11 +61,11 @@ public class SteamClient : ISteamClient
     /// <param name="steamId">The Steam ID of the user</param>
     /// <param name="transform">Function to transform the response</param>
     /// <returns>Transformed result from the Steam API</returns>
-    public async Task<T> GetRecentlyPlayedGamesAsync<T>(string steamId, Func<OwnedGamesResponse, T> transform)
+    public async Task<T> GetRecentlyPlayedGamesAsync<T>(string steamId, Func<RecentlyPlayedGamesResponse, T> transform)
     {
         var cacheKey = $"steam:recently-played:{steamId}";
-        return await ExecuteWithCacheAsync<SteamResponse<OwnedGamesResponse>, T>(cacheKey,
-            () => _apiClient.GetOwnedGamesAsync(steamId), 
+        return await ExecuteWithCacheAsync<SteamResponse<RecentlyPlayedGamesResponse>, T>(cacheKey,
+            () => _apiClient.GetRecentlyPlayedGamesAsync(steamId), 
             response => response?.Response != null ? transform(response.Response) : transform(null));
     }
 
