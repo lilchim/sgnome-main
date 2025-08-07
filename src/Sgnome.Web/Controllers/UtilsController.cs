@@ -19,7 +19,8 @@ public class UtilsController : ControllerBase
     public async Task<ActionResult<string>> ResolveVanityUrl([FromQuery] string vanityUrl)
     {
         var response = await _steamClient.ResolveVanityUrlAsync(vanityUrl, response => response);
-        if (response.Success == 0)
+        // Steam Web API returns {"response":{"success":42,"message":"No match"}}
+        if (response.Success == 42)
         {
             return BadRequest($"No steam ID found for {vanityUrl}");
         }
