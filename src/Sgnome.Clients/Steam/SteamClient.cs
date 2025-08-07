@@ -97,6 +97,14 @@ public class SteamClient : ISteamClient
             response => response?.FirstOrDefault().Value != null ? transform(response) : transform(null));
     }
 
+    public async Task<T> ResolveVanityUrlAsync<T>(string vanityUrl, Func<VanityUrlResponse, T> transform)
+    {
+        var cacheKey = $"steam:vanity-url:{vanityUrl}";
+        return await ExecuteWithCacheAsync<SteamResponse<VanityUrlResponse>, T>(cacheKey,
+            () => _apiClient.ResolveVanityUrlAsync(vanityUrl),
+            response => response?.Response != null ? transform(response.Response) : transform(null));
+    }
+
     /// <summary>
     /// Executes an API call with Redis caching.
     /// </summary>

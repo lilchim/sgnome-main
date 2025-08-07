@@ -47,4 +47,12 @@ public interface ISteamClient
     /// <param name="transform">Function to transform the response</param>
     /// <returns>Transformed result from the Steam API</returns>
     Task<T> GetAppDetailsAsync<T>(string appId, Func<Dictionary<string, StoreAppDetailsResponse>, T> transform);
+
+    /// <summary>
+    /// Resolves a vanity URL to a Steam ID.
+    /// </summary>
+    /// <param name="vanityUrl">The vanity URL to resolve</param>
+    /// <param name="transform">Function to transform the response</param>
+    /// <returns>Transformed result from the Steam API</returns>
+    Task<T> ResolveVanityUrlAsync<T>(string vanityUrl, Func<VanityUrlResponse, T> transform);
 } 
