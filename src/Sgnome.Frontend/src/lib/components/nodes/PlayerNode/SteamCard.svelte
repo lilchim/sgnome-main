@@ -34,6 +34,35 @@
 
     let steamId = $state("");
     let isSubmitting = $state(false);
+    let vanityUrl = $state("");
+    let isResolvingVanityUrl = $state(false);
+    let vanityUrlError = $state("");
+
+    async function resolveVanityUrl() {
+        if (!vanityUrl.trim()) return;
+
+        isResolvingVanityUrl = true;
+        vanityUrlError = "";
+
+        try {
+            const response = await fetch(`/api/utils/steam/resolveVanityUrl?vanityUrl=${encodeURIComponent(vanityUrl.trim())}`);
+            
+            if (response.ok) {
+                const steamIdResult = await response.text();
+                steamId = steamIdResult;
+                // Automatically submit the Steam ID form
+                await handleSubmit();
+            } else {
+                const errorText = await response.text();
+                vanityUrlError = errorText || "Failed to resolve Steam vanity URL";
+            }
+        } catch (error) {
+            console.error("Failed to resolve vanity URL:", error);
+            vanityUrlError = "Failed to resolve Steam vanity URL";
+        } finally {
+            isResolvingVanityUrl = false;
+        }
+    }
 
     async function handleSubmit() {
         if (!steamId.trim()) return;
@@ -51,7 +80,7 @@
 
 <Card.Content class="pt-4">
     {#if !availableProfileSources.includes("steam")}
-        <div class="space-y-4">
+        <div class="space-y-6">
             <div class="text-center">
                 <p class="text-sm text-muted-foreground mb-2">
                     No Steam account linked
@@ -61,11 +90,44 @@
                 </p>
             </div>
 
+            <!-- Vanity URL Resolution Form -->
             <div class="space-y-3">
                 <div class="space-y-2">
-                    <label for="steam-id" class="text-sm font-medium"
-                        >Steam ID</label
-                    >
+                    <label for="vanity-url" class="text-sm font-medium">
+                        Steam Profile URL
+                    </label>
+                    <Input
+                        id="vanity-url"
+                        bind:value={vanityUrl}
+                        placeholder="https://steamcommunity.com/id/gabelogannewell or gabelogannewell)"
+                        onkeydown={(event) => {
+                            if (event.key === "Enter") {
+                                resolveVanityUrl();
+                            }
+                        }}
+                    />
+                    {#if vanityUrlError}
+                        <p class="text-xs text-red-500">{vanityUrlError}</p>
+                    {/if}
+                </div>
+
+                <Button
+                    onclick={resolveVanityUrl}
+                    disabled={!vanityUrl.trim() || isResolvingVanityUrl}
+                    class="w-full"
+                >
+                    {isResolvingVanityUrl ? "Resolving..." : "Resolve Steam ID"}
+                </Button>
+            </div>
+
+            <Separator />
+
+            <!-- Direct Steam ID Form -->
+            <div class="space-y-3">
+                <div class="space-y-2">
+                    <label for="steam-id" class="text-sm font-medium">
+                        Or enter Steam ID directly
+                    </label>
                     <Input
                         id="steam-id"
                         bind:value={steamId}
