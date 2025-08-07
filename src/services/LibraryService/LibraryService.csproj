@@ -8,8 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.0" />
-    <PackageReference Include="SteamApi.Client" Version="1.0.6" />
-    <PackageReference Include="SteamApi.Models" Version="1.0.6" />
+    <PackageReference Include="SteamApi.Models" Version="1.1.1" />
     <PackageReference Include="StackExchange.Redis" Version="2.7.17" />
   </ItemGroup>
 
